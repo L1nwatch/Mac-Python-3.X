@@ -1,0 +1,7 @@
+ItemID,Name,Description,Owner,Borrower,DateLent,DateReturned
+1,LawnMower,Small Hover mower,Fred,Joe,4/1/2012,4/26/2012
+2,LawnMower,Ride-on mower,Mike,Anne,9/5/2012,1/5/2013
+3,Bike,BMX bike,Joe,Rob,7/3/2013,7/22/2013
+4,Drill,Heavy duty hammer,Rob,Fred,11/19/2013,11/29/2013
+5,Scarifier,"Quality, stainless steel",Anne,Mike,12/5/2013,
+6,Sprinkler,Cheap but effective,Fred,,,
