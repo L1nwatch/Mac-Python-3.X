@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
+  <Author>Alan Gauld</Author>
+  <LastAuthor>Alan Gauld</LastAuthor>
+  <TotalTime>0</TotalTime>
+  <Created>2014-03-04T11:24:08Z</Created>
+  <Version>12.00</Version>
+ </DocumentProperties>
+ <ExcelWorkbook xmlns="urn:schemas-microsoft-com:office:excel">
+  <WindowHeight>8190</WindowHeight>
+  <WindowWidth>16380</WindowWidth>
+  <WindowTopX>0</WindowTopX>
+  <WindowTopY>0</WindowTopY>
+  <TabRatio>257</TabRatio>
+  <ProtectStructure>False</ProtectStructure>
+  <ProtectWindows>False</ProtectWindows>
+ </ExcelWorkbook>
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Bottom"/>
+   <Borders/>
+   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#000000"/>
+   <Interior/>
+   <NumberFormat/>
+   <Protection/>
+  </Style>
+  <Style ss:ID="s36">
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="3"/>
+   </Borders>
+   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#000000"
+    ss:Bold="1"/>
+  </Style>
+  <Style ss:ID="s37">
+   <NumberFormat ss:Format="Short Date"/>
+  </Style>
+ </Styles>
+ <Worksheet ss:Name="Sheet1">
+  <Table ss:ExpandedColumnCount="1025" ss:ExpandedRowCount="7" x:FullColumns="1"
+   x:FullRows="1" ss:DefaultRowHeight="15">
+   <Column ss:AutoFitWidth="0" ss:Width="36"/>
+   <Column ss:AutoFitWidth="0" ss:Width="65.25"/>
+   <Column ss:AutoFitWidth="0" ss:Width="86.25"/>
+   <Column ss:AutoFitWidth="0" ss:Width="45"/>
+   <Column ss:AutoFitWidth="0" ss:Width="67.5"/>
+   <Column ss:AutoFitWidth="0" ss:Width="56.25"/>
+   <Column ss:AutoFitWidth="0" ss:Width="68.25"/>
+   <Column ss:AutoFitWidth="0" ss:Width="36" ss:Span="1017"/>
+   <Row ss:StyleID="s36">
+    <Cell><Data ss:Type="String">ItemID</Data></Cell>
+    <Cell><Data ss:Type="String">Name</Data></Cell>
+    <Cell><Data ss:Type="String">Description</Data></Cell>
+    <Cell><Data ss:Type="String">Owner</Data></Cell>
+    <Cell><Data ss:Type="String">Borrower</Data></Cell>
+    <Cell><Data ss:Type="String">DateLent</Data></Cell>
+    <Cell><Data ss:Type="String">DateReturned</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">1</Data></Cell>
+    <Cell><Data ss:Type="String">LawnMower</Data></Cell>
+    <Cell><Data ss:Type="String">Small Hover mower</Data></Cell>
+    <Cell><Data ss:Type="String">Fred</Data></Cell>
+    <Cell><Data ss:Type="String">Joe</Data></Cell>
+    <Cell ss:StyleID="s37"><Data ss:Type="DateTime">2012-04-01T00:00:00.000</Data></Cell>
+    <Cell ss:StyleID="s37"><Data ss:Type="DateTime">2012-04-26T00:00:00.000</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">2</Data></Cell>
+    <Cell><Data ss:Type="String">LawnMower</Data></Cell>
+    <Cell><Data ss:Type="String">Ride-on mower</Data></Cell>
+    <Cell><Data ss:Type="String">Mike</Data></Cell>
+    <Cell><Data ss:Type="String">Anne</Data></Cell>
+    <Cell ss:StyleID="s37"><Data ss:Type="DateTime">2012-09-05T00:00:00.000</Data></Cell>
+    <Cell ss:StyleID="s37"><Data ss:Type="DateTime">2013-01-05T00:00:00.000</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">3</Data></Cell>
+    <Cell><Data ss:Type="String">Bike</Data></Cell>
+    <Cell><Data ss:Type="String">BMX bike</Data></Cell>
+    <Cell><Data ss:Type="String">Joe</Data></Cell>
+    <Cell><Data ss:Type="String">Rob</Data></Cell>
+    <Cell ss:StyleID="s37"><Data ss:Type="DateTime">2013-07-03T00:00:00.000</Data></Cell>
+    <Cell ss:StyleID="s37"><Data ss:Type="DateTime">2013-07-22T00:00:00.000</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">4</Data></Cell>
+    <Cell><Data ss:Type="String">Drill</Data></Cell>
+    <Cell><Data ss:Type="String">Heavy duty hammer</Data></Cell>
+    <Cell><Data ss:Type="String">Rob</Data></Cell>
+    <Cell><Data ss:Type="String">Fred</Data></Cell>
+    <Cell ss:StyleID="s37"><Data ss:Type="DateTime">2013-11-19T00:00:00.000</Data></Cell>
+    <Cell ss:StyleID="s37"><Data ss:Type="DateTime">2013-11-29T00:00:00.000</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">5</Data></Cell>
+    <Cell><Data ss:Type="String">Scarifier</Data></Cell>
+    <Cell><Data ss:Type="String">Quality, stainless steel</Data></Cell>
+    <Cell><Data ss:Type="String">Anne</Data></Cell>
+    <Cell><Data ss:Type="String">Mike</Data></Cell>
+    <Cell ss:StyleID="s37"><Data ss:Type="DateTime">2013-12-05T00:00:00.000</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">6</Data></Cell>
+    <Cell><Data ss:Type="String">Sprinkler</Data></Cell>
+    <Cell><Data ss:Type="String">Cheap but effective</Data></Cell>
+    <Cell><Data ss:Type="String">Fred</Data></Cell>
+   </Row>
+  </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <PageSetup>
+    <Header x:Margin="0.3"/>
+    <Footer x:Margin="0.3"/>
+    <PageMargins x:Bottom="0.3" x:Left="0.7" x:Right="0.7" x:Top="0.3"/>
+   </PageSetup>
+   <Selected/>
+   <ProtectObjects>False</ProtectObjects>
+   <ProtectScenarios>False</ProtectScenarios>
+  </WorksheetOptions>
+ </Worksheet>
+ <Worksheet ss:Name="Sheet2">
+  <Table ss:ExpandedColumnCount="1025" ss:ExpandedRowCount="1" x:FullColumns="1"
+   x:FullRows="1" ss:DefaultRowHeight="15">
+   <Column ss:AutoFitWidth="0" ss:Width="36" ss:Span="1024"/>
+  </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <PageSetup>
+    <Layout x:StartPageNumber="1"/>
+    <Header x:Margin="0.3"/>
+    <Footer x:Margin="0.3"/>
+    <PageMargins x:Bottom="0.3" x:Left="0.7" x:Right="0.7" x:Top="0.3"/>
+   </PageSetup>
+   <ProtectObjects>False</ProtectObjects>
+   <ProtectScenarios>False</ProtectScenarios>
+  </WorksheetOptions>
+ </Worksheet>
+ <Worksheet ss:Name="Sheet3">
+  <Table ss:ExpandedColumnCount="1025" ss:ExpandedRowCount="1" x:FullColumns="1"
+   x:FullRows="1" ss:DefaultRowHeight="15">
+   <Column ss:AutoFitWidth="0" ss:Width="36" ss:Span="1024"/>
+  </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <PageSetup>
+    <Header x:Margin="0.3"/>
+    <Footer x:Margin="0.3"/>
+    <PageMargins x:Bottom="0.3" x:Left="0.7" x:Right="0.7" x:Top="0.3"/>
+   </PageSetup>
+   <ProtectObjects>False</ProtectObjects>
+   <ProtectScenarios>False</ProtectScenarios>
+  </WorksheetOptions>
+ </Worksheet>
+</Workbook>
