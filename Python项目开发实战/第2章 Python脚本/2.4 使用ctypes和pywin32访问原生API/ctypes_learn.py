@@ -10,6 +10,11 @@ import string
 
 
 def main():
+    under_windows()
+    under_linux()
+
+
+def under_windows():
     libc = ct.cdll.msvcrt  # Windows only
     libc.printf(b"%d %s %s hanging on a wall\n", 6, b"green", b"bottles")
     libc.printf(b"Pi is: %f\n", ct.c_double(3.14159))
@@ -27,6 +32,11 @@ def main():
         mask = 1 << n  # use left bit shifting to build a mask
         if drive_list & mask:
             print(drives[n], "is available")
+
+
+def under_linux():
+    libc = ct.CDLL("libc.so.6")
+    libc.printf(b"My name is %s\n", b"Fred")
 
 
 if __name__ == "__main__":
