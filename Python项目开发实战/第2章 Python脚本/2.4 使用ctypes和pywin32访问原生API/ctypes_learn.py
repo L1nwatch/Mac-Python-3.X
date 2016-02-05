@@ -6,6 +6,7 @@
 __author__ = '__L1n__w@tch'
 
 import ctypes as ct
+import string
 
 
 def main():
@@ -15,11 +16,17 @@ def main():
 
     d = ct.c_int()
     print(d.value)
-    print(libc.sscanf(b"6",b"%d",ct.byref(d)))
+    print(libc.sscanf(b"6", b"%d", ct.byref(d)))
     print(d.value)
 
-    # 这个函数返回Windows系统上一个可用的驱动器列表，这一点使用Python标准库是不容易实现的。
+    # msvcrt_getdrives()函数返回Windows系统上一个可用的驱动器列表，这一点使用Python标准库是不容易实现的。
     # 唯一复杂的地方是返回的列表是一个位掩码。
+    drives = string.ascii_uppercase
+    drive_list = libc._getdrives()
+    for n in range(26):
+        mask = 1 << n  # use left bit shifting to build a mask
+        if drive_list & mask:
+            print(drives[n], "is available")
 
 
 if __name__ == "__main__":
