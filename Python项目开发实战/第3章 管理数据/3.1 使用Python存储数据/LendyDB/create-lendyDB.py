@@ -3,6 +3,7 @@
 # version: Python3.X
 ''' 代码将把工具借出电子表格中的数据转换为LendyDB的数据格式,并把它保存为三组DBM文件.
 然后,通过读取文件并打印内容,你将证实它可以正确工作
+Windows Only, 在Mac下运行不成功
 '''
 __author__ = '__L1n__w@tch'
 
