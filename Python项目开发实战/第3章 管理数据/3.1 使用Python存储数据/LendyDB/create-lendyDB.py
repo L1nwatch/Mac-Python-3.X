@@ -62,6 +62,27 @@ def read_db(db_name):
         db.close()
 
 
+def test_edit_db():
+    items = dbm.open("itemdb")
+    members = dbm.open("memberdb")
+    loans = dbm.open("loandb", "w")
+    loan2 = loans["2"].decode()
+    print(loan2)
+    loan2 = loan2.split(",")
+    print(loan2)
+    item2 = items[loan2[1]].decode().split(",")
+    print(item2)
+    member2 = members[loan2[2]].decode().split(",")
+    print(member2)
+    print("{} borrowed a {} on {}".format(member2[1], item2[1], loan2[3]))
+
+    print(max(loans.keys()).decode())  # 使用max()函数在loans数据库中查找已存键的最高值
+    key = int(max(loans.keys()).decode()) + 1
+    newloan = [str(key), "2", "1", "4/5/2014"]
+    loans[str(key)] = ",".join(newloan) # 创建新建
+    print(loans[str(key)])
+
+
 def main():
     print("Creating data files...")
     # 注意,你并没有提供任何文件扩展名,dbm自己做了这件事
@@ -76,6 +97,8 @@ def main():
     print(read_db("itemdb"))
     print(read_db("memberdb"))
     print(read_db("loandb"))
+
+    test_edit_db()
 
 
 if __name__ == "__main__":
