@@ -79,7 +79,7 @@ def test_edit_db():
     print(max(loans.keys()).decode())  # 使用max()函数在loans数据库中查找已存键的最高值
     key = int(max(loans.keys()).decode()) + 1
     newloan = [str(key), "2", "1", "4/5/2014"]
-    loans[str(key)] = ",".join(newloan) # 创建新建
+    loans[str(key)] = ",".join(newloan)  # 创建新建
     print(loans[str(key)])
 
 
