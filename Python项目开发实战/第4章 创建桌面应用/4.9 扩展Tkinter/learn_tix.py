@@ -3,6 +3,7 @@
 # version: Python3.X
 ''' 了解的小部件包括ComboBox、ScrolledText和Notebook
 直接在Mac下运行不了,好像是得安装tix组件?
+Windows下运行成功了
 '''
 __author__ = '__L1n__w@tch'
 
