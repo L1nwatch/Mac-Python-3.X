@@ -8,6 +8,9 @@
         如何设置字体
         如何使用state属性激活/停用小部件
         如何使用面向对象的技术创建GUI
+大部分工作都是在数据模块中完成的。毕竟，GUI应该只负责显示。你可能注意到这个应用没有核心逻辑层，那是因为你本质上只是在修改数据，没有涉及业务逻
+辑，所以不需要核心逻辑层。GUI只是直接调用数据层。通过把数据层暴露为一个API，允许在没有任何SQL引用的情况下编写GUI。这意味着可以将底层的
+SQLite的实现置换为Postgres或MySQL等，而API仍然保持不变，GUI页也不需要改变。
 '''
 __author__ = '__L1n__w@tch'
 
@@ -59,18 +62,22 @@ class LendingLibrary:
         mono_font = self.get_mono_font()
         nb = tix.NoteBook(top)
 
-        nb.add("itam_page", label="items", raisecmd=lambda pg="item": self.ev_page(pg))
+        nb.add("item_page", label="items", raisecmd=lambda pg="item": self.ev_page(pg))
         fr = tix.Frame(nb.subwidget("item_page"))
         self.item_fmt = "{:15} {:15} {:10} ${:<8} {:12}"
         tix.Label(fr, font=mono_font,
                   text=self.item_fmt.format("Name", "Description", "Owner", "Price", "Condition")).pack(anchor="w")
+        # 使用tix.ScrolledListBox而不是tix.ScrolledText小部件。使用ScrolledListBox小部件可以更加容易地选择行。
         slb = tix.ScrolledListBox(fr, width=500, height=200)
         slb.pack(fill="both", expand=True)
         fr.pack(fill="both", expand=True)
         self.item_list = slb.subwidget("listbox")
         self.item_list.configure(font=mono_font, bg="white")
+        # 使用bind()方法将鼠标左键双击链接到适当的编辑事件处理程序上。除了处理默认小部件的命令,bind()机制可以处理任意事件。
+        # 不同的是，回调函数必须接受一个事件参数并为参数设置了默认值None。这样普通的回调机制以及双击链接也可以使用它
         self.item_list.bind("<Double-1>", self.ev_edit_item)
 
+        # 事件处理程序都是自解释型的。在选中新的notebook页时，就会触发ev_page()处理程序。它只是为活动页面启动对应的菜单。
         nb.add("member_page", label="members", raisecmd=lambda pg="member": self.ev_page(pg))
         fr = tix.Frame(nb.subwidget("member_page"))
         self.member_fmt = "{:<15} {:<40}"
