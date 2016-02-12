@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block body %}
+{% if session.logged_in %}
+<!--在此传递了一个表单动作和方法.如果已经登录,可以设置表单来接收新物品并创建一个POST方法.这个方法随后会传给add_item URL,这是到
+test_flask.py文件中add_item函数的一个映射-->
+<form action="{{ url_for('add_item') }}" method=post class=add-item>
+    <dl>
+        <dt>Item Name:
+        <dd><input type=text size=30 name=name>
+        <dt>Item Description:
+        <dd><textarea name=description rows=2 cols=40></textarea>
+        <dt>Item Condition:
+        <dd><input type=text size=30 name=condition>
+        <dt>Item Price:
+        <dd><input type=text size=30 name=price>
+        <dt>Owner Name:
+        <dd><input type=text size=30 name=owner>
+        <dd><input type=submit value=Submit>
+    </dl>
+</form>
+{% endif %}
+<ul class=entries>
+    {% for item in items %}
+    <li class=”item_list”>
+        <h2>{{ item.name }}</h2>{{ item.description|safe }}
+
+        {% else %}
+    <li><em>There doesn’t seem to be anything here. Add some items, maybe?</em>
+        {% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,19 @@
+<!doctype html>
+<title>Inventory Of Things</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<div class=page>
+    <h1>Lendy</h1>
+    <div class=metanav>
+        {% if not session.logged_in %}
+        <a href="{{ url_for('login') }}">log in</a>
+        {% endif %}
+    </div>
+    {% for message in get_flashed_messages() %}
+    <div class=flash>{{ message }}</div>
+    {% endfor %}
+    {% block body %}{% endblock %}
+</div>
+<!--这个base.html就是基础模版.
+在处理模版时,通常有一个基础的HTML文件,它将保存网站的基本架构.这通常包括导航和页面设置的其它部分,这些部分在应用中不会发生改变.
+
+有了基础摸板之后,就可以开始创建其他页面了-->

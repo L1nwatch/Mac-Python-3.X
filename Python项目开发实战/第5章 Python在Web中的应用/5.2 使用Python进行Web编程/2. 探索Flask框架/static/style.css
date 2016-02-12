@@ -1,0 +1,75 @@
+body{
+	font-family: sans-serif; 
+	background: #fcfcfc; 
+}
+
+a, h1, h2{ 
+   color: #377b67; 
+}
+
+h1, h2{ 
+    font-family: 'Georgia', serif; 
+    margin: 0; 
+}
+
+h1{ 
+border-bottom: 2px solid #eee; 
+float: right;
+}
+
+h2{ 
+font-size: 1.2em; 
+}
+
+.page{ 
+       margin: 2em auto;	
+       width: 35em; 
+       border: 5px solid #fff;
+       padding: 0.8em; 
+}
+
+.inventory{
+	list-style: none; 
+	margin: 0; 
+	padding: 0; 
+}
+
+.inventory li{ 
+	   margin: 0.8em 1.2em; 
+}
+
+.inventory li h2{ 
+	   margin-left: -1em; 
+}
+
+.add-item{ 
+	   font-size: 0.9em; 
+	   border-bottom: 1px solid #ccc; 
+}
+
+.add-item dl{
+	  font-weight: bold; 
+}
+
+.metanav{ 
+	  text-align: right; 
+	  font-size: 0.8em; 
+	  padding: 0.3em;
+	  margin-bottom: 1em;
+	  background: #fafafa;
+} 
+
+.flash{ 
+	background: #cee5F5; 
+	padding: 0.5em;
+	border: 1px solid #aacbe2; 
+}
+
+.error{ 
+	background: #f0d6d6; 
+	padding: 0.5em; 
+}
+/*
+注意,为基础元素(body,h1,h2等)定义了一些基础风格.然后,定义了一些类(那些以点开始的行,点在CSS中表示类,而符号#表示ID名称)
+需要特别重视.flash类,这是Flask的一个特性.Flask通过flash在页面向用户显示错误消息或其他系统反馈的文本.
+*/
