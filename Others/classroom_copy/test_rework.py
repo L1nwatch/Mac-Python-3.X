@@ -62,7 +62,7 @@ class TestSir(unittest.TestCase):
             with open(os.path.join(self.src, "for_test", "test1"), "a") as f:
                 f.write("test" * 3)
             files_saver.ensure()
-            time.sleep(5)
+            time.sleep(wait_time)
             result = filecmp.dircmp(self.src, self.des).diff_files
             self.failIf(len(result) <= 0)
 
