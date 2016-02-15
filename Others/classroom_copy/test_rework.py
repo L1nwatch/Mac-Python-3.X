@@ -58,7 +58,7 @@ class TestSir(unittest.TestCase):
             self.failUnless(filecmp.cmp(file1, file2))
 
         def _test4():
-            shutil.copytree("for_test", self.src)
+            shutil.copytree("for_test", os.path.join(self.src,"for_test"))
             files_saver.ensure()
             with open(os.path.join(self.src, "for_test", "test1"), "a") as f:
                 f.write("test" * 3)
