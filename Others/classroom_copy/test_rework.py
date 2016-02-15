@@ -42,15 +42,18 @@ class TestSir(unittest.TestCase):
             self.failUnless(True)
 
         def _test3():
-            test_file = os.path.join("for_test", "just_a_file")
-            shutil.copy(test_file, self.src)
+            test_file = "just_a_file"
+            shutil.copy(os.path.join("for_test", test_file), self.src)
             files_saver.ensure()
-            with open(test_file, "a") as f:
+
+            file1 = os.path.join(self.src, test_file)
+            file2 = os.path.join(self.des, test_file)
+
+            with open(file1, "a") as f:
                 f.write("test" * 30)
             files_saver.ensure()
             time.sleep(self.wait_time)
-            file1 = os.path.join(self.src, test_file)
-            file2 = os.path.join(self.des, test_file)
+
             self.failUnless(filecmp.cmp(file1, file2))
 
         def _test4():
