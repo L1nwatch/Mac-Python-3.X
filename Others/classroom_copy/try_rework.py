@@ -33,16 +33,26 @@ class FilesSaver:
     def _needs_to_copy(self):
         pass
 
-    def _check(self, path):
+    def _check(self, file_name):
+        """
+        检查目标文件夹, 看是否需要复制path指向的文件, 需要则返回True
+        :param file_name: "C:\file.txt"
+        :return: True or False
+        """
         # 检查是否已经复制
-        for each_path in os.listdir(self.destination_path):
-            if path not in each_path:
-                return True
+        if file_name not in os.listdir(self.destination_path):
+            return True
 
         # 已复制, 则检查是否相同
-        if found:
-            pass
-
+        if os.path.isdir(file_name):
+            dir1 = os.path.join(self.source_path, file_name)
+            dir2 = os.path.join(self.destination_path, file_name)
+            result = filecmp.dircmp(dir1, dir2)
+            return len(result.left_only) > 0 or len(result.diff_files) > 0
+        else:
+            file1 = os.path.join(self.source_path, file_name)
+            file2 = os.path.join(self.destination_path, file_name)
+            return filecmp.cmp(file1, file2)
 
     def ensure(self):
         """
@@ -51,12 +61,12 @@ class FilesSaver:
         """
         self._ensure_dir_exists()
         wait_to_check = set(os.listdir(self.source_path)) - self.retain_files
-        for each_path in wait_to_check:
-            if self._check(each_path):
-                if os.path.isdir(each_path):
-                    shutil.copytree(each_path, self.destination_path)
+        for file_name in wait_to_check:
+            if self._check(file_name):
+                if os.path.isdir(file_name):
+                    shutil.copytree(file_name, self.destination_path)
                 else:
-                    shutil.copy(each_path, self.destination_path)
+                    shutil.copy(file_name, self.destination_path)
 
     def delete(self):
         """
