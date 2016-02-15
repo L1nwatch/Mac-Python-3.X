@@ -89,18 +89,15 @@ class TestSir(unittest.TestCase):
 
         # case: 有文件复制到了源文件夹
         _test1()
-
-        # case: 源文件夹中, retention文件列表中的文件被删除了
-        _test2()
-
-        # case: 源文件夹中, 非retention文件发生了改变
-        _test3()
-
-        # case: 源文件夹中, 非retention文件夹中的文件发生了改变
-        _test4()
-
         # case: 有文件夹复制到了源文件夹
         _test5()
+
+        # TODO case: 源文件夹中, retention文件列表中的文件被删除了
+        _test2()
+        # case: 源文件夹中, 非retention文件发生了改变
+        _test3()
+        # case: 源文件夹中, 非retention文件夹中的文件发生了改变
+        _test4()
 
     def test_files_saver_delete(self):
         files_saver = FilesSaver(self.src, self.des, self.retention)
