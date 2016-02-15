@@ -30,9 +30,6 @@ class FilesSaver:
         if not os.path.exists(self.destination_path):
             os.mkdir(self.destination_path)
 
-    def _needs_to_copy(self):
-        pass
-
     def _check(self, file_name):
         """
         检查目标文件夹, 看是否需要复制path指向的文件, 需要则返回True
@@ -78,7 +75,7 @@ class FilesSaver:
                 if os.path.isdir(file):
                     shutil.rmtree(file)
                 else:
-                    os.remove(os.path.join(self.source_path,file))
+                    os.remove(os.path.join(self.source_path, file))
 
 
 def main():
