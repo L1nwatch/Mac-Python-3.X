@@ -6,7 +6,7 @@
 实现: 当教室电脑刚开机时, 进行检查, 如果文件已经复制, 就删除掉; 否则进行复制操作
 当教室电脑待机时, 每隔 60s 检查桌面是否有新文件复制进来, 如果有, 则进行复制操作; 否则什么都不做
 
-本程序从 goodgoodstudy.ini 中读取配置
+TODO 本程序从 goodgoodstudy.ini 中读取配置
 '''
 __author__ = '__L1n__w@tch'
 
@@ -78,7 +78,7 @@ class FilesSaver:
                 if os.path.isdir(file):
                     shutil.rmtree(file)
                 else:
-                    os.remove(file)
+                    os.remove(os.path.join(self.source_path,file))
 
 
 def main():
