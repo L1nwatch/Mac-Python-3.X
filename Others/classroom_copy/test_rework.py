@@ -29,26 +29,27 @@ class TestSir(unittest.TestCase):
 
     def test_files_saver_ensure(self):
         def _test1():
-            shutil.copy("try_rework.py", self.src)
+            test_file = "for_test/just_a_file"
+            shutil.copy(test_file, self.src)
             files_saver.ensure()
             time.sleep(self.wait_time)
             files = os.listdir(self.des)
-            self.failUnless("try_rework.py" in files)
+            self.failUnless(test_file in files)
 
         def _test2():
             # TODO
             self.failUnless(True)
 
         def _test3():
-            test_file_name = "rework_files_copy.py"
-            shutil.copy(test_file_name, self.src)
+            test_file = "for_test/just_a_file"
+            shutil.copy(test_file, self.src)
             files_saver.ensure()
-            with open(test_file_name, "a") as f:
+            with open(test_file, "a") as f:
                 f.write("test" * 30)
             files_saver.ensure()
             time.sleep(self.wait_time)
-            file1 = os.path.join(self.src, test_file_name)
-            file2 = os.path.join(self.des, test_file_name)
+            file1 = os.path.join(self.src, test_file)
+            file2 = os.path.join(self.des, test_file)
             self.failUnless(filecmp.cmp(file1, file2))
 
         def _test4():
@@ -78,7 +79,7 @@ class TestSir(unittest.TestCase):
     def test_files_saver_delete(self):
         files_saver = FilesSaver(self.src, self.des, self.retention)
 
-        test_file = "test_rework.py"
+        test_file = "for_test/just_a_file"
         shutil.copy(test_file, self.src)
         files_saver.delete()
         self.failIf(test_file in os.listdir(self.src))
