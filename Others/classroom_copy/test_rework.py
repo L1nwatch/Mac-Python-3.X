@@ -16,7 +16,7 @@ import time
 test_src = r"C:\Users\L1n\Desktop"
 test_des = r"D:\goodgoodstudy"
 retention = {'desktop.ini', 'Software', 'Study.lnk', '小Q屏幕截图.lnk'}
-wait_time = 0.5
+wait_time = 1
 
 
 class TestSir(unittest.TestCase):
@@ -51,8 +51,9 @@ class TestSir(unittest.TestCase):
 
             with open(file1, "a") as f:
                 f.write("test" * 30)
-            files_saver.ensure()
             time.sleep(self.wait_time)
+
+            files_saver.ensure()
 
             self.failUnless(filecmp.cmp(file1, file2))
 
