@@ -8,6 +8,7 @@
 
 本程序从 configure.json 中读取配置
 '''
+# TODO 当retention文件被删除时,不提供恢复功能
 __author__ = '__L1n__w@tch'
 
 import time
