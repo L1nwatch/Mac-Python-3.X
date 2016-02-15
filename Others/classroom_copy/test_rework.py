@@ -29,12 +29,13 @@ class TestSir(unittest.TestCase):
 
     def test_files_saver_ensure(self):
         def _test1():
+            test_file_name = "just_a_file"
             test_file = os.path.join(os.curdir, "for_test", "just_a_file")
             shutil.copy(test_file, self.src)
             files_saver.ensure()
             time.sleep(self.wait_time)
             files = os.listdir(self.des)
-            self.failUnless(test_file in files)
+            self.failUnless(test_file_name in files)
 
         def _test2():
             # TODO
