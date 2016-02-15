@@ -85,7 +85,7 @@ class TestSir(unittest.TestCase):
             result = filecmp.dircmp(src_dir, des_dir)
             self.failIf(len(result.diff_files) > 0 or len(result.left_only) > 0)
 
-        files_saver = FilesSaver(self.src, self.des, self.retention)
+        files_saver = FilesSaver("test_configure.json")
 
         # case: 有文件复制到了源文件夹
         _test1()
