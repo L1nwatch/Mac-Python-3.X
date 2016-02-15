@@ -33,7 +33,7 @@ class FilesSaver:
     def _check(self, file_name):
         """
         检查目标文件夹, 看是否需要复制path指向的文件, 需要则返回True
-        :param file_name: "C:\file.txt"
+        :param file_name: "file.txt"
         :return: True or False
         """
         # 检查是否已经复制
@@ -41,15 +41,13 @@ class FilesSaver:
             return True
 
         # 已复制, 则检查是否相同
-        if os.path.isdir(file_name):
-            dir1 = os.path.join(self.source_path, file_name)
-            dir2 = os.path.join(self.destination_path, file_name)
-            result = filecmp.dircmp(dir1, dir2)
+        path1 = os.path.join(self.source_path, file_name)
+        path2 = os.path.join(self.destination_path, file_name)
+        if os.path.isdir(path1):
+            result = filecmp.dircmp(path1, path2)
             return len(result.left_only) > 0 or len(result.diff_files) > 0
         else:
-            file1 = os.path.join(self.source_path, file_name)
-            file2 = os.path.join(self.destination_path, file_name)
-            return filecmp.cmp(file1, file2)
+            return filecmp.cmp(path1, path2)
 
     def ensure(self):
         """
@@ -60,10 +58,11 @@ class FilesSaver:
         wait_to_check = set(os.listdir(self.source_path)) - self.retain_files
         for file_name in wait_to_check:
             if self._check(file_name):
+                path = os.path.join(self.source_path, file_name)
                 if os.path.isdir(file_name):
-                    shutil.copytree(file_name, self.destination_path)
+                    shutil.copytree(path, self.destination_path)
                 else:
-                    shutil.copy(file_name, self.destination_path)
+                    shutil.copy(path, self.destination_path)
 
     def delete(self):
         """
@@ -72,10 +71,11 @@ class FilesSaver:
         """
         for file in os.listdir(self.source_path):
             if file not in self.retain_files:
-                if os.path.isdir(file):
-                    shutil.rmtree(file)
+                path = os.path.join(self.source_path, file)
+                if os.path.isdir(path):
+                    shutil.rmtree(path)
                 else:
-                    os.remove(os.path.join(self.source_path, file))
+                    os.remove(path)
 
 
 def main():
