@@ -72,7 +72,7 @@ class TestSir(unittest.TestCase):
             files_saver.ensure()
             time.sleep(wait_time)
             result = filecmp.dircmp(src_dir, des_dir).diff_files
-            self.failIf(len(result) <= 0)
+            self.failIf(len(result) > 0)
 
         def _test5():
             dir_name = "for_test"
