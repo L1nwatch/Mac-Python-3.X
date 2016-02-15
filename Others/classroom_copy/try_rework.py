@@ -48,7 +48,7 @@ class FilesSaver:
             result = filecmp.dircmp(path1, path2)
             return len(result.left_only) > 0 or len(result.diff_files) > 0
         else:
-            return not filecmp.cmp(path1, path2)
+            return filecmp.cmp(path1, path2) is False
 
     def ensure(self):
         """
