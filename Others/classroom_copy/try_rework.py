@@ -61,7 +61,7 @@ class FilesSaver:
             if self._check(file_name):
                 path = os.path.join(self.source_path, file_name)
                 if os.path.isdir(path):
-                    distutils.dir_util.copy_tree(path, self.destination_path)
+                    distutils.dir_util.copy_tree(path, os.path.join(self.destination_path, file_name))
                 else:
                     shutil.copy(path, self.destination_path)
 
