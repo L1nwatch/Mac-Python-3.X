@@ -14,6 +14,7 @@ import time
 import os
 import shutil
 import filecmp
+import distutils.dir_util
 
 source = r"C:\Users\Administrator.hp-PC\Desktop"
 destination = r"E:\goodgoodstudy"
@@ -59,8 +60,8 @@ class FilesSaver:
         for file_name in wait_to_check:
             if self._check(file_name):
                 path = os.path.join(self.source_path, file_name)
-                if os.path.isdir(file_name):
-                    shutil.copytree(path, os.path.join(self.destination_path,file_name))
+                if os.path.isdir(path):
+                    distutils.dir_util.copy_tree(path, self.destination_path)
                 else:
                     shutil.copy(path, self.destination_path)
 

@@ -2,11 +2,14 @@
 # -*- coding: utf-8 -*-
 # version: Python3.X
 ''' 对自己写的拷贝程序进行单元测试
+
+distutils.dir_util.copy_tree没法覆盖复制的问题,参考:http://stackoverflow.com/questions/12683834/how-to-copy-directory-recursively-in-python-and-overwrite-all
+解决方法是用distutils.dir_util中的copy_tree替代
 '''
 __author__ = '__L1n__w@tch'
 
 import unittest
-import random
+import distutils.dir_util
 import os
 import shutil
 from try_rework import FilesSaver
@@ -58,20 +61,24 @@ class TestSir(unittest.TestCase):
             self.failUnless(filecmp.cmp(file1, file2))
 
         def _test4():
-            shutil.copytree("for_test", os.path.join(self.src, "for_test"))
+            dir_name = "for_test"
+            src_dir = os.path.join(self.src, "for_test")
+            des_dir = os.path.join(self.des, "for_test")
+            distutils.dir_util.copy_tree(dir_name, src_dir)
+
             files_saver.ensure()
-            with open(os.path.join(self.src, "for_test", "test1"), "a") as f:
+            with open(os.path.join(src_dir, "test1"), "a") as f:
                 f.write("test" * 3)
             files_saver.ensure()
             time.sleep(wait_time)
-            result = filecmp.dircmp(self.src, self.des).diff_files
+            result = filecmp.dircmp(src_dir, des_dir).diff_files
             self.failIf(len(result) <= 0)
 
         def _test5():
             dir_name = "for_test"
             src_dir = os.path.join(self.src, "for_test")
             des_dir = os.path.join(self.des, "for_test")
-            shutil.copytree(dir_name, src_dir)
+            distutils.dir_util.copy_tree(dir_name, src_dir)
 
             files_saver.ensure()
 
