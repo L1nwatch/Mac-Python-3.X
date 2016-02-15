@@ -6,7 +6,10 @@
 实现: 当教室电脑刚开机时, 进行检查, 如果文件已经复制, 就删除掉; 否则进行复制操作
 当教室电脑待机时, 每隔 60s 检查桌面是否有新文件复制进来, 如果有, 则进行复制操作; 否则什么都不做
 
-TODO 本程序从 goodgoodstudy.ini 中读取配置
+TODO 本程序从 configure.json 中读取配置
+source = r"C:\Users\Administrator.hp-PC\Desktop"
+destination = r"E:\good_good_study"
+retention_files = {"Software", "网安Subjects", "MathType"}
 '''
 __author__ = '__L1n__w@tch'
 
@@ -15,18 +18,15 @@ import os
 import shutil
 import filecmp
 import distutils.dir_util
-
-source = r"C:\Users\Administrator.hp-PC\Desktop"
-destination = r"E:\goodgoodstudy"
-retention_files = {"Software", "网安Subjects", "MathType"}
+import json
 
 
 class FilesSaver:
-    def __init__(self, source_path, destination_path, retain_files=set()):
-        configure = self.read_configure()
-        self.source_path = source_path
-        self.destination_path = destination_path
-        self.retain_files = retain_files
+    def __init__(self, configure_name="configure.json"):
+        configure = self.read_configure(configure_name)
+        self.source_path = configure["source"]
+        self.destination_path = configure["destination"]
+        self.retain_files = set(configure["retention"])
 
     def _ensure_dir_exists(self):
         if not os.path.exists(self.destination_path):
@@ -79,8 +79,10 @@ class FilesSaver:
                 else:
                     os.remove(path)
 
-    def read_configure(self):
-        pass
+    def read_configure(self, name):
+        with open(name) as f:
+            json_data = f.read()
+            return json.loads(json_data)
 
 
 def main():
