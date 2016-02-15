@@ -1,7 +1,12 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
 # version: Python3.X
-''' 测试filecmp库, 参考: http://python.jobbole.com/81480/
+''' 学习filecmp库, 参考: http://python.jobbole.com/81480/
+
+3 个 test, 分别实现了:
+test1(): 比较文件函数filecmp.cmp的相关测试
+test2(): 比较文件夹函数filecmp.dircmp的相关测试
+test3(): filecmp库自带的dircmp没有递归功能(其实是有的,但是默认却是print()比较结果出来,所以照着源码改了改成能递归比较是否相同)
 '''
 __author__ = '__L1n__w@tch'
 

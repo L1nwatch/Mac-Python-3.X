@@ -1,7 +1,7 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
 # version: Python3.X
-''' Description
+''' 测试一下json库,主要是用来保存.json文件进行相关的测试, indent=4这个参数真的很不错,要不然丑爆了!!!
 '''
 __author__ = '__L1n__w@tch'
 

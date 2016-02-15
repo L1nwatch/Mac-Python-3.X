@@ -5,6 +5,8 @@
 
 distutils.dir_util.copy_tree没法覆盖复制的问题,参考:http://stackoverflow.com/questions/12683834/how-to-copy-directory-recursively-in-python-and-overwrite-all
 解决方法是用distutils.dir_util中的copy_tree替代
+
+第一次写单元测试(主要是看书里的TDD驱动编程方式很感兴趣啊)
 '''
 __author__ = '__L1n__w@tch'
 
