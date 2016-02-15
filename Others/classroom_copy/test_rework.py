@@ -58,7 +58,7 @@ class TestSir(unittest.TestCase):
             self.failUnless(filecmp.cmp(file1, file2))
 
         def _test4():
-            shutil.copytree("for_test", os.path.join(self.src,"for_test"))
+            shutil.copytree("for_test", os.path.join(self.src, "for_test"))
             files_saver.ensure()
             with open(os.path.join(self.src, "for_test", "test1"), "a") as f:
                 f.write("test" * 3)
@@ -66,6 +66,17 @@ class TestSir(unittest.TestCase):
             time.sleep(wait_time)
             result = filecmp.dircmp(self.src, self.des).diff_files
             self.failIf(len(result) <= 0)
+
+        def _test5():
+            dir_name = "for_test"
+            src_dir = os.path.join(self.src, "for_test")
+            des_dir = os.path.join(self.des, "for_test")
+            shutil.copytree(dir_name, src_dir)
+
+            files_saver.ensure()
+
+            result = filecmp.dircmp(src_dir, des_dir)
+            self.failIf(len(result.diff_files) > 0 or len(result.left_only) > 0)
 
         files_saver = FilesSaver(self.src, self.des, self.retention)
 
@@ -80,6 +91,9 @@ class TestSir(unittest.TestCase):
 
         # case: 源文件夹中, 非retention文件夹中的文件发生了改变
         _test4()
+
+        # case: 有文件夹复制到了源文件夹
+        _test5()
 
     def test_files_saver_delete(self):
         files_saver = FilesSaver(self.src, self.des, self.retention)
