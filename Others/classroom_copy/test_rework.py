@@ -100,7 +100,7 @@ class TestSir(unittest.TestCase):
         _test4()
 
     def test_files_saver_delete(self):
-        files_saver = FilesSaver(self.src, self.des, self.retention)
+        files_saver = FilesSaver("test_configure.json")
 
         test_file = os.path.join(os.curdir, "for_test", "just_a_file")
         shutil.copy(test_file, self.src)
