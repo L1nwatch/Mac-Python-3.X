@@ -24,6 +24,7 @@ class FilesSaver:
         self.source_path = configure["source"]
         self.destination_path = configure["destination"]
         self.retain_files = set(configure["retention"])
+        self.closure = bool(configure["closure"])
 
     def _ensure_dir_exists(self):
         if not os.path.exists(self.destination_path):
@@ -44,9 +45,19 @@ class FilesSaver:
         path2 = os.path.join(self.destination_path, file_name)
         if os.path.isdir(path1):
             result = filecmp.dircmp(path1, path2)
-            return len(result.left_only) > 0 or len(result.diff_files) > 0
+            if self.closure is True:  # 配置开启递归检查目录, 否则只检查当前目录
+                return self._check_dir_closure(result) is True
+            else:
+                return len(result.left_only) > 0 or len(result.diff_files) > 0
         else:
             return filecmp.cmp(path1, path2) is False
+
+    # 递归的检查目录, 如果存在不同则返回True, 否则返回None
+    def _check_dir_closure(self, dir_cmp):
+        if len(dir_cmp.left_only) > 0:
+            return True
+        for sd in dir_cmp.subdirs.values():
+            return self._check_dir_closure(sd)
 
     def ensure(self):
         """

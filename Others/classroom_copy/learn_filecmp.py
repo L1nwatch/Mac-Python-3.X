@@ -12,7 +12,24 @@ import os
 
 def main():
     # test1()
-    test2()
+    # test2()
+    test3()
+
+
+def test3():
+    # 测试一下filecmp.dircmp是否能检测出子目录下的不同?
+    dir1 = "for_test"
+    dir2 = "for_test2"
+    dir_cmp = filecmp.dircmp(dir1, dir2)
+    print(check_dir_closure(dir_cmp))
+
+
+# 递归的检查目录, 如果存在不同则返回True, 否则返回None
+def check_dir_closure(dir_cmp):
+    if len(dir_cmp.left_only) > 0:
+        return True
+    for sd in dir_cmp.subdirs.values():
+        return check_dir_closure(sd)
 
 
 def test2():
