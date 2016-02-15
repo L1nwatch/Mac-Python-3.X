@@ -23,6 +23,7 @@ retention_files = {"Software", "网安Subjects", "MathType"}
 
 class FilesSaver:
     def __init__(self, source_path, destination_path, retain_files=set()):
+        configure = self.read_configure()
         self.source_path = source_path
         self.destination_path = destination_path
         self.retain_files = retain_files
@@ -77,6 +78,9 @@ class FilesSaver:
                     shutil.rmtree(path)
                 else:
                     os.remove(path)
+
+    def read_configure(self):
+        pass
 
 
 def main():
