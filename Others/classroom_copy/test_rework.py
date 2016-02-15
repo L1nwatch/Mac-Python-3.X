@@ -42,7 +42,7 @@ class TestSir(unittest.TestCase):
             self.failUnless(True)
 
         def _test3():
-            test_file = os.path.join(os.curdir, "for_test", "just_a_file")
+            test_file = os.path.join("for_test", "just_a_file")
             shutil.copy(test_file, self.src)
             files_saver.ensure()
             with open(test_file, "a") as f:
