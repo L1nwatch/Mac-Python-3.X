@@ -29,7 +29,7 @@ class TestSir(unittest.TestCase):
 
     def test_files_saver_ensure(self):
         def _test1():
-            shutil.copyfile("try_rework.py", self.src)
+            shutil.copy("try_rework.py", self.src)
             files_saver.ensure()
             time.sleep(self.wait_time)
             files = os.listdir(self.des)
