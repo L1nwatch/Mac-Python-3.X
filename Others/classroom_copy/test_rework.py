@@ -29,7 +29,7 @@ class TestSir(unittest.TestCase):
 
     def test_files_saver_ensure(self):
         def _test1():
-            test_file = "for_test/just_a_file"
+            test_file = os.path.join(os.curdir, "for_test", "just_a_file")
             shutil.copy(test_file, self.src)
             files_saver.ensure()
             time.sleep(self.wait_time)
@@ -41,7 +41,7 @@ class TestSir(unittest.TestCase):
             self.failUnless(True)
 
         def _test3():
-            test_file = "for_test/just_a_file"
+            test_file = os.path.join(os.curdir, "for_test", "just_a_file")
             shutil.copy(test_file, self.src)
             files_saver.ensure()
             with open(test_file, "a") as f:
@@ -79,7 +79,7 @@ class TestSir(unittest.TestCase):
     def test_files_saver_delete(self):
         files_saver = FilesSaver(self.src, self.des, self.retention)
 
-        test_file = "for_test/just_a_file"
+        test_file = os.path.join(os.curdir, "for_test", "just_a_file")
         shutil.copy(test_file, self.src)
         files_saver.delete()
         self.failIf(test_file in os.listdir(self.src))
