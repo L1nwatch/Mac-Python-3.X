@@ -7,7 +7,7 @@
 pefile库-Python2: https://github.com/erocarrera/pefile
 pefile库-Python3: https://github.com/XeroNicHS/pefile_py3
 
-实现有 3 个:
+实现有 4 个:
 第一个直接调用 hashlib 库中的 md5 对整个文件进行哈希
 第二个直接调用 pefile 库的 get_imphash() 实现
 第三个是直接哈希每一个节
