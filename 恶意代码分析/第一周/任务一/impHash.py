@@ -7,9 +7,11 @@
 pefile库-Python2: https://github.com/erocarrera/pefile
 pefile库-Python3: https://github.com/XeroNicHS/pefile_py3
 
-实现思路有 2 个:
-第一个直接调用 pefile 库的 get_imphash() 实现
-第二个是根据给定的 rva 范围, 对文件对应的 rva 范围字节流进行哈希
+实现有 3 个:
+第一个直接调用 hashlib 库中的 md5 对整个文件进行哈希
+第二个直接调用 pefile 库的 get_imphash() 实现
+第三个是直接哈希每一个节
+第四个是根据给定的 offset 范围, 对文件对应的 offset 范围字节流进行哈希
 '''
 __author__ = '__L1n__w@tch'
 
@@ -17,28 +19,44 @@ import pefile
 import hashlib
 
 
-def get_imphash():
+def hash_file(file_name="Lab06-02.exe"):
+    with open(file_name, "rb") as f:
+        data = f.read()
+    print(hashlib.md5(data).hexdigest())
+
+
+def imphash(file_name="Lab06-02.exe"):
     """
     仅仅是测试一下如何调用 pefile 库来获取 imphash
     :return:
     """
-    pe = pefile.PE("Lab06-02.exe")
+    pe = pefile.PE(file_name)
     print(pe.get_imphash())
 
 
-def get_hash(file_name):
-    file_name = "Lab06-02.exe"
+def hash_offset(file_name="Lab06-02.exe"):
     with open(file_name, "rb") as f:
         data = f.read()
-        print(len(data))
+
+    offset = input("Filename = {}, please input offset range (such as 11,12): ".format(file_name))
+    offset_start, offset_end = offset.split(",")
+    data = data[int(offset_start):int(offset_end)]
+    print(hashlib.md5(data).hexdigest())
+
+
+def hash_section(file_name="Lab06-02.exe"):
+    pe = pefile.PE(file_name)
+    for each in pe.sections:
+        print(each.Name)  # 打印出所哈希节的名称
+        print(hashlib.md5(str(each).encode("utf-8")).hexdigest())  # 对该节进行哈希
 
 
 def main():
-    file_name = ""
-
-    get_imphash()
-    get_hash(None)
-    # get_hash(rva_start, rva_end)
+    file_name = "Lab06-02.exe"
+    hash_file(file_name)
+    imphash(file_name)
+    # hash_offset(file_name)
+    hash_section()
 
 
 if __name__ == "__main__":
