@@ -40,9 +40,9 @@ def hash_offset(file_name="Lab06-02.exe"):
     with open(file_name, "rb") as f:
         data = f.read()
 
-    offset = input("Filename = {}, please input offset range (such as 11,12): ".format(file_name))
+    offset = input("Filename = {}, please input offset range (such as 64DC,6504): ".format(file_name))
     offset_start, offset_end = offset.split(",")
-    data = data[int(offset_start):int(offset_end)]
+    data = data[int(offset_start, 16):int(offset_end, 16)]
     print(hashlib.md5(data).hexdigest())
 
 
