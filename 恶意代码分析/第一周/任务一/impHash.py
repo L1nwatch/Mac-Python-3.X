@@ -20,6 +20,7 @@ import hashlib
 
 
 def hash_file(file_name="Lab06-02.exe"):
+    """对整个文件进行哈希"""
     with open(file_name, "rb") as f:
         data = f.read()
     print(hashlib.md5(data).hexdigest())
@@ -35,6 +36,7 @@ def imphash(file_name="Lab06-02.exe"):
 
 
 def hash_offset(file_name="Lab06-02.exe"):
+    """根据给定的 offset 范围, 对文件对应的 offset 范围字节流进行哈希"""
     with open(file_name, "rb") as f:
         data = f.read()
 
@@ -45,6 +47,11 @@ def hash_offset(file_name="Lab06-02.exe"):
 
 
 def hash_section(file_name="Lab06-02.exe"):
+    """
+    对每个节都进行哈希
+    :param file_name:
+    :return:
+    """
     pe = pefile.PE(file_name)
     for each in pe.sections:
         print(each.Name)  # 打印出所哈希节的名称
@@ -55,8 +62,8 @@ def main():
     file_name = "Lab06-02.exe"
     hash_file(file_name)
     imphash(file_name)
-    # hash_offset(file_name)
     hash_section()
+    hash_offset(file_name)
 
 
 if __name__ == "__main__":
