@@ -10,7 +10,7 @@ __author__ = '__L1n__w@tch'
 Author: Amit Malik
 http://www.securityxploded.com
 '''
-
+"""
 import sys,struct
 import pefile
 from pydbg import *
@@ -98,3 +98,4 @@ def main():
 
 if __name__ == '__main__':
   main()
+"""
