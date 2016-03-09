@@ -7,13 +7,20 @@ __author__ = '__L1n__w@tch'
 
 import requests
 import tkinter.messagebox
+import tkinter
 
 
 def main():
+    tk = tkinter.Tk()
+    tk.withdraw()  # 去掉空窗口
+
     url = "http://10.255.44.33/cgi-bin/do_login"
     post_data = {"action": "login", "username": "13030110024", "password": "bedd129c3adfa9fa", "type": "1"}
     response = requests.post(url, post_data)
-    tkinter.messagebox.showinfo(title="登录校园网", message=response.text)
+    if "62208306347465" in response.text:
+        tkinter.messagebox.showinfo(title="登录校园网", message="登录成功")
+    else:
+        tkinter.messagebox.showerror(title="登录校园网", message="登录失败,未知错误: {}".format(response.text))
 
 
 if __name__ == "__main__":
