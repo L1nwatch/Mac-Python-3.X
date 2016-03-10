@@ -113,19 +113,24 @@ def createBiTreeByInOrderAndPreOrder(pre_start, pre_end, in_start, in_end):
     leftLength = i - in_start
     rightLength = in_end - i
 
-    if(leftLength != 0):
-        leftRoot = createBiTreeByInOrderAndPreOrder(pre_start + 1,pre_start + leftLength,in_start,in_start + leftLength - 1)
+    if (leftLength != 0):
+        leftRoot = createBiTreeByInOrderAndPreOrder(pre_start + 1, pre_start + leftLength, in_start,
+                                                    in_start + leftLength - 1)
         root.lchild = leftRoot
-    if ( rightLength != 0 ):
-        rightRoot = createBiTreeByInOrderAndPreOrder( pre_end - rightLength + 1,pre_end,in_end - rightLength + 1,in_end )
+    if (rightLength != 0):
+        rightRoot = createBiTreeByInOrderAndPreOrder(pre_end - rightLength + 1, pre_end, in_end - rightLength + 1,
+                                                     in_end)
         root.rchild = rightRoot
 
     return root
 
 
 def main():
-    preOrder = list(DBACEGF)
-    inOrder = list(ABCDEFG)
+    global preOrder,inOrder
+    preOrder = list("DBACEGF")
+    inOrder = list("ABCDEFG")
+    btree = createBiTreeByInOrderAndPreOrder(0, len(preOrder) - 1, 0, len(inOrder) - 1)
+    print(btree.data)
 
 
 if __name__ == "__main__":
