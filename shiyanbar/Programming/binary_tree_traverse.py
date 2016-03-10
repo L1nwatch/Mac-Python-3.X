@@ -36,7 +36,6 @@ void InorderTraverse( BiTree T )
 }
 
 后序遍历算法
-
 //二叉树的后序遍历递归算法
 void PostOrderTraverse( BiTree T )
 {
@@ -45,24 +44,6 @@ void PostOrderTraverse( BiTree T )
     PostOrderTraverse( T->lchild );	//先后序遍历左子树
     PostOrderTraverse( T->rchild );	//再后序遍历右子树
     printf( "%c",T->data );	//显示结点数据，可以更改为其他对结点操作
-}
-
-//按前序输入二叉树中结点的值（一个字符）
-//#表示空树，构造二叉链表表示二叉树T
-void CreateBiTree( BiTree * T )
-{
-    TElemType ch;
-    scanf( "%c",&ch );
-    if ( ch == '#' )
-        *T = NULL;
-    else
-    {
-        *T = ( BiTree )malloc( sizeof( BiTNode ) );
-        if ( !*T )	exit( OVERFLOW );
-        ( *T )->data = ch;	//生成根结点
-        CreateBiTree( &( *T )->lchild );	//构造左子树
-        CreateBiTree( &( *T )->rchild );	//构造右子树
-    }
 }
 由先序、中序序列构造二叉树的算法：
 BiTree createBiTreeByInOrderAndPreOrder( int pre_start,int pre_end,int in_start,int in_end ){
@@ -125,12 +106,20 @@ def createBiTreeByInOrderAndPreOrder(pre_start, pre_end, in_start, in_end):
     return root
 
 
+def PostOrderTraverse(T):
+    if hasattr(T, "lchild"):
+        PostOrderTraverse(T.lchild)
+    if hasattr(T, "rchild"):
+        PostOrderTraverse(T.rchild)
+    print(T.data, end="")
+
+
 def main():
-    global preOrder,inOrder
+    global preOrder, inOrder
     preOrder = list("DBACEGF")
     inOrder = list("ABCDEFG")
     btree = createBiTreeByInOrderAndPreOrder(0, len(preOrder) - 1, 0, len(inOrder) - 1)
-    print(btree.data)
+    PostOrderTraverse(btree)
 
 
 if __name__ == "__main__":
