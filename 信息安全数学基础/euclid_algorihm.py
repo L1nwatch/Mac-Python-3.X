@@ -20,7 +20,13 @@ def gcd(a, b):
 
 
 def gcdext(a, b):
-    assert a > b
+    """
+    gcdext(330, -210)
+    :param a:
+    :param b:
+    :return:
+    """
+    assert a > b >= 0
     x1, x2, x3 = 1, 0, a
     y1, y2, y3 = 0, 1, b
     while y3 != 0:
@@ -34,6 +40,8 @@ def gcdext(a, b):
 def main():
     assert gmpy2.gcd(2108, 3720) == gcd(2108, 3720)
     assert gmpy2.gcdext(3720, 2108) == gcdext(3720, 2108)
+    print(gmpy2.gcdext(210, -330))
+    # assert gmpy2.gcdext(330, -210) == gcdext(330, -210)
 
 
 if __name__ == "__main__":
