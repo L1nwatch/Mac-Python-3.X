@@ -15,9 +15,6 @@ def old_login():
     2016.03.10 还可以用的登录方式, 隔了一天就不能用了...
     :return:
     """
-    tk = tkinter.Tk()
-    tk.withdraw()  # 去掉空窗口
-
     url = "http://10.255.44.33/cgi-bin/do_login"
     post_data = {"action": "login", "username": "13030110024", "password": "bedd129c3adfa9fa", "type": "1"}
     response = requests.post(url, post_data)
@@ -58,10 +55,13 @@ def new_login():
     response = s.get(url)
     post_data = {"userName": "13030110024", "userPwd": "Zm9yZWFjaGxm"}
     response = s.post(url, post_data)
-    print(response.text)
+    tkinter.messagebox.showinfo(title="登录校园网", message=response.text)
 
 
 def main():
+    tk = tkinter.Tk()
+    tk.withdraw()  # 去掉空窗口
+
     if old_login() is False:
         new_login()
 
