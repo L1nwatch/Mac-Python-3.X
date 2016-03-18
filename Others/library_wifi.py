@@ -8,6 +8,7 @@ __author__ = '__L1n__w@tch'
 import requests
 import tkinter.messagebox
 import tkinter
+import subprocess
 
 
 def old_login():
@@ -22,7 +23,7 @@ def old_login():
         tkinter.messagebox.showinfo(title="登录校园网", message="登录成功")
         return True
     else:
-        tkinter.messagebox.showerror(title="登录校园网", message="登录失败,未知错误: {}".format(response.text))
+        # tkinter.messagebox.showerror(title="登录校园网", message="登录失败,未知错误: {}".format(response.text))
         return False
 
 
@@ -32,30 +33,19 @@ def new_login():
     :return:
     """
     url = "http://192.168.253.2/portal/pws?t=li"
-    #     post_data = {userName=13030110024
-    # userPwd=Zm9yZWFjaGxm
-    # serviceTypeHIDE=
-    # serviceType=
-    # userurl=
-    # userip=
-    # basip=
-    # language=Chinese
-    # usermac=null
-    # wlannasid=
-    # entrance=null
-    # portalProxyIP=192.168.253.2
-    # portalProxyPort=50200
-    # dcPwdNeedEncrypt=1
-    # assignIpType=0
-    # appRootUrl=http%3A%2F%2F192.168.253.2%2Fportal%2F
-    # manualUrl=
-    # manualUrlEncryptKey=
-    # }
     s = requests.Session()
-    response = s.get(url)
+    s.get(url)
     post_data = {"userName": "13030110024", "userPwd": "Zm9yZWFjaGxm"}
     response = s.post(url, post_data)
-    tkinter.messagebox.showinfo(title="登录校园网", message=response.text)
+    if ping_success():
+        tkinter.messagebox.showinfo(title="登录校园网", message="登录成功")
+    else:
+        tkinter.messagebox.showinfo(title="登录校园网", message=response.text)
+
+
+def ping_success():
+    res = subprocess.call("ping -c 1 www.baidu.com", shell=True)
+    return res == 0
 
 
 def main():
