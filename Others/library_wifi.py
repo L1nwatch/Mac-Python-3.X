@@ -44,7 +44,7 @@ def new_login():
 
 
 def ping_success():
-    res = subprocess.call("ping -c 1 www.baidu.com", shell=True)
+    res = subprocess.call("ping -c 2 www.baidu.com", shell=True)
     return res == 0
 
 
