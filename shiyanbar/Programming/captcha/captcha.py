@@ -8,10 +8,10 @@
 __author__ = '__L1n__w@tch'
 
 from PIL import Image
-import sys
 import pyocr
 import pyocr.builders
 import pytesseract
+import os
 
 
 def cut_noise(image):
@@ -82,9 +82,102 @@ def test2(image_name):
         print(pytesseract.image_to_string(image))
 
 
+def create_pix_tables(image):
+    """
+    把图像的每个点都保存到列表中
+    :param image:
+    :return:
+    """
+    width = image.size[0]
+    height = image.size[1]
+    pix = image.load()
+    result = list()
+    for x in range(width):
+        for y in range(height):
+            result.append(pix[x, y])
+    return result
+
+
+def convert_black_white(image):
+    """
+    对图片进行黑白处理
+    :param image:
+    :return:
+    """
+    image = image.convert("L")
+    WHITE, BLACK = 255, 0
+    image = image.point(lambda x: WHITE if x >= 230 else BLACK)
+    image = image.convert('1')
+    return image
+
+
+def get_font():
+    """
+    获取提前提取好的每个数字的图片
+    :return:
+    """
+    font = []
+    path = "font"
+
+    for i in range(10):
+        with Image.open(path + os.sep + str(i) + ".bmp") as image:
+            font.append(create_pix_tables(convert_black_white(image)))
+    return font
+
+
+def cut(image):
+    """
+    把 4 个数字区分出来,注意前 2 个坐标是左上角坐标, 后 2 个坐标是右下角坐标
+    :param image:
+    :return:
+    """
+    box1 = (0, 0, 6, 10)
+    box2 = (10, 0, 16, 10)
+    box3 = (20, 0, 26, 10)
+    box4 = (30, 0, 36, 10)
+    im1 = image.crop(box1)
+    im2 = image.crop(box2)
+    im3 = image.crop(box3)
+    im4 = image.crop(box4)
+    return im1, im2, im3, im4
+
+
+def image_to_string(image):
+    """
+    识别出一张图片里面的 4 个数字
+    :param image:
+    :return:
+    """
+    global font
+    test1 = convert_black_white(image)
+    text = str()
+    for each in cut(test1):
+        for num in range(10):
+            if create_pix_tables(each) == font[num]:
+                text += str(num)
+                break
+    return text
+
+
+def solve():
+    """
+    参考 WP 写的, 原理就是自己手动取出每一个数字的图像, 然后再依次进行比较
+    :return:
+    """
+    global font
+    font = get_font()
+    path = "/Users/L1n/Desktop/bmp"
+    sum = 0
+    for i in range(1, 10000):
+        with Image.open(path + os.sep + str(i) + ".bmp") as image:
+            sum += i * int(image_to_string(image))
+    print("Sum: {}".format(sum))
+
+
 def main():
-    # test("test.png")
-    test2("test.png")
+    # test("1.png")
+    # test2("1.png")
+    solve()
 
 
 if __name__ == "__main__":
