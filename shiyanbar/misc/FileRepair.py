@@ -23,6 +23,7 @@ header_dict = {
 
 
 class FileRepair:
+    # TODO: 后续还可以添加个函数,比如说有一部分文件头已经存在于头部了,这时只要补充下缺失的部分字节即可
     @staticmethod
     def add_header(file_name, type):
         """
