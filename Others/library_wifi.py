@@ -39,8 +39,29 @@ def new_login():
     response = s.post(url, post_data)
     if ping_success():
         tkinter.messagebox.showinfo(title="登录校园网", message="登录成功")
+        return True
+    else:
+        # tkinter.messagebox.showinfo(title="登录校园网", message=response.text)
+        return False
+
+
+def lab_login():
+    """
+    在 F520 登录地点
+    :return:
+    """
+    # &ac_id=6&type=1&wbaredirect=&mac=&user_ip=
+    url = "http://10.255.44.33/cgi-bin/srun_portal"
+    post_data = {"action": "login", "username": "13030110024", "password": "foreachlf", "ac_id": 6}
+    s = requests.Session()
+    response = s.get(url)
+    response = s.post(url, post_data)
+    if ping_success():
+        tkinter.messagebox.showinfo(title="登录校园网", message="登录成功")
+        return True
     else:
         tkinter.messagebox.showinfo(title="登录校园网", message=response.text)
+        return False
 
 
 def ping_success():
@@ -52,8 +73,8 @@ def main():
     tk = tkinter.Tk()
     tk.withdraw()  # 去掉空窗口
 
-    if old_login() is False:
-        new_login()
+    if not old_login() and not new_login():
+        lab_login()
 
 
 if __name__ == "__main__":
