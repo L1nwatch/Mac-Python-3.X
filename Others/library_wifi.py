@@ -73,6 +73,9 @@ def main():
     tk = tkinter.Tk()
     tk.withdraw()  # 去掉空窗口
 
+    tkinter.messagebox.showerror("啊啊啊啊啊", "自从认证系统更新后我还没有时间写这个程序")
+    exit()
+
     if not old_login() and not new_login():
         lab_login()
 
