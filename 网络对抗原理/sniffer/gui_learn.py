@@ -1,229 +1,344 @@
-#!/bin/env python3
 # -*- coding: utf-8 -*-
-# version: Python3.X
-''' 引入一些新元素和技术:
-        ScrolledListBox 小部件
-        如何捕捉底层事件,比如双击鼠标和窗口级别的事件
-        如何创建和使用自定义对话框
-        如何设置字体
-        如何使用state属性激活/停用小部件
-        如何使用面向对象的技术创建GUI
-大部分工作都是在数据模块中完成的。毕竟，GUI应该只负责显示。你可能注意到这个应用没有核心逻辑层，那是因为你本质上只是在修改数据，没有涉及业务逻
-辑，所以不需要核心逻辑层。GUI只是直接调用数据层。通过把数据层暴露为一个API，允许在没有任何SQL引用的情况下编写GUI。这意味着可以将底层的
-SQLite的实现置换为Postgres或MySQL等，而API仍然保持不变，GUI页也不需要改变。
-'''
 __author__ = '__L1n__w@tch'
 
-import tkinter.tix as tix
-import tkinter.messagebox as mb
-import optionsdialog as od
-import lendydata as data
+# 可参考: http://hnylj.iteye.com/blog/732126
+
+import socket
 import os
+import json
+import tkinter
+import tkinter.messagebox
+import tkinter.filedialog
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import AES
 
 
-class LendingLibrary:
-    def __init__(self, root):
-        self.is_dirty = False
-        self.top = root
-        root["menu"] = self.build_menus(root)
-        main_win = self.build_notebook(root)
-        main_win.pack(fill="both", expand=True)
-        self.top.protocol("WM_DELETE_WINDOW", self.ev_close)
-        self.top.title("Lending Libaray")
-        data.init_db()  # use default file
-        self.items = data.get_items()
-        self.members = data.get_members()
-        self.populate_item_list()
-        self.populate_member_list()
+class Server:
+    server_sock = None
+    client_sock = None
+    contact = "客户端"
+    client_aes_key = None
+    client_rsa_pk = None
 
-    def build_menus(self, top):
-        menus = (("Item", (("New", self.ev_new_item),
-                           ("Edit", self.ev_edit_item),
-                           ("Delete", self.ev_delete_item),
-                           )),
-                 ("Member", (("New", self.ev_new_member),
-                             ("Edit", self.ev_edit_member),
-                             ("Delete", self.ev_delete_member),
-                             )),
-                 ("Help", (("Help", self.ev_help),
-                           ("About", lambda: mb.showinfo(
-                                   "Help About",
-                                   "Lender application\nAuthor: Alan Gauld""")
-                            ))))
-        self.menu_bar = tix.Menu(top)
-        for menu in menus:
-            m = tix.Menu(top)
-            for item in menu[1]:
-                m.add_command(label=item[0], command=item[1])
-            self.menu_bar.add_cascade(label=menu[0], menu=m)
-        return self.menu_bar
+    def __init__(self, server_address=(("127.0.0.1", 8083)), max_clients=1):
+        self.server_address = server_address
+        self.max_clients = max_clients
 
-    def build_notebook(self, top):
-        mono_font = self.get_mono_font()
-        nb = tix.NoteBook(top)
+    def run(self):
+        self.root = tkinter.Tk()
 
-        nb.add("item_page", label="items", raisecmd=lambda pg="item": self.ev_page(pg))
-        fr = tix.Frame(nb.subwidget("item_page"))
-        self.item_fmt = "{:15} {:15} {:10} ${:<8} {:12}"
-        tix.Label(fr, font=mono_font,
-                  text=self.item_fmt.format("Name", "Description", "Owner", "Price", "Condition")).pack(anchor="w")
-        # 使用tix.ScrolledListBox而不是tix.ScrolledText小部件。使用ScrolledListBox小部件可以更加容易地选择行。
-        slb = tix.ScrolledListBox(fr, width=500, height=200)
-        slb.pack(fill="both", expand=True)
-        fr.pack(fill="both", expand=True)
-        self.item_list = slb.subwidget("listbox")
-        self.item_list.configure(font=mono_font, bg="white")
-        # 使用bind()方法将鼠标左键双击链接到适当的编辑事件处理程序上。除了处理默认小部件的命令,bind()机制可以处理任意事件。
-        # 不同的是，回调函数必须接受一个事件参数并为参数设置了默认值None。这样普通的回调机制以及双击链接也可以使用它
-        self.item_list.bind("<Double-1>", self.ev_edit_item)
+        self.server_sock = self.create_socket()
+        self.rsa = self.create_rsa_key()
 
-        # 事件处理程序都是自解释型的。在选中新的notebook页时，就会触发ev_page()处理程序。它只是为活动页面启动对应的菜单。
-        nb.add("member_page", label="members", raisecmd=lambda pg="member": self.ev_page(pg))
-        fr = tix.Frame(nb.subwidget("member_page"))
-        self.member_fmt = "{:<15} {:<40}"
-        tix.Label(fr, font=mono_font, text=self.member_fmt.format("Name", "Email Address")).pack(anchor="w")
-        slb = tix.ScrolledListBox(fr, width=40, height=20)
-        slb.pack(fill="both", expand=True)
-        fr.pack(fill="both", expand=True)
-        self.member_list = slb.subwidget("listbox")
-        self.member_list.configure(font=mono_font, bg="white")
-        self.member_list.bind("<Double-1>", self.ev_edit_member)
+        self.initialize_root()
+        self.initialize_buttons()
+        self.initialize_state_label()
 
-        return nb
+        self._update_state_board("初始化成功...\n请点击按钮进行相应操作...")
+        self.root.mainloop()
 
-    def get_mono_font(self):
-        if os.name == "nt":
-            return ("courier", "10", "")
+    def create_socket(self):
+        socket.setdefaulttimeout(10)
+        server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_sock.bind(self.server_address)
+        return server_sock
+
+    def create_rsa_key(self):
+        rsa_key = RSA.generate(1024, e=65537)
+        return rsa_key
+
+    def initialize_root(self):
+        # 初始化主窗口大小、标题等
+        # self.root.geometry("230x470")
+        self.root.title("Mini Filer 服务端 v0.8")
+        self.root.resizable(height=False, width=False)
+
+    def initialize_buttons(self):
+        # 初始化查看自己公钥按钮
+        self._set_show_my_pk_button()
+
+        # 用户头像文件
+        self.user_ico = tkinter.PhotoImage(file="user.gif").subsample(2)
+        # 初始化客户端相关按钮
+        self._set_clients_relevant_buttons()
+
+    def initialize_state_label(self):
+        state_label_frame = tkinter.LabelFrame()
+
+        state_board = tkinter.Text(width=40, height=20)
+        state_board.grid()
+
+        state_label_frame.grid()
+
+        self.state_board = state_board
+
+    def _set_show_my_pk_button(self):
+        my_pk_button_frame = tkinter.Frame(self.root)
+
+        my_pk_button = tkinter.Button(my_pk_button_frame,
+                                      text="查看自己的公钥", command=self._show_pk)
+        my_pk_button.grid()
+
+        my_pk_button_frame.grid(row=0, column=0)
+
+    def _show_pk(self, user="server"):
+        sub_window = tkinter.Toplevel()
+
+        if user == "server":
+            pk = self.rsa.publickey().exportKey("PEM")
+            sub_window.title("自己的公钥")
         else:
-            return ("mono", "10", "")
+            pk = self.client_rsa_pk
+            sub_window.title("客户端的公钥")
 
-    def populate_item_list(self):
-        self.item_list.delete("0", "end")
-        for item in self.items:
-            item = list(item[1:])
-            item[2] = data.get_member_name(item[2])
-            self.item_list.insert("end", self.item_fmt.format(*item))
+        text_label = tkinter.Text(sub_window, height=8, width=67)
+        text_label.insert(tkinter.END, pk)
+        text_label.tag_add("different_tag", "2.38", "5.18")
+        text_label.tag_config("different_tag", background="yellow", foreground="red")
+        text_label.configure(state=tkinter.DISABLED)
+        text_label.grid()
+        sub_window.grid()
 
-    def populate_member_list(self):
-        self.member_list.delete("0", "end")
-        for mbr in self.members:
-            self.member_list.insert("end", self.member_fmt.format(*mbr[1:]))
+    def _set_clients_relevant_buttons(self):
+        def __set_user_ico(frame):
+            image_label = tkinter.Label(frame, image=self.user_ico)
+            image_label.grid(column=0)
 
-    def ev_close(self, event=None):
-        data.close_db()
-        self.top.quit()
+        def __set_function_buttons(frame):
+            buttons = dict()
 
-    ##### notebook event handler #####
-    def ev_page(self, page):
-        if page == "item":
-            self.menu_bar.entryconfigure("Item", state="active")
-            self.menu_bar.entryconfigure("Member", state="disabled")
-        if page == "member":
-            self.menu_bar.entryconfigure("Item", state="disabled")
-            self.menu_bar.entryconfigure("Member", state="active")
+            buttons["connect_button"] = \
+                tkinter.Button(frame, text="开始与客户端通信",
+                               command=self._connect_client)
+            buttons["show_pk_button"] = \
+                tkinter.Button(frame, text="查看客户端公钥",
+                               command=lambda: self._show_pk(user="Client"), state="disabled")
+            buttons["send_file_button"] = \
+                tkinter.Button(frame, text="加密文件并发送给客户端",
+                               command=self._send_file, state="disabled")
+            buttons["decrypt_file_button"] = \
+                tkinter.Button(frame, text="解密从客户端接收到的加密文件",
+                               command=self._decrypt_file, state="disabled")
+            buttons["receive_file_button"] = \
+                tkinter.Button(frame, text="接收客户端发送的文件",
+                               command=self._receive_file, state="disabled")
 
-    ######### Item Event Handlers #######
-    def ev_new_item(self):
-        dlg = od.OptionsDialog(top, (
-            ["Name", ""],
-            ["Description", ""],
-            ["Owner", ""],
-            ["Price", ""],
-            ["Condition", ""]
-        ))
+            buttons["connect_button"].grid(row=0, sticky=tkinter.E + tkinter.W)
+            buttons["show_pk_button"].grid(row=1, sticky=tkinter.E + tkinter.W)
+            buttons["send_file_button"].grid(row=2, sticky=tkinter.E + tkinter.W)
+            buttons["decrypt_file_button"].grid(row=3, sticky=tkinter.E + tkinter.W)
+            buttons["receive_file_button"].grid(row=4, sticky=tkinter.E + tkinter.W)
 
-        if dlg.changed:
-            owner_id = self.get_member_id(dlg.options[2][1])
-            data.insert_item(dlg.options[0][1], dlg.options[1][1], owner_id, int(dlg.options[3][1]), dlg.options[4][1])
-        self.items = data.get_items()
-        self.populate_item_list()
+            return buttons
 
-    def ev_edit_item(self, event=None):
-        # get selected member
-        indices = self.item_list.curselection()
-        index = int(indices[0]) if indices else 0
-        item = self.items[index]
-        owner_id = item[3]
-        owner_name = data.get_member_name(owner_id)
-        dlg = od.OptionsDialog(top, (
-            ["Name", item[1]],
-            ["Description", item[2]],
-            ["Owner", owner_name],
-            ["Price", item[4]],
-            ["Condition", item[5]]))
-        if dlg.changed:
-            if dlg.options[2][1] != owner_name:  # its changed
-                owner_id = self.get_member_id(dlg.options[2][1])
-            data.update_item(item[0], dlg.options[0][1], dlg.options[1][1], owner_id, int(dlg.options[3][1]),
-                             dlg.options[4][1])
-            self.items = data.get_items()
-            self.populate_item_list()
+        clients_frame = tkinter.LabelFrame(self.root)
 
-    def ev_delete_item(self):
-        indices = self.item_list.curselection()
-        index = int(indices[0]) if indices else 0
-        item = self.items[index]
-        data.delete_item(item[0])
-        self.items = data.get_items()
-        self.populate_item_list()
+        # 设置头像
+        __set_user_ico(clients_frame)
 
-    # Ideally should use a combo box in options dialog.
-    # this gives potential error if more than one member with same name
-    def get_member_id(self, name):
-        for member in self.members:
-            if member[1] == name:
-                return member[0]
+        # 功能按钮: 新建连接、查看公钥、接收文件、解密其发送的文件、加密文件并发送
+        function_frame = tkinter.Frame(clients_frame)
+        self.buttons = __set_function_buttons(function_frame)
+        function_frame.grid()
 
-    ######### Member Event Handlers #######
-    def ev_new_member(self):
-        dlg = od.OptionsDialog(top, (["Name", ""], ["Email", ""]))
-        if dlg.changed:
-            data.update_member(None, dlg.options[0][1], dlg.options[1][1])
-            self.members = data.get_members()
-            self.populate_member_list()
+        clients_frame.grid()
 
-    def ev_edit_member(self, event=None):
-        indices = self.member_list.curselection()
-        index = int(indices[0]) if indices else 0
-        mbr = self.members[index]
-        dlg = od.OptionsDialog(top, (["Name", mbr[1]], ["Email", mbr[2]]))
+    def _connect_client(self):
+        def __exchange_pk():
+            self._update_state_board("开始交换公钥...", new=True)
 
-        if dlg.changed:
-            data.update_member(mbr[0], dlg.options[0][1], dlg.options[1][1])
-            self.members = data.get_members()
-            self.populate_member_list()
+            self.client_rsa_pk = self.client_sock.recv(1024)
+            my_rsa_pk = self.rsa.publickey().exportKey("PEM")
+            self.client_sock.send(my_rsa_pk)
 
-    def ev_delete_member(self):
-        indices = self.member_list.curselection()
-        index = int(indices[0]) if indices else 0
-        mbr = self.members[index]
-        data.delete_member(mbr[0])
-        self.members = data.get_members()
-        self.populate_member_list()
+            self._update_state_board("交换公钥成功!")
 
-    #### Help event handler #
-    def ev_help(self):
-        mb.showinfo("Help", """
-        Lending Library Application
+        self._update_state_board("服务端准备就绪...正在监听...", new=True)
+        try:
+            self.server_sock.listen(self.max_clients)
+            self.client_sock, addr = self.server_sock.accept()
+        except:
+            self._update_state_board("没有发现尝试连接的客户端...")
+            return
 
-        Item -> New: Create a new item in the library
-        Item -> Edit: Modify the attributes of the selected item (default is first)
-        Item -> Delete: Delete selected item (no default)
+        self._update_state_board("成功连接上客户端!")
 
-        Member -> New: Add a member to the library
-        Member -> Edit: Modify selected members data
-        Member -> Delete: Delete selected member (no default)
+        __exchange_pk()
 
-        Help -> Help: Display this screen
-        Help -> About: About the program.""")
+        self.buttons["connect_button"].configure(state="disabled")
+        self.buttons["show_pk_button"].configure(state="normal")
+        self.buttons["send_file_button"].configure(state="normal")
+        self.buttons["receive_file_button"].configure(state="normal")
+
+    def _send_file(self):
+        def __encrypt_file():
+            # CTR模式使用: http://stackoverflow.com/questions/3154998/pycrypto-problem-using-aesctr
+            counter = os.urandom(16)
+            encrypt_sir = AES.new(aes_key, AES.MODE_CTR, counter=lambda: counter)
+
+            with open(file_path, "rb") as f:
+                cipher_text = encrypt_sir.encrypt(f.read())
+
+            return counter + cipher_text
+
+        def __encrypt_aes_key(rsa_pk):
+            rsa = RSA.importKey(rsa_pk)
+            cipher_text = rsa.encrypt(aes_key, rsa_pk)
+            return cipher_text
+
+        def __create_aes_key(key_size):
+            return os.urandom(key_size)
+
+        def __send_encrypted_file(sock):
+            self._update_state_board("发送加密文件中...", new=True)
+
+            encrypted_file = __encrypt_file()
+            file_name, file_size = os.path.basename(file_path), len(encrypted_file)
+            file_info = json.dumps((file_name, file_size)).ljust(1024)
+
+            sock.send(file_info.encode("utf8"))
+            sock.send(encrypted_file)
+            sock.recv(len(b"OK"))
+
+            self._update_state_board("发送成功!")
+
+        def __exchange_encrypted_aes_key(sock):
+            self._update_state_board("开始交换加密的AES密钥...", new=True)
+
+            sock.send(encrypted_aes_key[0])
+            sock.recv(len(b"OK"))
+
+            self._update_state_board("交换成功!")
+
+        def __ensure_can_send_file(sock):
+            data = sock.recv(len(b"ready to receive file"))
+            if b"ready to receive file" == data:
+                sock.send(b"ready to send file")
+                return
+            else:
+                raise RuntimeError
+
+        file_path = tkinter.filedialog.askopenfilename(title="要发送的文件为?")
+        if file_path == "":
+            return
+        self._update_state_board("请确保{0}已经准备好开始接收文件...".format(self.contact), new=True)
+        try:
+            __ensure_can_send_file(self.client_sock)
+        except:
+            self._update_state_board("{0}还没准备好开始接收文件...".format(self.contact))
+            return
+
+        aes_key = __create_aes_key(key_size=16)
+        encrypted_aes_key = __encrypt_aes_key(self.client_rsa_pk)
+        __exchange_encrypted_aes_key(self.client_sock)
+        __send_encrypted_file(self.client_sock)
+
+        self.buttons["decrypt_file_button"].configure(state="disabled")
+
+    def _decrypt_file(self, encrypted_file=None):
+        def __decrypt_aes_key(decrypter, encrypted_key):
+            plain_text = decrypter.decrypt(encrypted_key)
+            return plain_text
+
+        def __decrypt_encrypted_file(file_path):
+            aes_key = __decrypt_aes_key(self.rsa, self.encrypted_aes_key)
+
+            with open(file_path, "rb") as f:
+                data = f.read()
+
+            counter = slice(0, 16)
+            aes = AES.new(aes_key, AES.MODE_CTR, counter=lambda: data[counter])
+            file_contents = aes.decrypt(data[16:])
+
+            return file_contents
+
+        if encrypted_file is None:
+            # http://www.xuebuyuan.com/1918954.html
+            encrypted_file = tkinter.filedialog.askopenfilename(title="要解密的文件是?")
+            if encrypted_file == "":
+                return
+
+        file_path = tkinter.filedialog.asksaveasfilename(title="解密完的文件保存在?")
+        file_contents = __decrypt_encrypted_file(encrypted_file)
+        self._update_state_board("解密完成!", new=True)
+        with open(file_path, "wb") as f:
+            f.write(file_contents)
+
+        return file_contents
+
+    def _update_state_board(self, message, new=False):
+        if new is True:
+            self._update_state_board("*" * 40)
+        self.state_board.configure(state="normal")
+        self.state_board.insert(tkinter.END, message + "\n")
+        self.state_board.configure(state="disabled")
+        self.state_board.see(tkinter.END)
+        self.root.update()
+
+    def _receive_file(self):
+        def __exchange_encrypted_aes_key(sock):
+            self._update_state_board("开始交换加密的AES密钥...", new=True)
+
+            encrypted_aes_key = (sock.recv(1024),)
+            sock.send(b"OK")
+
+            self._update_state_board("交换成功!")
+
+            return encrypted_aes_key
+
+        def __receive_encrypted_file(client, file_path):
+            self._update_state_board("接收加密文件中...", new=True)
+
+            file_name, file_size = json.loads(client.recv(1024).decode("utf8").strip())
+            with open(file_path, "wb") as f:
+                while True:
+                    data = client.recv(1024)
+                    f.write(data)
+
+                    file_size -= len(data)
+                    if file_size <= 0:
+                        break
+            client.send("OK".encode("utf8"))
+
+            self._update_state_board("接收成功!")
+
+        def __ask_decrypt_file_now(file_save_path):
+            choice = tkinter.messagebox.askyesno(
+                message="是否现在解密文件?[PS: 每次发送的文件都会使用新的AES密钥, 故需要在下次发送文件前对接收到的加密文件进行解密]")
+            if choice is True:
+                self._decrypt_file(file_save_path)
+
+        def __prepare_to_receive_file(sock):
+            sock.send(b"ready to receive file")
+            data = sock.recv(len(b"ready to send file"))
+            if b"ready to send file" == data:
+                return
+            else:
+                print(data)
+                raise RuntimeError
+
+        file_save_path = tkinter.filedialog.asksaveasfilename(title="文件保存路径为?")
+        if file_save_path == "":
+            return
+        self._update_state_board("请确保{0}已经准备好开始发送文件...".format(self.contact), new=True)
+        try:
+            __prepare_to_receive_file(self.client_sock)
+        except:
+            self._update_state_board("{0}还没准备好开始发送文件...".format(self.contact))
+            return
+
+        self.encrypted_aes_key = __exchange_encrypted_aes_key(self.client_sock)
+        __receive_encrypted_file(self.client_sock, file_save_path)
+        __ask_decrypt_file_now(file_save_path)
+
+        self.buttons["decrypt_file_button"].configure(state="normal")
 
 
 def main():
-    global top
-    top = tix.Tk()
-    app = LendingLibrary(top)
-    top.mainloop()
+    server = Server()
+    server.run()
 
 
 if __name__ == "__main__":
     main()
+

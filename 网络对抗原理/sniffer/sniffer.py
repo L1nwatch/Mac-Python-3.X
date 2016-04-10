@@ -21,15 +21,15 @@ ip_list = set()
 
 
 def all(packet):
-    if packet.src == "ac:bc:32:7c:02:33" or packet.dst == "ac:bc:32:7c:02:33":
-        return
+    # if packet.src == "ac:bc:32:7c:02:33" or packet.dst == "ac:bc:32:7c:02:33":
+    #     return
 
     print("{} -> {}".format(packet.src, packet.dst))
     if packet.haslayer("ARP"):
         return
         # arp(packet)
     elif packet.haslayer("IP"):
-        ip(packet, ["10.177.185.95"], "192.168.199")
+        ip(packet, ["10.177.185.95"], "192.168.158")
 
 
 def ip(packet, filter=[], prefix=""):
@@ -37,7 +37,7 @@ def ip(packet, filter=[], prefix=""):
         # print(".", end="", flush=True)
         return
 
-    # print("{} -> {}".format(packet[IP].src, packet[IP].dst))
+    print("{} -> {}".format(packet[IP].src, packet[IP].dst))
     if packet[IP].src not in ip_list and packet[IP].src.startswith(prefix):
         print(packet.show())
         ip_list.add(packet[IP].src)
@@ -61,7 +61,9 @@ def arp(packet):
 def main():
     # pcap = ctypes.cdll.LoadLibrary(find_library("libpcap"))
     # sniff(prn=test, filter="arp", iface="en0")
-    sniff(prn=all, iface="en0", promisc=0)
+
+    # iface 网卡参数, prn 回调函数, promisc 混杂模式
+    sniff(prn=all, iface="en0", promisc=1)
 
 
 if __name__ == "__main__":
