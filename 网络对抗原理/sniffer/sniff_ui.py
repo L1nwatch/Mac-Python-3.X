@@ -1,7 +1,10 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
 # version: Python3.X
-''' 用于实现嗅探器的 UI 界面, 本来想用 PyQt 写的, 但是还没学, 而且时间不够, 所以还是用 tkinter 实现了
+'''
+多进程版本,发现不太好共享变量,所以还是全部改写成多线程好了
+
+用于实现嗅探器的 UI 界面, 本来想用 PyQt 写的, 但是还没学, 而且时间不够, 所以还是用 tkinter 实现了
 '''
 __author__ = '__L1n__w@tch'
 
@@ -15,13 +18,15 @@ from my_sniffer import MySniffer, l_packets
 
 class MyUI:
     def __init__(self):
+        global l_packets
+
         self.my_sniffer = MySniffer()
         pid = os.fork()
 
         # 注意利用 fork 创建多进程只适用于 Unix/Linux/Mac, windows 用 multiprocessing
         # child process(sniffer)
         if pid == 0:
-            global l_packets
+            self.l_packets = l_packets
             self.my_sniffer.sniff()
         else:
             ### 主窗口
@@ -52,10 +57,8 @@ class MyUI:
             self.root.mainloop()
 
     def _update_packets_list(self, listbox):
-        global l_packets
-
         for i in range(10000):
-            for each in l_packets:
+            for each in self.l_packets:
                 print(each)
                 listbox.insert(0, each)
                 listbox.update_idletasks()
