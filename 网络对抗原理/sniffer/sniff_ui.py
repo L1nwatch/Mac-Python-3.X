@@ -6,84 +6,116 @@
 __author__ = '__L1n__w@tch'
 
 import tkinter
+import threading
 import tkinter.messagebox as mb
+import os
 from collections import OrderedDict
+from my_sniffer import MySniffer, l_packets
 
 
-class MySniff:
-    pass
+class MyUI:
+    def __init__(self):
+        self.my_sniffer = MySniffer()
+        pid = os.fork()
 
+        # 注意利用 fork 创建多进程只适用于 Unix/Linux/Mac, windows 用 multiprocessing
+        # child process(sniffer)
+        if pid == 0:
+            global l_packets
+            self.my_sniffer.sniff()
+        else:
+            ### 主窗口
+            self.root = tkinter.Tk()
+            self._initialize_root(self.root)
 
-def initialize_menu(frame):
-    buttons = OrderedDict()
+            # 输入控件
+            # v = tkinter.StringVar()
+            # enter = tkinter.Entry(self.root, textvariable=v, bg="yellow", width=80)
+            # enter.grid()
 
-    # 创建各种按钮
-    buttons["start"] = tkinter.Button(frame, text="Start capturing packets", fg="red", command=None)
-    buttons["stop"] = tkinter.Button(frame, text="Stop capturing packets", command=None)
-    buttons["restart"] = tkinter.Button(frame, text="Restart current capture", command=None)
-    buttons["options"] = tkinter.Button(frame, text="Capture options", command=None)
+            ## 菜单栏
+            menu_frame = tkinter.Frame(self.root)
+            self._initialize_menu(menu_frame)
 
-    # 放置控件
-    column = 0
-    for each_button in buttons:
-        buttons[each_button].grid(row=0, column=column)
-        column += 1
-    frame.grid(row=0)
+            ## 功能实现区
+            # 列表帧, 包括 IP 列表区域, 包列表区域
+            packets_frame = tkinter.Frame(self.root)
+            self._initialize_list_frame(packets_frame)
 
+            # 内容显示帧, 包括图形化显示/其余功能选项区域, 内容显示区域
+            content_frame = tkinter.Frame(self.root)
+            self._initialize_content_frame(content_frame)
 
-def initialize_root(root):
-    # 设置窗口大小
-    root.geometry("800x640")
+            ## 状态栏
+            # state_frame = tkinter.Frame(self.root)
 
-    # 设置标题
-    root.title("Sniffer By w@tch")
+            self.root.mainloop()
 
-    # 不允许更改窗口大小
-    root.resizable(height=False, width=False)
+    def _update_packets_list(self, listbox):
+        global l_packets
 
+        for i in range(10000):
+            for each in l_packets:
+                print(each)
+                listbox.insert(0, each)
+                listbox.update_idletasks()
 
-def initialize_content_frame(frame):
-    # 图形化显示/其余功能选项帧
-    # 内容显示帧
-    pass
+    def _initialize_menu(self, frame):
+        buttons = OrderedDict()
 
+        # 创建各种按钮
+        buttons["start"] = tkinter.Button(frame, text="Start capturing packets", fg="red", command=None)
+        buttons["stop"] = tkinter.Button(frame, text="Stop capturing packets", fg="blue", command=None)
+        buttons["restart"] = tkinter.Button(frame, text="Restart current capture", fg="orange", command=None)
+        buttons["options"] = tkinter.Button(frame, text="Capture options", fg="green", command=None)
 
-def initialize_list_frame(frame):
-    # IP 列表区域
-    ip_list_box = tkinter.Listbox(frame)
-    ip_list_box.grid(row=0, column=0)
+        # 放置控件
+        column = 0
+        for each_button in buttons:
+            buttons[each_button].grid(row=0, column=column)
+            column += 1
+        frame.grid(row=0)
 
-    # 包 列表
-    packets_list_box = tkinter.Listbox(frame)
-    packets_list_box.grid(row=0, column=1)
+    def _initialize_root(self, root):
+        # 设置窗口大小
+        root.geometry("800x640")
 
-    frame.grid()
+        # 设置标题
+        root.title("Sniffer By w@tch")
+
+        # 不允许更改窗口大小
+        root.resizable(height=False, width=False)
+
+    def _initialize_content_frame(self, frame):
+        # 图形化显示/其余功能选项帧
+        functions_listbox = tkinter.Listbox(frame)
+        functions_listbox.grid(sticky=tkinter.W, row=0, column=0)
+
+        # 内容显示帧
+        content_label_frame = tkinter.LabelFrame(frame)
+        contents_text = tkinter.Text(content_label_frame)
+
+        contents_text.insert(tkinter.END, "Aaa")
+
+        contents_text.grid()
+        content_label_frame.grid(sticky=tkinter.E, row=0, column=1)
+
+        frame.grid()
+
+    def _initialize_list_frame(self, frame):
+        # IP 列表区域
+        ip_list_box = tkinter.Listbox(frame)
+        ip_list_box.grid(row=0, column=0)
+
+        # 包 列表
+        packets_list_box = tkinter.Listbox(frame)
+
+        packets_update_thread = threading.Thread(target=self._update_packets_list, args=(packets_list_box,))
+        packets_update_thread.start()
+
+        packets_list_box.grid(row=0, column=1)
+        frame.grid()
 
 
 if __name__ == "__main__":
-    ### 主窗口
-    root = tkinter.Tk()
-    initialize_root(root)
-
-    # 输入控件
-    # v = tkinter.StringVar()
-    # enter = tkinter.Entry(root, textvariable=v, bg="yellow", width=80)
-    # enter.grid()
-
-    ## 菜单栏
-    menu_frame = tkinter.Frame(root)
-    initialize_menu(menu_frame)
-
-    ## 功能实现区
-    packets_frame = tkinter.Frame(root)
-    # 列表帧, 包括 IP 列表区域, 包列表区域
-    initialize_list_frame(packets_frame)
-
-    # 内容显示帧, 包括图形化显示/其余功能选项区域, 内容显示区域
-    content_frame = tkinter.Frame(root)
-    initialize_content_frame(content_frame)
-
-    ## 状态栏
-    state_frame = tkinter.Frame(root)
-
-    root.mainloop()
+    ui = MyUI()
