@@ -17,6 +17,7 @@ sudo ln -s /System/Library/PrivateFrameworks/Apple80211.framework/Versions/Curre
 __author__ = '__L1n__w@tch'
 
 from scapy.all import *
+import threading
 
 l_packets = list()
 
@@ -42,14 +43,33 @@ class MySniffer:
         l_packets.append(packet)
 
 
+def sniff_thread():
+    my_sniffer = MySniffer()
+    my_sniffer.sniff(promisc=0)
+
+
+def print_l_packets():
+    while True:
+        if len(l_packets) > 0:
+            print(l_packets)
+
+
 if __name__ == "__main__":
     global ip_list, l_packets
     ip_list = set()
 
-    my_sniffer = MySniffer()
-    my_sniffer.sniff(promisc=0)
+    sniff_thread = threading.Thread(target=sniff_thread)
+    sniff_thread.start()
+    sniff_thread.join()
 
-    print(l_packets)
+    # print(l_packets)
+
+    # 测试线程变量是否能共享更新的 l_packets
+    # t = threading.Thread(target=print_l_packets)
+    # t.start()
+
+    for packet in l_packets:
+        print(packet.src)
 
 """
 之前的学习
