@@ -13,7 +13,9 @@ __author__ = '__L1n__w@tch'
 import tkinter
 import sys
 import threading
+import io
 import tkinter.messagebox as mb
+from contextlib import redirect_stdout
 from collections import OrderedDict
 from my_sniffer import MySniffer, l_packets
 from scapy.utils import sane_color, orb
@@ -22,6 +24,7 @@ from scapy.utils import sane_color, orb
 class MyUI:
     def __init__(self):
         global l_packets
+        self.d_packets_counts = {"TCP": 0, "UDP": 0, "ICMP": 0, "ARP": 0, "Others": 0}
 
         # 嗅探线程
         self.my_sniffer = MySniffer()
@@ -36,19 +39,32 @@ class MyUI:
         menu_frame = tkinter.Frame(self.root)
         self._initialize_menu(menu_frame)
 
-        ## 功能实现区
-        # 列表帧, 包括 IP 列表区域, 包列表区域
+        ## 功能实现区 Start
+        # 列表帧, 包括包数量列表, 包列表区域 #TODO: 本来第一个是 IP 列表区域的,待定
         packets_frame = tkinter.LabelFrame(self.root)
         self._initialize_list_frame(packets_frame)
 
         # 内容显示帧, 包括图形化显示/其余功能选项区域, 内容显示区域
         content_frame = tkinter.LabelFrame(self.root)
         self._initialize_content_frame(content_frame)
+        ## 功能实现区 End
 
         ## 状态栏
         # state_frame = tkinter.Frame(self.root)
 
         self.root.mainloop()
+
+    def _counts_packets_type(self, packet):
+        if packet.haslayer("TCP"):
+            self.d_packets_counts["TCP"] += 1
+        elif packet.haslayer("UDP"):
+            self.d_packets_counts["UDP"] += 1
+        elif packet.haslayer("ICMP"):
+            self.d_packets_counts["ICMP"] += 1
+        elif packet.haslayer("ARP"):
+            self.d_packets_counts["ARP"] += 1
+        else:
+            self.d_packets_counts["Others"] += 1
 
     def _update_packets_list(self, listbox):
         global l_packets
@@ -59,15 +75,28 @@ class MyUI:
         while True:
             # 检查是否有抓到新的包
             if len(l_packets) > len(self.l_packets):
+                ## 更新包列表 Start
                 # 有新的包, 保存进类变量里, 并且打印到图形界面的包列表区域中
                 for index in range(len(self.l_packets), len(l_packets)):
                     print_data = "{:<10}{:<}".format(index, l_packets[index].summary())
                     self.l_packets.append(l_packets[index])
                     listbox.insert(tkinter.END, print_data)
-                    listbox.pack(side=tkinter.LEFT)
+                    # listbox.yview(tkinter.END)  # 自动滚动到最下面
+                    ## 更新包列表 End
 
-                    # 更新组件
-                    # listbox.update_idletasks()
+                    ## 更新包数量列表 Start
+                    self._counts_packets_type(l_packets[index])
+                    self.packets_num_listbox.delete(0, tkinter.END)
+                    self.packets_num_listbox.insert(tkinter.END, "TCP:{}".format(self.d_packets_counts["TCP"]))
+                    self.packets_num_listbox.insert(tkinter.END, "UDP:{}".format(self.d_packets_counts["UDP"]))
+                    self.packets_num_listbox.insert(tkinter.END, "ICMP:{}".format(self.d_packets_counts["ICMP"]))
+                    self.packets_num_listbox.insert(tkinter.END, "ARP:{}".format(self.d_packets_counts["ARP"]))
+                    self.packets_num_listbox.insert(tkinter.END, "Others:{}".format(self.d_packets_counts["Others"]))
+                    ## 更新包数量列表 End
+
+                # 更新组件
+                pass
+                # listbox.update_idletasks()
 
     def _initialize_menu(self, frame):
         buttons = OrderedDict()
@@ -147,6 +176,7 @@ class MyUI:
     def _hexdump(x):
         """
         改造 scapy.utils 库中的 hexdump 为我所用(NND 的库函数要是跟写个返回值我就不用手改了)
+        还有另外一种方式,参考 show() 函数,直接打印到字符串了
         :param x:
         :return:
         """
@@ -174,13 +204,27 @@ class MyUI:
 
     def _print_packet_contents(self, event, listbox):
         packet = self.l_packets[listbox.curselection()[0]]
-        contents = MyUI._hexdump(packet)
+        hex_contents = MyUI._hexdump(packet)
 
+        ## 十六进制面板 Start
         # state="normal",使得我们可以输入内容, 输完内容后改 state 为 disabled 使用户无法输入
         self.hex_text.configure(state="normal")
         self.hex_text.delete("1.0", tkinter.END)  # 清空原先的内容
-        self.hex_text.insert(tkinter.END, contents)
+        self.hex_text.insert(tkinter.END, hex_contents)
         self.hex_text.configure(state="disabled")
+        ## 十六进制面板 End
+
+        ## 包详细内容面板 Start
+        # 将 show 结果 print 打印到字符串, 重定向 stdout 到字符串
+        with io.StringIO() as buf, redirect_stdout(buf):
+            packet.show()
+            show_str = buf.getvalue()
+
+        self.contents_text.configure(state="normal")
+        self.contents_text.delete("1.0", tkinter.END)  # 清空原先的内容
+        self.contents_text.insert(tkinter.END, show_str)
+        self.contents_text.configure(state="disabled")
+        ## 包详细内容面板 End
 
     def _initialize_packets_area_listbox(self, frame):
         packets_list_box = tkinter.Listbox(frame, width=80)
@@ -203,10 +247,10 @@ class MyUI:
         frame.grid(row=1)
 
     def _initialize_list_frame(self, frame):
-        ## IP 列表区域 Start
-        ip_list_box = tkinter.Listbox(frame)
-        ip_list_box.pack(side=tkinter.LEFT, fill=tkinter.Y)
-        ## IP 列表区域 End
+        ## 包数量列表 Start TODO: 本来想写成 IP 列表的, 待定
+        self.packets_num_listbox = tkinter.Listbox(frame)
+        self.packets_num_listbox.pack(side=tkinter.LEFT, fill=tkinter.Y)
+        ## 包数量列表 End
 
         ## 包 区域 Start
         packets_area_frame = tkinter.LabelFrame(frame)
