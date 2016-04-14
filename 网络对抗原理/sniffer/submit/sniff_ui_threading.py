@@ -13,15 +13,16 @@ __author__ = '__L1n__w@tch'
 # 这个一直没找到好办法解决,原因是 Python3 的 Pylibpcap 在 macosx 下好像安装不顺利, 而且 libpcap 库底层的东西我又不想去碰
 
 
-import tkinter
-import sys
-import threading
 import io
+import threading
+import tkinter
 import tkinter.messagebox as mb
-from contextlib import redirect_stdout
 from collections import OrderedDict
-from my_sniffer import MySnifferThread, l_packets
+from contextlib import redirect_stdout
+
 from scapy.utils import sane_color, orb
+
+from submit.my_sniffer import MySnifferThread
 
 
 class MyUI:
