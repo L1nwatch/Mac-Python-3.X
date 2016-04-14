@@ -21,26 +21,69 @@ import threading
 
 l_packets = list()
 
+# 互斥量, 用来手动挂起线程的
+semaphore = threading.Semaphore(0)
 
-class MySniffer:
+
+class MySnifferThread(threading.Thread):
     def __init__(self):
-        pass
+        super(MySnifferThread, self).__init__()
 
-    def sniff(self, iface="en0", promisc=1, filter="", store=False):
+        # 挂起线程用了, 为了实现暂停功能
+        global semaphore
+        self.stopped = None
+        self.configuration()
+
+    def configuration(self, iface="en0", promisc=1, lfilter=None, store=False):
         # 设置网卡
         self.iface = iface
 
         # 是否开启混杂模式, 1 为开启, 0 为关闭
         self.promisc = promisc
 
+        # 过滤器, 只留下某些包, 比如 lfilter = lambda x: x.haslayer("TCP"), 只留下 TCP 包
+        self.lfilter = lfilter
+
         # 是否保存嗅探包
         self.store = store
 
-        sniff(prn=self.prn, iface=iface, promisc=promisc, store=self.store)
+    def run(self):
+        self.stopped = False
+        sniff(prn=self.prn, iface=self.iface, promisc=self.promisc, store=self.store, lfilter=self.lfilter)
+
+    def stop(self):
+        self.stopped = True
+
+    def is_stopped(self):
+        return self.stopped
+
+    def restart(self):
+        self.stopped = False
+        MySnifferThread.v(semaphore)
 
     def prn(self, packet):
         global l_packets
         l_packets.append(packet)
+
+        # 看是否要挂起线程
+        if self.stopped:
+            MySnifferThread.p(semaphore)
+
+    @staticmethod
+    def v(semaphore):
+        """
+        V 原语,相当于释放资源
+        :return:
+        """
+        semaphore.release()
+
+    @staticmethod
+    def p(semaphore):
+        """
+        P 原语,相当于申请资源
+        :return:
+        """
+        semaphore.acquire()
 
 
 def sniff_thread():
