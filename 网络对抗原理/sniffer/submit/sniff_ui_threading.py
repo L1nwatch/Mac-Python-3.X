@@ -21,10 +21,9 @@ import tkinter
 import tkinter.messagebox as mb
 from collections import OrderedDict
 from contextlib import redirect_stdout
-
 from scapy.utils import sane_color, orb
 
-from submit.my_sniffer import MySnifferThread
+from my_sniffer import MySnifferThread
 
 
 class MyUI:
