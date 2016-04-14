@@ -55,10 +55,11 @@ def test1():
 
 def update(listbox):
     for i in range(30):
-        data = "{:20}{:20}{:20}{:20}{:20}".format("a", "b", "c", "d", "e")
+        data = "{:20}{:20}{:20}{:20}{:20}".format(str(i), "b", "c", "d", "e")
 
         listbox.insert(tkinter.END, data)
         listbox.pack(side=tkinter.LEFT, fill=tkinter.Y)
+        listbox.yview(tkinter.END)
         # listbox.update_idletasks()
         time.sleep(0.1)
 
@@ -93,6 +94,24 @@ def print_list(event):
     pass
 
 
+def test3():
+    """
+    用来测试多选框
+    :return:
+    """
+    root = tkinter.Tk()
+
+    checkbutton = tkinter.Checkbutton(root, text="aaa", command=lambda: print("aaa"))
+    checkbutton.select()
+    checkbutton.pack()
+    checkbutton = tkinter.Checkbutton(root, text="bbb", command=lambda: print("bbb")).pack()
+    checkbutton = tkinter.Checkbutton(root, text="ccc", command=lambda: print("ccc")).pack()
+    checkbutton = tkinter.Checkbutton(root, text="ddd", command=lambda: print("ddd")).pack()
+
+    root.mainloop()
+
+
 if __name__ == "__main__":
-    test2()
+    # test2()
     # test1()
+    test3()
