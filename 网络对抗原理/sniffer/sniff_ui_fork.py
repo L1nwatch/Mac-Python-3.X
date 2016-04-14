@@ -8,12 +8,12 @@
 '''
 __author__ = '__L1n__w@tch'
 
-import tkinter
-import threading
-import tkinter.messagebox as mb
 import os
+import threading
+import tkinter
 from collections import OrderedDict
-from my_sniffer import MySniffer, l_packets
+
+from submit.my_sniffer import MySniffer
 
 
 class MyUI:
