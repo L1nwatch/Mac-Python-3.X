@@ -23,12 +23,11 @@ from collections import OrderedDict
 from contextlib import redirect_stdout
 from scapy.utils import sane_color, orb
 
-from my_sniffer import MySnifferThread
+from my_sniffer import MySnifferThread, l_packets
 
 
 class MyUI:
     def __init__(self):
-        global l_packets
         self.d_packets_counts = {"TCP": 0, "UDP": 0, "ICMP": 0, "ARP": 0, "Others": 0, "Total": 0}
         self.d_configuration = OrderedDict()
         self.d_configuration["TCP"], self.d_configuration["UDP"], self.d_configuration["ICMP"], self.d_configuration[
