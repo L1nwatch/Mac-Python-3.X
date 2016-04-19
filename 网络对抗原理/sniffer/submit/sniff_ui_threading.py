@@ -11,18 +11,18 @@ __author__ = '__L1n__w@tch'
 
 # TODO: 列出监测主机的所有网卡，选择一个网卡，设置为混杂模式进行监听
 # 这个一直没找到好办法解决,原因是 Python3 的 Pylibpcap 在 macosx 下好像安装不顺利, 而且 libpcap 库底层的东西我又不想去碰
-# TODO: 还差添加一个支持开启/关闭混杂模式的选项
-# 这个很好解决,就差写了
 
 
+# 重定向 print 输出到字符串时要使用
 import io
-import threading
+from contextlib import redirect_stdout
+#  被迫地使用 tkinter 库
 import tkinter
 import tkinter.messagebox as mb
-from collections import OrderedDict
-from contextlib import redirect_stdout
-from scapy.utils import sane_color, orb
+from collections import OrderedDict  # 懒得自己实现有序字典了
+from scapy.utils import sane_color, orb  # 尝试着改写 hexdump 函数时用的, 其实也可以重定向的, 不过我要尝试不同的方法
 
+import threading
 from my_sniffer import MySnifferThread, l_packets
 
 
@@ -31,7 +31,7 @@ class MyUI:
         self.d_packets_counts = {"TCP": 0, "UDP": 0, "ICMP": 0, "ARP": 0, "Others": 0, "Total": 0}
         self.d_configuration = OrderedDict()
         self.d_configuration["TCP"], self.d_configuration["UDP"], self.d_configuration["ICMP"], self.d_configuration[
-            "ARP"], self.d_configuration["Others"] = True, True, True, True, True
+            "ARP"], self.d_configuration["Others"], self.d_configuration["Promisc"] = True, True, True, True, True, True
 
         # 嗅探线程
         self.my_sniffer_thread = MySnifferThread()
@@ -54,12 +54,13 @@ class MyUI:
         self._initialize_content_frame(content_frame)
         ## 功能实现区 End
 
-        ## 状态栏
+        ## 状态栏, TODO: 没时间写这东西®
         # state_frame = tkinter.Frame(self.root)
 
         self.root.mainloop()
 
     def _counts_packets_type(self, packet):
+        # 用来更新包数量统计的, 不过这里写得太丑了, 待有序字典和迭代器改写
         if packet.haslayer("TCP"):
             self.d_packets_counts["TCP"] += 1
         elif packet.haslayer("UDP"):
@@ -73,7 +74,12 @@ class MyUI:
         self.d_packets_counts["Total"] += 1
 
     def _update_packets_num_listbox(self):
-        self.packets_num_listbox.delete(0, tkinter.END)
+        """
+        更新左上角的各种包的统计信息
+        :return:
+        """
+        self.packets_num_listbox.delete(0, tkinter.END)  # 先清除原先的数据
+        # 下面这个写太丑了, 应该用有序链表搭配迭代器来写的
         self.packets_num_listbox.insert(tkinter.END, "TCP:{}".format(self.d_packets_counts["TCP"]))
         self.packets_num_listbox.insert(tkinter.END, "UDP:{}".format(self.d_packets_counts["UDP"]))
         self.packets_num_listbox.insert(tkinter.END, "ICMP:{}".format(self.d_packets_counts["ICMP"]))
@@ -104,6 +110,10 @@ class MyUI:
                     # listbox.update_idletasks()# 更新组件
 
     def _stop_sniff_thread(self):
+        """
+        控制当用户按下 stop capture packets 按钮时的交互
+        :return:
+        """
         res = self.my_sniffer_thread.is_stopped()
         if res is True:
             tkinter.messagebox.showerror(title="Stop capturing packets", message="嗅探早就停止了")
@@ -119,58 +129,55 @@ class MyUI:
         根据 self.d_configuration, 配置 sniff 所需要的 lfilter 函数
         :return:
         """
+        # TODO: 这里写丑了, 居然需要专门弄个条件分支给 Promisc
         for protocol in self.d_configuration:
             if protocol != "Others":
-                if packet.haslayer(protocol) and not self.d_configuration[protocol]:
+                if packet.haslayer(protocol) and self.d_configuration[protocol]:
+                    return True
+                elif packet.haslayer(protocol) and self.d_configuration[protocol]:
                     return False
             elif self.d_configuration["Others"]:
                 return True
-        return True
+            elif protocol == "Promisc":
+                continue
+        return False
 
     def _start_sniff_thread(self):
+        """
+        控制当用户按下 start 按钮时的交互
+        :return:
+        """
         # TODO: 为了减小本人的工作量, 只允许进行一次配置, 且只能在没开始嗅探之前配置...
         self.buttons["options"].configure(state="disabled")
 
-        self.my_sniffer_thread.configuration(lfilter=self._lfilter_func)
+        self.my_sniffer_thread.configurate(lfilter=self._lfilter_func, promisc=int(self.d_configuration["Promisc"]))
         self._initialize_functions_listbox()
 
         self.my_sniffer_thread.start()
         self.buttons["start"].configure(state="disabled")  # 使得按钮无法再按
 
     def _restart_sniff_thread(self):
+        """
+        控制当用户按下 restart 按钮时的交互
+        :return:
+        """
         self.my_sniffer_thread.restart()
         self.buttons["restart"].configure(state="disabled")
 
-    def _checkbutton_callback(self, protocol):
+    def _checkbutton_callback(self, name):
         """
         功能是实现配置选项, 如果选中变为未选中,则令对应配置值变为 False
         例如, 原来 self.d_configuration["TCP"] = True, 执行完这个函数之后, self.d_configuration["TCP"] = False
-        :param protocol: "TCP"
+        :param name: "TCP"
         :return:
         """
-        self.d_configuration[protocol] = not self.d_configuration[protocol]
+        self.d_configuration[name] = not self.d_configuration[name]
 
-    def _initialize_packets_filter_buttons(self, frame):
+    def _set_checkbuttons(self):
         """
-        初始化配置窗口中的过滤器中的包类型
-        :param frame: 包选择过滤帧
+        放置配置窗口中的各个按钮
         :return:
         """
-        self.checkbuttons = OrderedDict()
-
-        self.checkbuttons["TCP"] = tkinter.Checkbutton(frame, text="TCP",
-                                                       command=lambda: self._checkbutton_callback("TCP"))
-        self.checkbuttons["UDP"] = tkinter.Checkbutton(frame, text="UDP",
-                                                       command=lambda: self._checkbutton_callback("UDP"))
-        self.checkbuttons["ICMP"] = tkinter.Checkbutton(frame, text="ICMP",
-                                                        command=lambda: self._checkbutton_callback(
-                                                            "ICMP"))
-        self.checkbuttons["ARP"] = tkinter.Checkbutton(frame, text="ARP",
-                                                       command=lambda: self._checkbutton_callback("ARP"))
-        self.checkbuttons["Others"] = tkinter.Checkbutton(frame, text="Others",
-                                                          command=lambda: self._checkbutton_callback(
-                                                              "Others"))
-
         for each_button in self.checkbuttons:
             if self.d_configuration[each_button]:
                 self.checkbuttons[each_button].select()  # 默认为选中状态
@@ -178,20 +185,50 @@ class MyUI:
                 self.checkbuttons[each_button].deselect()  # 未选中状态
             self.checkbuttons[each_button].pack()
 
+    def _initialize_configuration_buttons(self, frame):
+        """
+        初始化配置窗口中的过滤器中的包类型
+        :param frame: 包选择过滤帧
+        :return:
+        """
+        self.checkbuttons = OrderedDict()
+
+        # TODO: 这下面这堆写丑了
+        ## 过滤协议的选项 Start
+        tkinter.Label(frame, text="选择所要保留的包类型以及是否开启混杂模式", anchor="w").pack()
+        self.checkbuttons["TCP"] = tkinter.Checkbutton(frame, text="TCP",
+                                                       command=lambda: self._checkbutton_callback("TCP"))
+        self.checkbuttons["UDP"] = tkinter.Checkbutton(frame, text="UDP",
+                                                       command=lambda: self._checkbutton_callback("UDP"))
+        self.checkbuttons["ICMP"] = tkinter.Checkbutton(frame, text="ICMP",
+                                                        command=lambda: self._checkbutton_callback("ICMP"))
+        self.checkbuttons["ARP"] = tkinter.Checkbutton(frame, text="ARP",
+                                                       command=lambda: self._checkbutton_callback("ARP"))
+        self.checkbuttons["Others"] = tkinter.Checkbutton(frame, text="Others",
+                                                          command=lambda: self._checkbutton_callback("Others"))
+        ## 过滤协议的选项 End
+
+        ## 其他选项 Start
+        # 配置混杂模式选项
+        self.checkbuttons["Promisc"] = tkinter.Checkbutton(frame, text="Promisc",
+                                                           command=lambda: self._checkbutton_callback("Promisc"))
+        self.checkbuttons["Promisc"].pack()
+        ## 其他选项 End
+
+        self._set_checkbuttons()  # 放置按钮
+
     def _configure_options(self):
         # 通过子窗口来进行配置
         sub_window = tkinter.Toplevel()
         sub_window.title("配置窗口")
 
         ## 包过滤选择帧 Start
-        packets_filter_labelframe = tkinter.LabelFrame(sub_window)
+        configurations_labelframe = tkinter.LabelFrame(sub_window)
 
-        checkbutton_label = tkinter.Label(packets_filter_labelframe, text="选择所要保留的包类型", anchor="w")
-        checkbutton_label.pack()
-        # 初始化几个复选框
-        self._initialize_packets_filter_buttons(packets_filter_labelframe)
+        # 初始化选项复选框
+        self._initialize_configuration_buttons(configurations_labelframe)
 
-        packets_filter_labelframe.pack()
+        configurations_labelframe.pack()
         ## 包过滤选择帧 End
 
         sub_window.grid()
