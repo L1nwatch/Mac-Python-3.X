@@ -32,9 +32,9 @@ class MySnifferThread(threading.Thread):
         # 挂起线程用了, 为了实现暂停功能
         global semaphore
         self.stopped = None
-        self.configuration()
+        self.configurate()
 
-    def configuration(self, iface="en0", promisc=1, lfilter=None, store=False):
+    def configurate(self, iface="en0", promisc=1, lfilter=None, store=False):
         # 设置网卡
         self.iface = iface
 
@@ -87,8 +87,9 @@ class MySnifferThread(threading.Thread):
 
 
 def sniff_thread():
-    my_sniffer = MySniffer()
-    my_sniffer.sniff(promisc=0)
+    my_sniffer = MySnifferThread()
+    my_sniffer.configurate(promisc=0)
+    my_sniffer.start()
 
 
 def print_l_packets():
