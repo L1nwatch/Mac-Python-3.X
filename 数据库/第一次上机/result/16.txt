@@ -1,0 +1,5 @@
+student_number	COUNT(t2.student_score)
+03051054	6
+03051063	7
+03051095	5
+03051107	6

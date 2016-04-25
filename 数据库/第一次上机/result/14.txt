@@ -1,0 +1,2 @@
+SUM(course_credit)
+198
