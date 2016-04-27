@@ -84,15 +84,15 @@ def login_after_update():
     :return:
     """
     # 模拟访问登陆界面
-    url = "http://10.255.44.33:803/srun_portal_pc.php?ac_id=1&"
-    session = requests.Session()
-    session.get(url)
+    # url = "http://10.255.44.33:803/srun_portal_pc.php?ac_id=1&"
+    # session = requests.Session()
+    # session.get(url)
 
     # 认证页面
     url = "http://10.255.44.33:803/include/auth_action.php"
     post_data = {"action": "login", "username": "13030110024", "password": "foreachlf",
-                 "ac_id": "1"}  # &user_ip=&nas_ip=&user_mac=&save_me=0&ajax=1"}
-    response = session.post(url, post_data)
+                 "ac_id": "1", "save_me": 0}  # &user_ip=&nas_ip=&user_mac=&save_me=0&ajax=1"}
+    response = requests.post(url, post_data)
     if ping_success():
         tkinter.messagebox.showinfo("登录校园网", "登录成功")
     else:
