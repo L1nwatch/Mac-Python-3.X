@@ -24,7 +24,7 @@ def is_valid_file_type(name, type):
 def configurate():
     configuration = dict()
 
-    configuration["path"] = "/Users/L1n/Desktop/全国大学生信息安全竞赛/for_Python/ZStack-CC2530-2.3.0-1.4.0"
+    configuration["path"] = "/Users/L1n/Desktop/全国大学生信息安全竞赛/for_Python"
     configuration["file_type"] = [".c", ".h"]
 
     print("[*] Only search keyword in filetype: {}".format(configuration["file_type"]))
