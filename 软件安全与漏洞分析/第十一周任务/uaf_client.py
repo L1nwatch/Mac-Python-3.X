@@ -6,7 +6,6 @@
 __author__ = '__L1n__w@tch'
 
 import socket
-import sys
 
 HOST, PORT = "192.168.117.131", 9999
 
