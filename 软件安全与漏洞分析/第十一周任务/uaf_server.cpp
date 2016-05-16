@@ -5,7 +5,7 @@
 #include <iostream> 
 #include <cstring>
 #include <cstdlib>
-// #include <unistd.h>
+// #include <unistd.h> Linux
 #include <string>
 
 using namespace std;
