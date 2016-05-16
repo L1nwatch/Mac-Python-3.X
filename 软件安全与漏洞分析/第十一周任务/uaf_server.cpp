@@ -5,7 +5,7 @@
 #include <iostream> 
 #include <cstring>
 #include <cstdlib>
-#include <unistd.h>
+// #include <unistd.h>
 #include <string>
 
 using namespace std;
@@ -73,7 +73,7 @@ void client_deal(SOCKET sServer, SOCKET sClient, int addrClientlen) {
 			break;
 		case 2:		
 			// 接收长度
-			recv(sClient, buf, 2, 0);
+			recv(sClient, buf, 2, 0); // 这里接收长度为 2，发送长度也要为 2 才行
 			len = atoi(buf);
 
 			// 接收数据
