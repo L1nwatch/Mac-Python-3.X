@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#pragma comment(lib, "ws2_32.lib")  //¼ÓÔØ ws2_32.dll
+#pragma comment(lib, "ws2_32.lib")  //åŠ è½½ ws2_32.dll
 
 #define BUF_SIZE 64
 
@@ -26,7 +26,7 @@ void client_deal(SOCKET sock, sockaddr_in servAddr,sockaddr fromAddr, int addrLe
 }
 
 int main(void){
-	// ²âÊÔ shellcode
+	// æµ‹è¯• shellcode
 	/*
 	void (*fun)();
 	*(int *)&fun=(int)shellcode;
@@ -47,7 +47,7 @@ int main(void){
 	*/
 
 	
-	//²âÊÔ Done
+	//æµ‹è¯• Done
 	// __asm{
 	// 	xor eax,eax			// "\0"
 	// 	push eax
@@ -55,9 +55,9 @@ int main(void){
 	// 	push eax
 	// 	mov eax,0x636c6163 	// "clac" <- "calc"
 	// 	push eax
-	// 	lea eax,[esp]		// ×Ö·û´® "calc.exe" µÄµØÖ·
+	// 	lea eax,[esp]		// å­—ç¬¦ä¸² "calc.exe" çš„åœ°å€
 	// 	push eax
-	// 	mov ecx,0x77bf93c7	// system µ÷ÓÃ
+	// 	mov ecx,0x77bf93c7	// system è°ƒç”¨
 	// 	call ecx
 	// }
 	// return 0;
@@ -65,21 +65,21 @@ int main(void){
 
 	
 
-    //³õÊ¼»¯DLL
+    //åˆå§‹åŒ–DLL
     WSADATA wsaData;
     WSAStartup(MAKEWORD(2, 2), &wsaData);
 	
-    //´´½¨Ì×½Ó×Ö
+    //åˆ›å»ºå¥—æŽ¥å­—
     SOCKET sock = socket(PF_INET, SOCK_DGRAM, 0);
 	
-    //·þÎñÆ÷µØÖ·ÐÅÏ¢
+    //æœåŠ¡å™¨åœ°å€ä¿¡æ¯
     sockaddr_in servAddr;
-    memset(&servAddr, 0, sizeof(servAddr));  //Ã¿¸ö×Ö½Ú¶¼ÓÃ0Ìî³ä
+    memset(&servAddr, 0, sizeof(servAddr));  //æ¯ä¸ªå­—èŠ‚éƒ½ç”¨0å¡«å……
     servAddr.sin_family = PF_INET;
     servAddr.sin_addr.s_addr = inet_addr("192.168.117.1");
     servAddr.sin_port = htons(9999);
 	
-    //²»¶Ï»ñÈ¡ÓÃ»§ÊäÈë²¢·¢ËÍ¸ø·þÎñÆ÷£¬È»ºó½ÓÊÜ·þÎñÆ÷Êý¾Ý
+    //ä¸æ–­èŽ·å–ç”¨æˆ·è¾“å…¥å¹¶å‘é€ç»™æœåŠ¡å™¨ï¼Œç„¶åŽæŽ¥å—æœåŠ¡å™¨æ•°æ®
     sockaddr fromAddr;
     int addrLen = sizeof(fromAddr);
     while(1){
