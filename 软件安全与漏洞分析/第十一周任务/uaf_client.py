@@ -1,7 +1,7 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
 # version: Python3.X
-''' Description
+''' 软件安全与漏洞分析第十一周任务, 目的是利用 UAF 漏洞在服务器端攻击虚函数, 达到执行程序中的 give_shell() 函数的功能
 '''
 __author__ = '__L1n__w@tch'
 
