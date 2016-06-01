@@ -6,8 +6,8 @@
 __author__ = '__L1n__w@tch'
 
 if __name__ == "__main__":
-    key_1 = "1 0 0 1 0 0 0 1 1 0 1 0 1 0 1 1"
-    key_2 = "0 0 0 1 1 1 0 0 1 1 1 1 0 1 1 1"
+    key_1 = "1 1 1 1 1 0 1 0 1 1 0 0 0 0 0 0 "
+    key_2 = "1 1 1 1 0 0 0 0 1 1 1 0 0 1 0 0 "
 
     counts = 0
     print("Key1:\n{}\nKey2:\n{}".format(key_1, key_2))
