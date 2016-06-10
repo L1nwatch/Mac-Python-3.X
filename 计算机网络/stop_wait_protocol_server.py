@@ -37,6 +37,7 @@ class TCPHandler(socketserver.BaseRequestHandler):
         """
         received_data = sock.recv(1024)
         received_data = simplejson.loads(received_data)
+        print("[?] 收到包: {}".format(received_data))
 
         return received_data
 
@@ -52,14 +53,16 @@ class TCPHandler(socketserver.BaseRequestHandler):
         flag = True
 
         # 模拟发包情况, 可能正常发包、发包误码、发的包丢失了
-        data_dict["packet_type"] = random.choice(
-            (PACKET_TYPE[packet_type], PACKET_TYPE["丢包"], PACKET_TYPE["误码"])
-        )
+        # data_dict["packet_type"] = random.choice(
+        #     (PACKET_TYPE[packet_type], PACKET_TYPE["丢包"], PACKET_TYPE["误码"])
+        # )
+        data_dict["packet_type"] = PACKET_TYPE["确认"]
         if data_dict["packet_type"] == PACKET_TYPE["丢包"]:
             # TODO: 这一部分写在超时重传里是不是好一些
             flag = False
         data_dict["send_seq"] = seq
         data = simplejson.dumps(data_dict)
+        print("发送包: {}".format(data))
         sock.sendall(data.encode("utf8"))
 
         return flag
@@ -80,8 +83,6 @@ class TCPHandler(socketserver.BaseRequestHandler):
                     assert (excepted_frame_number == excepted_frame_number)
                     excepted_seq = 1 - excepted_seq
                     excepted_frame_number = (excepted_frame_number + 1) % MAX_FRAME_NUMBER
-
-                    print("收到客户端发来的消息: {}".format(received_data))
 
                     # 回送 Ack
                     if not TCPHandler.send_packet(self.request, "确认", received_data["send_seq"]):
