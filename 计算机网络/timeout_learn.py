@@ -11,6 +11,7 @@ import threading
 import sys
 
 
+# 网上的超时检测器
 class KThread(threading.Thread):
     """A subclass of threading.Thread, with a kill()
     method.
@@ -24,9 +25,10 @@ class KThread(threading.Thread):
 
     def start(self):
         """Start the thread."""
+        # 线程运行前设置跟踪过程 self.globaltrace
         self.__run_backup = self.run
         self.run = self.__run  # Force the Thread to install our trace.
-        threading.Thread.start(self)
+        threading.Thread.start(self)  # 运行线程
 
     def __run(self):
         """Hacked run function, which installs the
@@ -36,15 +38,15 @@ class KThread(threading.Thread):
         self.run = self.__run_backup
 
     def globaltrace(self, frame, why, arg):
-        if why == 'call':
-            return self.localtrace
+        if why == 'call':  # 将会调用一个子过程
+            return self.localtrace  # 返回调用子过程的跟踪过程self.localtrace，并使用子过程跟踪过程self.localtrace跟踪子过程运行
         else:
             return None
 
     def localtrace(self, frame, why, arg):
         if self.killed:
-            if why == 'line':
-                raise SystemExit()
+            if why == 'line':  # self._willKill自己设置的中断标识，why为跟踪的事件，其中line为执行一行或多行python代码
+                raise SystemExit()  # 当中断标识为True及将会执行下一行python代码时，使用SystemExit()中断线程
         return self.localtrace
 
     def kill(self):
