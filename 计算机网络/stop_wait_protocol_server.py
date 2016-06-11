@@ -81,8 +81,6 @@ class TCPHandler(socketserver.BaseRequestHandler):
         :param sock: 套接字
         :return: dict()
         """
-        global packet_counts
-
         received_data = sock.recv(1024)
         received_data = simplejson.loads(received_data)
 
