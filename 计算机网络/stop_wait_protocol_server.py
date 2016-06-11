@@ -119,7 +119,7 @@ class TCPHandler(socketserver.BaseRequestHandler):
         self.packet_counts = 0  # 包的计数器
         excepted_frame_number, excepted_seq = 0, 0
         self.received_buffer, self.last_frame_number = list(), -1
-        print("[?] 有客户端建立连接, 地址为: {}".format(self.client_address[0]))
+        print("[*] 有客户端建立连接, 地址为: {}".format(self.client_address[0]))
 
         while True:
             received_data = self.receive_packet(self.request)  # 接收消息
