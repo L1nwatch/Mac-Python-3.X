@@ -237,40 +237,40 @@ class TCPHandler(socketserver.BaseRequestHandler):
                 ack_counts = 0
 
 
-def add_arguments(parser):
-    parser.add_argument("--verbose", "-v", action="store_true", help="是否显示详细信息, 默认不显示")
-    parser.add_argument("--probability", "-p", default="70:20:10", type=str,
-                        help="设定发包概率, 格式:成功:误码:丢包, 默认值示例:70:20:10")
-    parser.add_argument("--size", "-s", default=3, type=int, help="设定接收窗口大小, 默认值为 3")
-    parser.add_argument("--ack", "-a", default=3, type=int,
-                        help="设定大概多少个包以后回送 Ack, 默认与接收窗口大小相同, 建议该值≥发送窗口大小")
+def add_arguments(arg_parser):
+    arg_parser.add_argument("--verbose", "-v", action="store_true", help="是否显示详细信息, 默认不显示")
+    arg_parser.add_argument("--probability", "-p", default="70:20:10", type=str,
+                            help="设定发包概率, 格式:成功:误码:丢包, 默认值示例:70:20:10")
+    arg_parser.add_argument("--size", "-s", default=3, type=int, help="设定接收窗口大小, 默认值为 3")
+    arg_parser.add_argument("--ack", "-a", default=3, type=int,
+                            help="设定大概多少个包以后回送 Ack, 默认与接收窗口大小相同, 建议该值≥发送窗口大小")
 
 
-def set_arguments(opts):
+def set_arguments(options):
     """
     用来将参数传递给全局变量的, 同时传递之前会进行安全检测
     :param parser: 解析器
-    :param opts: 通过命令行获取的参数
+    :param options: 通过命令行获取的参数
     :return:
     """
     global VERBOSE, PROBABILITY, RECEIVE_WINDOW_SIZE, ACK_RETURN_NUMBER
 
-    VERBOSE = opts.verbose
+    VERBOSE = options.verbose
 
-    _1, _2, _3 = [int(x) for x in opts.probability.split(":")]
+    _1, _2, _3 = [int(x) for x in options.probability.split(":")]
     if _1 + _2 + _3 == 100:
         PROBABILITY["成功"], PROBABILITY["误码"], PROBABILITY["丢包"] = _1, _2, _3
     else:
         print("概率参数设置错误, 将采取默认值-70:20:10")
 
-    if 0 < opts.size < MAX_FRAME_NUMBER:
-        RECEIVE_WINDOW_SIZE = opts.size
+    if 0 < options.size < MAX_FRAME_NUMBER:
+        RECEIVE_WINDOW_SIZE = options.size
     else:
         print("[*] 窗口大小参数错误, 采取默认值 3")
         RECEIVE_WINDOW_SIZE = 3
 
-    if 0 < opts.ack < MAX_FRAME_NUMBER:
-        ACK_RETURN_NUMBER = opts.ack
+    if 0 < options.ack < MAX_FRAME_NUMBER:
+        ACK_RETURN_NUMBER = options.ack
     else:
         print("[*] Ack 参数错误, 采取默认值, 与接收窗口大小相同")
         ACK_RETURN_NUMBER = RECEIVE_WINDOW_SIZE
