@@ -1,18 +1,18 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
 # version: Python3.X
-''' 计网大作业之一, 要求实现停等 ARQ 协议, 这是客户端, 负责发包
+""" 计网大作业之一, 要求实现停等 ARQ 协议, 这是客户端, 负责发包
 
 Funny: 本来想用超时检测器的, 发现一旦出现超时 socket 就不正常工作了, 所以还是直接用 socket 的 settimeout 算了...
-'''
-__author__ = '__L1n__w@tch'
-
+"""
 import socket
 import simplejson
 import time
 import random
 import bisect
 import argparse
+
+__author__ = '__L1n__w@tch'
 
 HOST, PORT = "localhost", 23337
 # 模拟发包的类型
@@ -68,10 +68,10 @@ def weighted_choice(choices):
     return values[i]
 
 
-def send_packet(sock, seq, frame_number, packet_type):
+def send_packet(sock2server, seq, frame_number, packet_type):
     """
     负责发包的函数
-    :param sock: 套接字
+    :param sock2server: 套接字
     :param seq: 区分号, 0 或 1
     :param frame_number: 帧编号
     :param packet_type: 发包类型
@@ -89,21 +89,21 @@ def send_packet(sock, seq, frame_number, packet_type):
                                                )
 
     data = simplejson.dumps(data_dict)
-    sock.sendall(data.encode("utf8"))
+    sock2server.sendall(data.encode("utf8"))
     packet_counts += 1
     print("[{}] 发送包: {}".format(packet_counts, data), end="\n\n") if VERBOSE is True else None
 
 
-def receive_packet(sock):
+def receive_packet(sock2server):
     """
     负责用来收包的函数
-    :param sock: 套接字
+    :param sock2server: 套接字
     :return: dict()
     """
     global packet_counts
 
-    sock.settimeout(TIMEOUT * 2.5)
-    received_data = sock.recv(1024)
+    sock2server.settimeout(TIMEOUT * 2.5)
+    received_data = sock2server.recv(1024)
     received_data = simplejson.loads(received_data)
     packet_counts += 1
     print("[{}] 收到包: {}".format(packet_counts, received_data), end="\n\n") if VERBOSE is True else None
@@ -111,25 +111,25 @@ def receive_packet(sock):
     return received_data
 
 
-def cycle_send(sock):
+def cycle_send(sock2server):
     """
     循环给服务端发送帧 0~15
-    :param sock: 套接字
+    :param sock2server: 套接字
     :return:
     """
     frame_number, seq = 0, 0  # send_seq 作为区分号
     # 发第一帧
     print("[!] 开始发送消息, 发送帧{}".format(frame_number))
-    send_packet(sock, seq, frame_number, "正常")
+    send_packet(sock2server, seq, frame_number, "正常")
     while True:
         time.sleep(TIMEOUT)  # 控制程序执行速度
 
         try:  # 超时重传控制
-            received_data = receive_packet(sock)
-        except socket.timeout as e:
+            received_data = receive_packet(sock2server)
+        except socket.timeout:
             paint(frame_number)  # 可视化发送窗口
             print("[*] 超时重传; [!] 发送帧{}".format(frame_number))
-            send_packet(sock, seq, frame_number, "正常")
+            send_packet(sock2server, seq, frame_number, "正常")
             continue
 
         if received_data["packet_type"] == PACKET_TYPE["确认"]:  # 收到 Ack 确认
@@ -138,12 +138,12 @@ def cycle_send(sock):
                 frame_number = (frame_number + 1) % MAX_FRAME_NUMBER  # 产生帧编号
                 paint(frame_number)  # 可视化发送窗口
                 print("[?] 收到 Ack 应答包, 且区分号正确; [!] 发送下一帧{}".format(frame_number))
-                send_packet(sock, seq, frame_number, "正常")  # 发送下一个包
+                send_packet(sock2server, seq, frame_number, "正常")  # 发送下一个包
 
             else:  # 收到 Ack 应答, 但是序号不对, 重新发包
                 paint(frame_number)  # 可视化发送窗口
                 print("[?] 收到 Ack 应答包, 但区分号错误; [!] 重发帧{}".format(frame_number))
-                send_packet(sock, seq, frame_number, "正常")
+                send_packet(sock2server, seq, frame_number, "正常")
 
         elif received_data["packet_type"] == PACKET_TYPE["丢包"]:
             paint(frame_number)  # 可视化发送窗口
@@ -152,34 +152,34 @@ def cycle_send(sock):
         elif received_data["packet_type"] == PACKET_TYPE["误码"]:
             paint(frame_number)  # 可视化发送窗口
             print("[?] 收到误码包; [!] 重发帧{}".format(frame_number))
-            send_packet(sock, seq, frame_number, "正常")  # 发包误码, 重新发包
+            send_packet(sock2server, seq, frame_number, "正常")  # 发包误码, 重新发包
 
         elif received_data["packet_type"] == PACKET_TYPE["否认"]:
             paint(frame_number)  # 可视化发送窗口
             print("[?] 收到 Nak 包; [!] 重发帧{}".format(frame_number))
-            send_packet(sock, seq, frame_number, "正常")  # 发包不正确, 重新发包
+            send_packet(sock2server, seq, frame_number, "正常")  # 发包不正确, 重新发包
         else:
             raise RuntimeError("[*] 收包不正常")
 
 
-def add_arguments(parser):
-    parser.add_argument("--verbose", "-v", action="store_true", help="是否显示详细信息, 默认不显示")
-    parser.add_argument("--probability", "-p", default="70:20:10", type=str,
-                        help="设定发包概率, 格式:成功:误码:丢包, 默认值示例:70:20:10")
-    parser.add_argument("--timeout", "-t", default=2, type=float,
-                        help="设置时延, 发包间隔 TIMEOUT 秒, 超时等待 TIMEOUT * 2.5 秒")
+def add_arguments(arg_parser):
+    arg_parser.add_argument("--verbose", "-v", action="store_true", help="是否显示详细信息, 默认不显示")
+    arg_parser.add_argument("--probability", "-p", default="70:20:10", type=str,
+                            help="设定发包概率, 格式:成功:误码:丢包, 默认值示例:70:20:10")
+    arg_parser.add_argument("--timeout", "-t", default=2, type=float,
+                            help="设置时延, 发包间隔 TIMEOUT 秒, 超时等待 TIMEOUT * 2.5 秒")
 
 
-def set_arguments(parser, opts):
+def set_arguments(options):
     global VERBOSE, PROBABILITY, TIMEOUT
 
-    VERBOSE = opts.verbose
-    _1, _2, _3 = [int(x) for x in opts.probability.split(":")]
+    VERBOSE = options.verbose
+    _1, _2, _3 = [int(x) for x in options.probability.split(":")]
     if _1 + _2 + _3 == 100:
         PROBABILITY["成功"], PROBABILITY["误码"], PROBABILITY["丢包"] = _1, _2, _3
     else:
         print("概率参数设置错误, 将采取默认值-70:20:10")
-    TIMEOUT = opts.timeout
+    TIMEOUT = options.timeout
 
 
 if __name__ == "__main__":
@@ -187,7 +187,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="""停等 ARQ 协议-客户端""")
     add_arguments(parser)
     opts = parser.parse_args()
-    set_arguments(parser, opts)
+    set_arguments(opts)
 
     print("""
          ◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎
