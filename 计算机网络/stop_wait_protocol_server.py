@@ -1,13 +1,13 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
 # version: Python3.X
-''' 计网大作业之一, 要求实现停等 ARQ 协议, 这是服务端, 负责收包
+""" 计网大作业之一, 要求实现停等 ARQ 协议, 这是服务端, 负责收包
 
 实现思路:
     建立一个服务端和客户端(具体实现时采用思路2):
         1. 用不可靠的 UDP 实现停等 ARQ 协议来实现可靠的传输
         2. 参考 spin 实验的思路, 通过模拟发送 err 或者 lost 等来模拟错误或丢失情况
-'''
+"""
 # 要求如下:
 # Done: 能模拟 2 个终端进行数据通信，在通信过程中执行流控+差控协议的所有过程；
 # Done: 能模拟发送端和接收端的窗口滑动逻辑，即在窗口中的数据才能发送或者接收；
@@ -15,13 +15,13 @@
 # Done: 数据帧编号为0~15
 # Done: 窗口滑动能可视化，即可以直观看到数据发送接收时窗口的滑动过程；
 # Done: 模拟通信可以用多种手段实现，例如进程间通信、socket、共享内存等
-__author__ = '__L1n__w@tch'
-
 import socketserver
 import simplejson
 import random
 import bisect
 import argparse
+
+__author__ = '__L1n__w@tch'
 
 HOST, PORT = "localhost", 23337
 # 模拟发包的类型
@@ -89,14 +89,16 @@ class TCPHandler(socketserver.BaseRequestHandler):
 
         return received_data
 
-    def send_packet(self, sock, packet_type, seq, data_dict=dict()):
+    def send_packet(self, sock, packet_type, seq):
         """
         负责发包的函数
         :param sock: socket 套接字
-        :param data_dict: 要发包的数据, 以字典形式表示
+        :param packet_type: 发包类型
         :param seq: 接收到的包里面的区分号
         :return: flag, 用来表示是不是发了个丢失的包
         """
+        data_dict = dict()
+
         data_dict["send_seq"] = seq
         # 模拟发包情况, 可能正常发包、发包误码、发的包丢失了
         data_dict["packet_type"] = weighted_choice([(PACKET_TYPE[packet_type], PROBABILITY["成功"]),
@@ -153,17 +155,17 @@ class TCPHandler(socketserver.BaseRequestHandler):
                 print("[*] 什么都没收到")  # 收到丢失消息, 直接假装没收到就行了
 
 
-def add_arguments(parser):
-    parser.add_argument("--verbose", "-v", action="store_true", help="是否显示详细信息, 默认不显示")
-    parser.add_argument("--probability", "-p", default="70:20:10", type=str,
-                        help="设定发包概率, 格式:成功:误码:丢包, 默认值示例:70:20:10")
+def add_arguments(arg_parser):
+    arg_parser.add_argument("--verbose", "-v", action="store_true", help="是否显示详细信息, 默认不显示")
+    arg_parser.add_argument("--probability", "-p", default="70:20:10", type=str,
+                            help="设定发包概率, 格式:成功:误码:丢包, 默认值示例:70:20:10")
 
 
-def set_arguments(parser, opts):
+def set_arguments(options):
     global VERBOSE, PROBABILITY
 
-    VERBOSE = opts.verbose
-    _1, _2, _3 = [int(x) for x in opts.probability.split(":")]
+    VERBOSE = options.verbose
+    _1, _2, _3 = [int(x) for x in options.probability.split(":")]
     if _1 + _2 + _3 == 100:
         PROBABILITY["成功"], PROBABILITY["误码"], PROBABILITY["丢包"] = _1, _2, _3
     else:
@@ -175,7 +177,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="停等 ARQ 协议-服务端")
     add_arguments(parser)
     opts = parser.parse_args()
-    set_arguments(parser, opts)
+    set_arguments(opts)
 
     # 允许地址复用, 调试方便些
     socketserver.ThreadingTCPServer.allow_reuse_address = True
