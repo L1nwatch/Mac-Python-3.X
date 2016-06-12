@@ -1,15 +1,15 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
 # version: Python3.X
-''' 计网大作业之一, 要求实现:后退 N 帧 ARQ 协议, 这是服务端, 负责收包
-'''
-__author__ = '__L1n__w@tch'
-
+""" 计网大作业之一, 要求实现:后退 N 帧 ARQ 协议, 这是服务端, 负责收包
+"""
 import socketserver
 import simplejson
 import random
 import bisect
 import argparse
+
+__author__ = '__L1n__w@tch'
 
 HOST, PORT = "localhost", 23339
 # 模拟发包的类型
@@ -86,7 +86,7 @@ class TCPHandler(socketserver.BaseRequestHandler):
         print("[{}] 收到包: {}".format(self.packet_counts, received_data), end="\n\n") if VERBOSE else None
         try:
             received_data = simplejson.loads(received_data)
-        except simplejson.JSONDecodeError as e:
+        except simplejson.JSONDecodeError:
             print(received_data)
             raise RuntimeError("[*] 发生未知异常错误, 请试着降低发包速度")
 
@@ -98,6 +98,7 @@ class TCPHandler(socketserver.BaseRequestHandler):
         """
         负责发包的函数
         :param packet_type: 发包类型, 如"正常"
+        :param frame_number: 要发送的帧号
         :return:
         """
         data_dict = dict()
@@ -249,7 +250,6 @@ def add_arguments(arg_parser):
 def set_arguments(options):
     """
     用来将参数传递给全局变量的, 同时传递之前会进行安全检测
-    :param parser: 解析器
     :param options: 通过命令行获取的参数
     :return:
     """
@@ -285,11 +285,11 @@ if __name__ == "__main__":
 
     # 允许地址复用, 调试方便些
     socketserver.ThreadingTCPServer.allow_reuse_address = True
-    server = socketserver.ThreadingTCPServer((HOST, PORT), TCPHandler)
+    my_server = socketserver.ThreadingTCPServer((HOST, PORT), TCPHandler)
 
     print("""
          ◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎
          ◎           Server           ◎
          ◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎◎""")
     print("服务端准备完毕...") if VERBOSE else None
-    server.serve_forever()
+    my_server.serve_forever()
