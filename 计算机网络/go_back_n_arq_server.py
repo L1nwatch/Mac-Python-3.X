@@ -11,7 +11,7 @@ import argparse
 
 __author__ = '__L1n__w@tch'
 
-HOST, PORT = "localhost", 23339
+HOST, PORT = "127.0.0.1", 23339
 # 模拟发包的类型
 PACKET_TYPE = {"正常": "Message", "误码": "Error", "丢包": "Lost", "确认": "Ack"}
 PROBABILITY = {"成功": 100, "误码": 0, "丢包": 0}  # 发包概率
@@ -245,6 +245,10 @@ def add_arguments(arg_parser):
     arg_parser.add_argument("--size", "-s", default=3, type=int, help="设定接收窗口大小, 默认值为 3")
     arg_parser.add_argument("--ack", "-a", default=3, type=int,
                             help="设定大概多少个包以后回送 Ack, 默认与接收窗口大小相同, 建议该值≥发送窗口大小")
+    arg_parser.add_argument("--ip", "-i", default="127.0.0.1", type=str,
+                            help="设定服务端的 IPv4 地址, 默认值为 {}".format(HOST))
+    arg_parser.add_argument("--listen", "-l", default=PORT, type=int,
+                            help="设定服务端监听的端口号, 默认值为 {}".format(PORT))
 
 
 def set_arguments(options):
@@ -253,7 +257,7 @@ def set_arguments(options):
     :param options: 通过命令行获取的参数
     :return:
     """
-    global VERBOSE, PROBABILITY, RECEIVE_WINDOW_SIZE, ACK_RETURN_NUMBER
+    global VERBOSE, PROBABILITY, RECEIVE_WINDOW_SIZE, ACK_RETURN_NUMBER, HOST, PORT
 
     VERBOSE = options.verbose
 
@@ -274,6 +278,16 @@ def set_arguments(options):
     else:
         print("[*] Ack 参数错误, 采取默认值, 与接收窗口大小相同")
         ACK_RETURN_NUMBER = RECEIVE_WINDOW_SIZE
+
+    if options.ip != "localhost" and options.ip.count(".") != 3:
+        print("[*] IP 参数错误, 采取默认值 {}".format(HOST))
+    else:
+        HOST = options.ip
+
+    if 0 < options.listen < 65536:
+        PORT = options.listen
+    else:
+        print("[*] 端口号错误, 采取默认值 {}".format(PORT))
 
 
 if __name__ == "__main__":
