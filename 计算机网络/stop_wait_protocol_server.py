@@ -23,7 +23,7 @@ import argparse
 
 __author__ = '__L1n__w@tch'
 
-HOST, PORT = "localhost", 23337
+HOST, PORT = "127.0.0.1", 23337
 # 模拟发包的类型
 PACKET_TYPE = {"正常": "Message", "误码": "Error", "丢包": "Lost", "确认": "Ack", "否认": "Nak"}
 PROBABILITY = {"成功": 70, "误码": 20, "丢包": 10}
@@ -156,13 +156,19 @@ class TCPHandler(socketserver.BaseRequestHandler):
 
 
 def add_arguments(arg_parser):
+    global HOST, PORT
+
     arg_parser.add_argument("--verbose", "-v", action="store_true", help="是否显示详细信息, 默认不显示")
     arg_parser.add_argument("--probability", "-p", default="70:20:10", type=str,
                             help="设定发包概率, 格式:成功:误码:丢包, 默认值示例:70:20:10")
+    arg_parser.add_argument("--ip", "-i", default=HOST, type=str,
+                            help="设定服务端的 IPv4 地址, 默认值为 {}".format(HOST))
+    arg_parser.add_argument("--listen", "-l", default=PORT, type=int,
+                            help="设定服务端监听的端口号, 默认值为 {}".format(PORT))
 
 
 def set_arguments(options):
-    global VERBOSE, PROBABILITY
+    global VERBOSE, PROBABILITY, HOST, PORT
 
     VERBOSE = options.verbose
     _1, _2, _3 = [int(x) for x in options.probability.split(":")]
@@ -170,6 +176,16 @@ def set_arguments(options):
         PROBABILITY["成功"], PROBABILITY["误码"], PROBABILITY["丢包"] = _1, _2, _3
     else:
         print("概率参数设置错误, 将采取默认值-70:20:10")
+
+    if options.ip != "localhost" and options.ip.count(".") != 3:
+        print("[*] IP 参数错误, 采取默认值 {}".format(HOST))
+    else:
+        HOST = options.ip
+
+    if 0 < options.listen < 65536:
+        PORT = options.listen
+    else:
+        print("[*] 端口号错误, 采取默认值 {}".format(PORT))
 
 
 if __name__ == "__main__":
