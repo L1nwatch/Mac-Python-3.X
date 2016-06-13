@@ -20,7 +20,7 @@ import argparse
 
 __author__ = '__L1n__w@tch'
 
-HOST, PORT = "localhost", 23339
+HOST, PORT = "127.0.0.1", 23339
 # 模拟发包的类型
 PACKET_TYPE = {"正常": "Message", "误码": "Error", "丢包": "Lost", "确认": "Ack"}
 PROBABILITY = {"成功": 100, "误码": 0, "丢包": 0}  # 发包概率
@@ -193,6 +193,10 @@ def add_arguments(arg_parser):
     arg_parser.add_argument("--size", "-s", default=3, type=int, help="设定接收窗口大小, 默认值为 3")
     arg_parser.add_argument("--timeout", "-t", default=2, type=float,
                             help="设置时延, 发包间隔 TIMEOUT 秒, 超时等待 TIMEOUT * 2.5 秒. 默认值为 2.0")
+    arg_parser.add_argument("--ip", "-i", default=HOST, type=str,
+                            help="设定客户端的 IPv4 地址, 默认值为 {}".format(HOST))
+    arg_parser.add_argument("--connect", "-c", default=PORT, type=int,
+                            help="设定客户端连接的端口号, 默认值为 {}".format(PORT))
 
 
 def set_arguments(options):
@@ -201,7 +205,7 @@ def set_arguments(options):
     :param options: 通过命令行获取的参数
     :return:
     """
-    global VERBOSE, PROBABILITY, SEND_WINDOW_SIZE, TIMEOUT
+    global VERBOSE, PROBABILITY, SEND_WINDOW_SIZE, TIMEOUT, HOST, PORT
 
     VERBOSE = options.verbose
 
@@ -218,6 +222,16 @@ def set_arguments(options):
         SEND_WINDOW_SIZE = 3
 
     TIMEOUT = options.timeout
+
+    if options.ip != "localhost" and options.ip.count(".") != 3:
+        print("[*] IP 参数错误, 采取默认值 {}".format(HOST))
+    else:
+        HOST = options.ip
+
+    if 0 < options.connect < 65536:
+        PORT = options.connect
+    else:
+        print("[*] 端口号错误, 采取默认值 {}".format(PORT))
 
 
 if __name__ == "__main__":
