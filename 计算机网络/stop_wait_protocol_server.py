@@ -138,6 +138,8 @@ class TCPHandler(socketserver.BaseRequestHandler):
 
                 else:  # 序号异常
                     if received_data["frame_number"] == self.last_frame_number:  # 已经收过的包
+                        self.paint()  # 可视化表示收包
+                        print("[?] 收到重复帧 {}".format(received_data["frame_number"]))
                         self.send_packet(self.request, "确认", received_data["send_seq"])  # 不保存, 回发 Ack 包
                     else:
                         self.paint()  # 可视化表示收包
