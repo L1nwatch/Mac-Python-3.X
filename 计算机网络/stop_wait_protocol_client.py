@@ -14,7 +14,7 @@ import argparse
 
 __author__ = '__L1n__w@tch'
 
-HOST, PORT = "localhost", 23337
+HOST, PORT = "127.0.0.1", 23337
 # 模拟发包的类型
 PACKET_TYPE = {"正常": "Message", "误码": "Error", "丢包": "Lost", "确认": "Ack", "否认": "Nak"}
 PROBABILITY = {"成功": 70, "误码": 20, "丢包": 10}
@@ -119,6 +119,7 @@ def cycle_send(sock2server):
     """
     frame_number, seq = 0, 0  # send_seq 作为区分号
     # 发第一帧
+    paint(frame_number)  # 可视化发送窗口
     print("[!] 开始发送消息, 发送帧{}".format(frame_number))
     send_packet(sock2server, seq, frame_number, "正常")
     while True:
@@ -168,10 +169,14 @@ def add_arguments(arg_parser):
                             help="设定发包概率, 格式:成功:误码:丢包, 默认值示例:70:20:10")
     arg_parser.add_argument("--timeout", "-t", default=2, type=float,
                             help="设置时延, 发包间隔 TIMEOUT 秒, 超时等待 TIMEOUT * 2.5 秒")
+    arg_parser.add_argument("--ip", "-i", default=HOST, type=str,
+                            help="设定客户端的 IPv4 地址, 默认值为 {}".format(HOST))
+    arg_parser.add_argument("--connect", "-c", default=PORT, type=int,
+                            help="设定客户端连接的端口号, 默认值为 {}".format(PORT))
 
 
 def set_arguments(options):
-    global VERBOSE, PROBABILITY, TIMEOUT
+    global VERBOSE, PROBABILITY, TIMEOUT, HOST, PORT
 
     VERBOSE = options.verbose
     _1, _2, _3 = [int(x) for x in options.probability.split(":")]
@@ -180,6 +185,16 @@ def set_arguments(options):
     else:
         print("概率参数设置错误, 将采取默认值-70:20:10")
     TIMEOUT = options.timeout
+
+    if options.ip != "localhost" and options.ip.count(".") != 3:
+        print("[*] IP 参数错误, 采取默认值 {}".format(HOST))
+    else:
+        HOST = options.ip
+
+    if 0 < options.connect < 65536:
+        PORT = options.connect
+    else:
+        print("[*] 端口号错误, 采取默认值 {}".format(PORT))
 
 
 if __name__ == "__main__":
