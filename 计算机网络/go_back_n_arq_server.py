@@ -244,7 +244,7 @@ def add_arguments(arg_parser):
                             help="设定发包概率, 格式:成功:误码:丢包, 默认值示例:70:20:10")
     arg_parser.add_argument("--size", "-s", default=3, type=int, help="设定接收窗口大小, 默认值为 3")
     arg_parser.add_argument("--ack", "-a", default=3, type=int,
-                            help="设定大概多少个包以后回送 Ack, 默认与接收窗口大小相同, 建议该值≥发送窗口大小")
+                            help="设定大概多少个包以后回送 Ack, 默认与接收窗口大小相同, 建议该值=发送窗口大小")
     arg_parser.add_argument("--ip", "-i", default="127.0.0.1", type=str,
                             help="设定服务端的 IPv4 地址, 默认值为 {}".format(HOST))
     arg_parser.add_argument("--listen", "-l", default=PORT, type=int,
