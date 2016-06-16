@@ -26,11 +26,14 @@ class Fibonacci:
 
 
 def main():
+    counts = 0  # 计数器
+
     a = Fibonacci(1, 1).fib_generator()
     for each in a:
-        print(each, end=" ")
-        if each > 100:
-            exit()
+        counts += 1
+        print("{}: 十进制为 {}, 十六进制为 {}".format(counts, each, hex(each)))
+        if counts >= 30:
+            break
 
 
 if __name__ == "__main__":
