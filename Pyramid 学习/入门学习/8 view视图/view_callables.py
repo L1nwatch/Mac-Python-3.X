@@ -4,7 +4,7 @@
 """ view callable 相关知识
 """
 from pyramid.response import Response
-from pyramid.httpexceptions import HTTPUnauthorized
+from pyramid.httpexceptions import HTTPUnauthorized, exception_response
 
 __author__ = '__L1n__w@tch'
 
@@ -31,7 +31,11 @@ def a_view(request):
     # 这段代码将返回 http 401 错误
     raise HTTPUnauthorized()
 
-# 你也可以像下面这样，用 pyramid.httpexceptions.exception_response() 直接返回 http 状态码
+
+# 你也可以像下面这样，用 pyramid.httpExceptions.exception_response() 直接返回 http 状态码
+# 其他的 exception 还有 pyramid.httpExceptions.HTTPNotFound 和 pyramid.httpExceptions.HTTPForbidden 等
+def a_view2(request):
+    raise exception_response(401)
 
 
 if __name__ == "__main__":
