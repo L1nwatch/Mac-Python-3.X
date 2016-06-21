@@ -3,7 +3,7 @@
 # version: Python3.X
 """ 练习一下自己怎么写一个装饰器
 
-
+完整资料参考: https://taizilongxu.gitbooks.io/stackoverflow-about-python/content/3/README.html
 """
 
 __author__ = '__L1n__w@tch'
