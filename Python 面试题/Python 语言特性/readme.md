@@ -7,4 +7,4 @@
 2. @staticmethod和@classmethod
 3. 类变量和实例变量
 4. Python中单下划线和双下划线
-5. *args and **kwargs
+5. \*args and \*\*kwargs
