@@ -14,7 +14,6 @@ __author__ = '__L1n__w@tch'
 
 def is_valid_file_type(name, types):
     """
-
     :param name:
     :param types:
     :return:
