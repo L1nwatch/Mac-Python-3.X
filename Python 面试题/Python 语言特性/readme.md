@@ -10,3 +10,5 @@
 5. \*args and \*\*kwargs
 6. 面向切面编程AOP和装饰器
 7. 单例模式
+8. Python 函数式编程
+9. Python 里的拷贝
