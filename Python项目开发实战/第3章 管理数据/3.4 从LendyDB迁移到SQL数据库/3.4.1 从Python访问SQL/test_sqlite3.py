@@ -15,7 +15,7 @@ def find_data(cursor, a_string):
 
 def main():
     # db = sqlite3.connect(
-    #         r"/Users/L1n/Desktop/Python Projects/pycharm/Python项目开发实战/第3章 管理数据/3.4 从LendyDB迁移到SQL数据库/3.4.1 从Python访问SQL/lendy.db")
+    #         r"/Users/L1n/Desktop/Python Projects/PyCharm/Python项目开发实战/第3章 管理数据/3.4 从LendyDB迁移到SQL数据库/3.4.1 从Python访问SQL/lendy.db")
     # :memory:表示想要一个存在计算机内存中的临时数据库
     db = sqlite3.connect(":memory:")
     cur = db.cursor()
