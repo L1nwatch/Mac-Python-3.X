@@ -18,10 +18,11 @@ def decorator_with_argument(sentence):
 
     def decorator(function):
         @wraps(function)
-        def wrap(root):
+        def wrap(*args):
             print(sentence)
-            function(root)
+            result = function(*args)
             print("")
+            return result  # 注意需要返回结果的
 
         return wrap
 
@@ -129,6 +130,87 @@ def post_order_traverse(root):
     return __recursion(root)
 
 
+@decorator_with_argument("求最大树深")
+def max_depth(root):
+    """
+    求树的最大深度
+    :param root: 根节点
+    :return: int()
+    """
+
+    def __recursion(node):
+        if not node:
+            return 0
+        return max(__recursion(node.left), __recursion(node.right)) + 1
+
+    return __recursion(root)
+
+
+@decorator_with_argument("判断两棵树是否相同")
+def is_same_tree(root1, root2):
+    """
+    递归判断两颗树是否相同
+    :param root1: 根节点 1
+    :param root2: 根节点 2
+    :return: True or False
+    """
+
+    def __recursion(node1, node2):
+        if node1 is None and node2 is None:
+            return True
+        elif node1 and node2:
+            return node1.data == node2.data \
+                   and __recursion(node1.left, node2.left) \
+                   and __recursion(node1.right, node2.right)
+        else:
+            return False
+
+    return __recursion(root1, root2)
+
+
+@decorator_with_argument("先序中序创建二叉树")
+def create_binary_tree_by_pre_in_order(pre_order_list, in_order_list):
+    """
+    根据先序中序创建二叉树
+    :param pre_order_list: [1, 3, 7, 0, 6, 2, 5, 4]
+    :param in_order_list: [0, 7, 3, 6, 1, 5, 2, 4]
+    :return: Node() or None
+    """
+
+    def __recursion(pre_order, in_order):
+        if not pre_order:
+            return None
+        current = Node(pre_order[0])
+        index = in_order.index(pre_order[0])
+        current.left = __recursion(pre_order[1:index + 1], in_order[:index])
+        current.right = __recursion(pre_order[index + 1:], in_order[index + 1:])
+        return current
+
+    return __recursion(pre_order_list, in_order_list)
+
+
+@decorator_with_argument("中序后序创建二叉树")
+def create_binary_tree_by_post_in_order(post_order_list, in_order_list):
+    """
+    根据中序后序来创建二叉树
+    :param post_order_list: [0, 7, 6, 3, 5, 4, 2, 1]
+    :param in_order_list: [0, 7, 3, 6, 1, 5, 2, 4]
+    :return: Node() or None
+    """
+
+    def __recursion(post_order, in_order):
+        if not post_order:
+            return None
+        current = Node(post_order[-1])
+        index = in_order.index(post_order[-1])
+        current.left = __recursion(post_order[:index], in_order[:index])
+        current.right = __recursion(post_order[index:-1], in_order[index + 1:])
+
+        return current
+
+    return __recursion(post_order_list, in_order_list)
+
+
 if __name__ == "__main__":
     tree = Node(1, Node(3, Node(7, Node(0)), Node(6)), Node(2, Node(5), Node(4)))
     layer_search(tree)
@@ -136,3 +218,16 @@ if __name__ == "__main__":
     pre_order_traverse(tree)
     in_order_traverse(tree)
     post_order_traverse(tree)
+    print(max_depth(tree))
+
+    tree2 = Node(11, Node(3, Node(7, Node(0)), Node(6)), Node(2, Node(5), Node(4)))
+    print(is_same_tree(tree, tree2))
+
+    pre_order_visit = [1, 3, 7, 0, 6, 2, 5, 4]
+    in_order_visit = [0, 7, 3, 6, 1, 5, 2, 4]
+    tree = create_binary_tree_by_pre_in_order(pre_order_visit, in_order_visit)
+    post_order_traverse(tree)
+
+    post_order_visit = [0, 7, 6, 3, 5, 4, 2, 1]
+    tree = create_binary_tree_by_post_in_order(post_order_visit, in_order_visit)
+    pre_order_traverse(tree)
