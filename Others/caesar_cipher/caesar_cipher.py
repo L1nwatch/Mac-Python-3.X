@@ -27,7 +27,7 @@ def caesar_cipher_encrypt(plain_text, shift):
 def caesar_cipher_decrypt(cipher_text, shift):
     """
     默认字典为: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789
-    :param cipher_text: 待加密的明文
+    :param cipher_text: 待解密的密文
     :param shift: 偏移
     :return: str()
     """
