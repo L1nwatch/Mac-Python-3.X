@@ -28,6 +28,7 @@
         14:31~15:31:   Python 学习
         ...
 ```
+最终结果保存在同文件夹下 result.txt 文件
 
 # 参数说明
 更改代码里的:
@@ -36,3 +37,4 @@
 * morning_hour_plan = create_format_hour_plan("08:05", "11:30", things), ``决定了早晨安排的时间段``
 * afternoon_hour_plan = create_format_hour_plan("13:31", "17:30", things), ``决定了下午安排的时间段``
 * night_hour_plan = create_format_hour_plan("18:59", "21:30", things), ``决定了晚上安排的时间段``
+
