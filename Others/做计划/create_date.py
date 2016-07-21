@@ -5,18 +5,18 @@
 
 2016.07.21 周四:
     早上:
-        08:05~09:05:   尚未安排
-        09:05~10:05:   尚未安排
+        08:05~09:05:   GitHub 整理
+        09:05~10:05:   Python 学习
         10:05~11:05:   尚未安排
         11:05~11:30:   尚未安排
     下午:
-        13:31~14:31:   尚未安排
-        14:31~15:31:   尚未安排
+        13:31~14:31:   GitHub 整理
+        14:31~15:31:   Python 学习
         15:31~16:31:   尚未安排
         16:31~17:30:   尚未安排
     晚上:
-        18:59~19:59:   尚未安排
-        19:59~20:59:   尚未安排
+        18:59~19:59:   GitHub 整理
+        19:59~20:59:   Python 学习
         20:59~21:30:   尚未安排
 
 唯一的问题是每次都要手敲, 所以还是程序解决吧, 最终结果就是如上图所示
@@ -91,7 +91,8 @@ def create_format_hour_plan(start_hour="08:10", end_hour="10:10", things_list=No
 
     time_list = __get_time_list(start_hour, end_hour, step_seconds)
 
-    things_list = list()
+    if things_list is None:
+        things_list = list()
     # things_list 填充, 万一给的 things_list 长度不够就自动补充
     if len(things_list) < len(time_list):
         things_list.extend(["尚未安排" for i in range(len(time_list) - len(things_list))])
@@ -132,9 +133,15 @@ def create_date(start_date=datetime.date.today(), number=15):
 
 
 if __name__ == "__main__":
-    date_plan = create_date()
-    hour_plan = [create_format_hour_plan("08:05", "11:30"), create_format_hour_plan("13:31", "17:30"),
-                 create_format_hour_plan("18:59", "21:30")]
+    # 相关参数设定
+    things = ["GitHub 整理", "Python 学习"]
+    date_plan = create_date(number=33)
+    morning_hour_plan = create_format_hour_plan("08:05", "11:30", things)
+    afternoon_hour_plan = create_format_hour_plan("13:31", "17:30", things)
+    night_hour_plan = create_format_hour_plan("18:59", "21:30", things)
+
+    # 开始生成
+    hour_plan = [morning_hour_plan, afternoon_hour_plan, night_hour_plan]
 
     with open("result.txt", "w") as f:
         for each_day in date_plan:
