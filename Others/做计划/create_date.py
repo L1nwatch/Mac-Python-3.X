@@ -40,11 +40,12 @@ def is_leap_year(year, learn=True):
         return calendar.isleap(year)
 
 
-def create_format_hour_plan(start_hour="08:10", end_hour="10:10", things_list=None):
+def create_format_hour_plan(start_hour="08:10", end_hour="10:10", things_list=None, step_seconds=3600):
     """
     创建格式化的时间表, 生成的形式类似于下面的:
         08:10~09:10:	Python 整理
         09:10~10:10:	考试安排 + 微机原理
+    :param step_seconds: 时间段单元, 即每隔多少秒安排下一个计划
     :param start_hour: "08:10"
     :param end_hour: "10:10"
     :param things_list: ["Python 整理", "考试安排 + 微机原理"]
@@ -56,11 +57,12 @@ def create_format_hour_plan(start_hour="08:10", end_hour="10:10", things_list=No
     """
     hour_plan_list = list()
 
-    def __get_time_list(start, end):
+    def __get_time_list(start, end, split_time):
         """
         给定一个开始时间和结束时间, 产生一个时间列表
         :param start: 开始时间, 比如 "08:10"
         :param end: 结束时间, 比如 "09:10"
+        :param split_time: 每隔多少秒生成下一个时间段
         :return: ["08:10~09:10", "09:10~10:10"]
         """
         a_list = list()
@@ -78,7 +80,7 @@ def create_format_hour_plan(start_hour="08:10", end_hour="10:10", things_list=No
 
         # 生成各个时间段
         while start_date < end_date:
-            next_time = start_date + datetime.timedelta(seconds=3600)
+            next_time = start_date + datetime.timedelta(seconds=split_time)
             result = "{}:{}~".format(str(start_date.hour).zfill(2), str(start_date.minute).zfill(2))
             if next_time <= end_date:
                 a_list.append(result + "{}:{}".format(str(next_time.hour).zfill(2), str(next_time.minute).zfill(2)))
@@ -87,7 +89,7 @@ def create_format_hour_plan(start_hour="08:10", end_hour="10:10", things_list=No
             start_date = next_time
         return a_list
 
-    time_list = __get_time_list(start_hour, end_hour)
+    time_list = __get_time_list(start_hour, end_hour, step_seconds)
 
     things_list = list()
     # things_list 填充, 万一给的 things_list 长度不够就自动补充
