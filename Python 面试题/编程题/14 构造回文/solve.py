@@ -16,7 +16,7 @@
 
 __author__ = '__L1n__w@tch'
 
-MAX_LENGTH = 10  # 1 <= s <= 1000
+MAX_LENGTH = 1010  # 1 <= s <= 1000
 
 
 # 答案用动态规划解决的
@@ -31,19 +31,20 @@ def dynamic_solve(s):
     :return: 需要删除的字符个数
     """
     # 先求反串
+    length = len(s)
     reversed_s = s[::-1]
 
     # 求最长公共子序列
     dp = [[0 for i in range(MAX_LENGTH)] for i in range(MAX_LENGTH)]  # 初始化
 
-    for i in range(len(s)):
-        for j in range(len(reversed_s)):
+    for i in range(length):
+        for j in range(length):
             if s[i] == reversed_s[j]:
                 dp[i + 1][j + 1] = dp[i][j] + 1
             else:
                 dp[i + 1][j + 1] = max(dp[i][j + 1], dp[i + 1][j])
 
-    return len(s) - dp[len(s)][len(reversed_s)]  # 长度减去最长公共子序列即为所求
+    return length - dp[length][length]  # 长度减去最长公共子序列即为所求
 
 
 if __name__ == "__main__":
