@@ -134,11 +134,14 @@ def create_date(start_date=datetime.date.today(), number=15):
 
 if __name__ == "__main__":
     # 相关参数设定
-    things = ["GitHub 整理", "Python 学习"]
-    date_plan = create_date(number=33)
-    morning_hour_plan = create_format_hour_plan("08:05", "11:30", things)
-    afternoon_hour_plan = create_format_hour_plan("13:31", "17:30", things)
-    night_hour_plan = create_format_hour_plan("18:59", "21:30", things)
+    morning_tasks = ["小甲鱼数据结构视频", "中国通史 + 锻炼身体", "物理视频"]
+    after_noon_tasks = ["英语电视剧 + 锻炼身体", "C 语言(慕课网或书)", "化学视频", "大话数据结构"]
+    night_tasks = ["数学视频", "中国电视剧/日本电视剧"]
+
+    date_plan = create_date(number=200)
+    morning_hour_plan = create_format_hour_plan("08:35", "11:30", morning_tasks)
+    afternoon_hour_plan = create_format_hour_plan("13:40", "17:30", after_noon_tasks)
+    night_hour_plan = create_format_hour_plan("18:40", "21:30", night_tasks)
 
     # 开始生成
     hour_plan = [morning_hour_plan, afternoon_hour_plan, night_hour_plan]
