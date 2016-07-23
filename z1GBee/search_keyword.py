@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 实现对指定文件夹下所有文件进行内容搜索, 关键词及搜索的文件类型由用户指定
 
+2016.07.23 由于自己现在记的笔记形式是 GitHub + GitBook, 但是这两货的笔记搜索功能是在有限, 故需要将此程序进一步扩展
 2016.06.21 由于微机原理也要进行 ARM 平台小车的开发, 遇到了跟 ZigBee 一样的困境, 需要快速掌握工程文件, 所以还是将这个程序通用化吧
 2016.04 起初编写这个程序是由于对协议栈不熟悉, 所以需要对协议栈的每一个文件进行关键词搜索, 同时列举出来
 """
@@ -14,10 +15,11 @@ __author__ = '__L1n__w@tch'
 
 def is_valid_file_type(name, types):
     """
-    :param name:
-    :param types:
-    :return:
+    :param name: 文件名, 比如 '.DS_Store'
+    :param types: 要搜寻的文件类型, 比如 [".h", ".c"]
+    :return: False
     """
+    name = name.lower()
     for each_type in types:
         if name.endswith(each_type):
             return True
@@ -27,12 +29,13 @@ def is_valid_file_type(name, types):
 def add_argument(parser):
     """
     为解析器添加参数
-    :param parser:
-    :return:
+    :param parser: ArgumentParser 实例对象
+    :return: None
     """
     parser.add_argument("--path", "-p", type=str,
-                        default="/Users/L1n/Desktop/全国大学生信息安全竞赛/初赛/for_Python", help="文件夹路径")
-    parser.add_argument("--type", "-t", type=str, default=".c#.h", help="搜索文件类型, 默认值及格式为: \".c#.h\"")
+                        default=os.curdir, help="文件夹路径")
+    parser.add_argument("--type", "-t", type=str, default=".c#.h#.cpp#.py#.md",
+                        help="搜索文件类型, 默认值及格式为: \".c#.h#.cpp#.py#.md\"")
     parser.add_argument("--keyword", "-k", type=str, default="main", help="要搜索的关键词")
 
 
@@ -55,6 +58,10 @@ def set_argument(options):
 
 
 def initialize():
+    """
+    进行初始化操作, 包括 argparse 解析程序的初始化, 参数的相关设定等
+    :return: path, file_type, keyword
+    """
     parser = argparse.ArgumentParser(description="文件内容搜索程序")
     add_argument(parser)
     configuration = set_argument(parser.parse_args())
@@ -64,17 +71,31 @@ def initialize():
     return configuration["path"], configuration["file_type"], configuration["keyword"].encode("utf8")
 
 
+def search_keyword_infile(file_path, word):
+    """
+    判断一个文件内是否含有该关键词, 并且把含有该关键词的那一行返回回去
+    :param file_path: 文件路径, 比如 './compare_key.py'
+    :param word: "main"
+    :return: None or
+    """
+    with open(path, "rb") as f:
+        data = f.readlines()
+
+    for each_line in data:
+        if word in each_line.lower():
+            return each_line
+    return None
+
+
 if __name__ == "__main__":
     path, file_type, keyword = initialize()
 
     for root, dirs, files in os.walk(path):
         for each_file in files:
-            if not is_valid_file_type(each_file, file_type):
-                continue
-            else:
+            if is_valid_file_type(each_file, file_type):
                 path = root + os.sep + each_file
-                with open(root + os.sep + each_file, "rb") as f:
-                    data = f.read().lower()
-                    if keyword in data:
-                        print("[*] Found in \"{}\", path is {}".format(each_file, path))
+                line_content = search_keyword_infile(path, keyword)
+                if line_content:
+                    print("[*] Found in \"{}\", path is {}".format(each_file, path))
+                    print("[*] {}{}".format("\t" * 4, line_content.decode("utf8").strip()))
     print("[*] {} 搜索结束 {}".format("-" * 30, "-" * 30))
