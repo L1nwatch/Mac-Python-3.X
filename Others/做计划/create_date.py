@@ -135,7 +135,7 @@ def create_date(start_date=datetime.date.today(), number=15):
 if __name__ == "__main__":
     # 相关参数设定
     morning_tasks = ["小甲鱼数据结构视频", "中国通史 + 锻炼身体", "物理视频"]
-    after_noon_tasks = ["英语电视剧 + 锻炼身体", "C 语言(慕课网或书)", "化学视频", "大话数据结构"]
+    after_noon_tasks = ["英语电视剧 + 锻炼身体", "C 语言(慕课网或书)", "大话数据结构", "大话数据结构 or 科普视频"]
     night_tasks = ["数学视频", "中国电视剧/日本电视剧"]
 
     date_plan = create_date(number=200)
