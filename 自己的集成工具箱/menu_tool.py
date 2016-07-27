@@ -97,14 +97,18 @@ def change_hidden_status_tool(verbose=False):
     popen = subprocess.Popen(cmd, shell=True,
                              stdout=subprocess.PIPE)
     res = popen.stdout.readline().strip()
+
+    change_command = "defaults write com.apple.finder AppleShowAllFiles -boolean {} ; killall Finder"
     if res == b"1":
-        subprocess.call("defaults write com.apple.finder AppleShowAllFiles -boolean false ; killall Finder", shell=True)
+        subprocess.call(change_command.format("false"), shell=True)
         tkinter.messagebox.showinfo("取消显示隐藏文件", "取消显示成功") if verbose else None
     elif res == b"0":
-        subprocess.call("defaults write com.apple.finder AppleShowAllFiles -boolean true ; killall Finder", shell=True)
+        subprocess.call(change_command.format("true"), shell=True)
         tkinter.messagebox.showinfo("显示隐藏文件", "显示隐藏文件成功") if verbose else None
     else:
         tkinter.messagebox.showerror("Something wrong!") if verbose else None
+
+    exit()
 
 
 def logging_school_wifi(verbose=False):
