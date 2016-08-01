@@ -4,6 +4,7 @@
       <w>classmethod</w>
       <w>jsonp</w>
       <w>mako</w>
+      <w>shadowsocks</w>
       <w>wsgi</w>
     </words>
   </dictionary>

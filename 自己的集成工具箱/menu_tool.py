@@ -5,14 +5,17 @@
 所以还是决定用 Python 写脚本后再用 automator 来运行
 
 参考: http://www.conxz.net/blog/2013/10/25/sloppy-python-snippets-to-capture-command-output/
+参考2:
+    [Python 执行Shell 外部命令](http://unixman.blog.51cto.com/10163040/1641396)
 '''
-__author__ = '__L1n__w@tch'
-
 import subprocess
 import tkinter
 import requests
 import tkinter.messagebox
+import os
 from library_wifi import ping_success
+
+__author__ = '__L1n__w@tch'
 
 
 class MenuTool:
@@ -74,11 +77,15 @@ class MenuTool:
                                                      command=lambda: change_hidden_status_tool(True))
         login_school_wifi_button = tkinter.Button(list_box, text="登录西电校园网", command=lambda: logging_school_wifi(True))
         open_aria2c_button = tkinter.Button(list_box, text="开启 aria2c", command=open_aria2c)
+        open_shadowsocks_button = tkinter.Button(list_box, text="开启 shadowsocks", command=open_shadowsocks)
 
+        # 按钮放置
         change_hidden_status_button.grid()
         open_aria2c_button.grid()
         login_school_wifi_button.grid()
+        open_shadowsocks_button.grid()
 
+        # listbox 盒放置
         list_box.grid()
         label_frame.pack()
 
@@ -132,13 +139,28 @@ def logging_school_wifi(verbose=False):
             tkinter.messagebox.showerror("登录校园网", response.text) if verbose else None
 
 
-def open_aria2c(verbose=False):
+def open_aria2c(verbose=True):
     """
     开启 aria2c 程序
     :param verbose: 是否显示详细信息
     :return:
     """
-    subprocess.call("aria2c", shell=True)
+    # subprocess.call("aria2c", shell=True) # 必须得用 os.system 才能运行成功, 原因未知s
+    os.system("aria2c")
+
+    tkinter.messagebox.showinfo("开启 aria2c", "开启成功") if verbose else None
+
+
+def open_shadowsocks(verbose=True):
+    """
+    开启 aria2c 程序
+    :param verbose: 是否显示详细信息
+    :return:
+    """
+    # subprocess.call("aria2c", shell=True) # 必须得用 os.system 才能运行成功, 原因未知s
+    os.system("open /Applications/ShadowsocksX.app/")
+
+    tkinter.messagebox.showinfo("开启 aria2c", "开启成功") if verbose else None
 
 
 if __name__ == "__main__":
