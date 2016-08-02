@@ -145,8 +145,9 @@ def open_aria2c(verbose=True):
     :param verbose: 是否显示详细信息
     :return:
     """
-    # subprocess.call("aria2c", shell=True) # 必须得用 os.system 才能运行成功, 原因未知s
-    os.system("aria2c")
+    # subprocess.call("aria2c", shell=True) # 必须得用 os.system 才能运行成功, 原因未知
+    # 另外用 os.system("aria2c") 也失败了, 用 Automator 打开的时候好像权限降低了, 自己用 Pycharm 倒是成功的
+    os.system("/usr/local/aria2/bin/aria2c") # 最终成功
 
     tkinter.messagebox.showinfo("开启 aria2c", "开启成功") if verbose else None
 
