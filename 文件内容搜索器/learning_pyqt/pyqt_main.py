@@ -8,7 +8,7 @@
 import sys
 
 from PyQt5.QtWidgets import QApplication, QMainWindow
-from pyqt_from_ui import *
+from learning_pyqt.pyqt_from_ui import *
 
 __author__ = '__L1n__w@tch'
 
