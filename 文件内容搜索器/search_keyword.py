@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 实现对指定文件夹下所有文件进行内容搜索, 关键词及搜索的文件类型由用户指定
 
+2016.08.13 发现打开不同编码时会出错, 需要加强一下编码方面的能力
 2016.07.27 扩展一下搜索文件类型
 2016.07.23 由于自己现在记的笔记形式是 GitHub + GitBook, 但是这两货的笔记搜索功能是在有限, 故需要将此程序进一步扩展
 2016.06.21 由于微机原理也要进行 ARM 平台小车的开发, 遇到了跟 ZigBee 一样的困境, 需要快速掌握工程文件, 所以还是将这个程序通用化吧
@@ -10,6 +11,7 @@
 """
 import os
 import argparse
+import chardet
 
 __author__ = '__L1n__w@tch'
 
@@ -93,6 +95,16 @@ def search_keyword_infile(file_path, word):
     return None
 
 
+def decode_content(content):
+    """
+    给一定串字节流, 进行正确的解码操作
+    :param content: b"aaa"
+    :return: "aaa"
+    """
+    encoding = chardet.detect(content)["encoding"]
+    return content.decode(encoding)
+
+
 if __name__ == "__main__":
     path, file_type = initialize()
     keyword = input("[?] 请输入要搜索的关键词: ")
@@ -104,5 +116,5 @@ if __name__ == "__main__":
                 line_content = search_keyword_infile(path, keyword)
                 if line_content:
                     print("[*] Found in \"{}\", path is \033[95m{}\033[0m".format(each_file, path))
-                    print("[*] {}\033[91m{}\033[0m".format("\t" * 4, line_content.decode("utf8").strip()))
+                    print("[*] {}\033[91m{}\033[0m".format("\t" * 4, decode_content(line_content).strip()))
     print("[*] {} 搜索结束 {}".format("-" * 30, "-" * 30))
