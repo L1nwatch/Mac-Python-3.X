@@ -142,8 +142,11 @@ if __name__ == "__main__":
                 path = root + os.sep + each_file
                 line_content = search_keyword_infile(path, keyword)
                 if line_content:
-                    print("[*] Found in \"{}\", path is {color1}{path}{color2}"
-                          .format(each_file, path=path, color1="\033[95m", color2="\033[0m"))
-                    print("[*] {}{color1}{content}{color2}"
-                          .format("\t" * 4, color1="\033[91m", content=line_content.strip(), color2="\033[0m"))
+                    color1, color2, color3, color4 = "\033[95m", "\033[0m", "\033[91m", "\033[0m"
+                    if is_windows_system():
+                        color1, color2, color3, color4 = None
+                    print("[!] Found in \"{}\", path is {color1}{path}{color2}"
+                          .format(each_file, path=path, color1=color1, color2=color2))
+                    print("[!] {}{color3}{content}{color4}"
+                          .format("\t" * 4, color3=color3, content=line_content.strip(), color4=color4))
     print("[*] {} 搜索结束 {}".format("-" * 30, "-" * 30))
