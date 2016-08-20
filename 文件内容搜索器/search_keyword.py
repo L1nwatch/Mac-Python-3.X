@@ -64,7 +64,7 @@ def set_argument(options):
     return configuration
 
 
-def initialize(default_file_type=".h#.c#.cpp#.pl"):
+def initialize(default_file_type=".h#.c#.cpp#.pl#.md#.py"):
     """
     进行初始化操作, 包括 argparse 解析程序的初始化, 参数的相关设定等
     :return: path, file_type, keyword
