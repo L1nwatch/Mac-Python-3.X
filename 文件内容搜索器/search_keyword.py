@@ -129,7 +129,7 @@ def is_windows_system():
     判断运行程序的系统是否是 Windows 系统
     :return: True or False
     """
-    return "window" in platform.platform()
+    return "window" in platform.platform().lower()
 
 
 if __name__ == "__main__":
@@ -144,7 +144,7 @@ if __name__ == "__main__":
                 if line_content:
                     color1, color2, color3, color4 = "\033[95m", "\033[0m", "\033[91m", "\033[0m"
                     if is_windows_system():
-                        color1, color2, color3, color4 = None
+                        color1, color2, color3, color4 = None, None, None, None
                     print("[!] Found in \"{}\", path is {color1}{path}{color2}"
                           .format(each_file, path=path, color1=color1, color2=color2))
                     print("[!] {}{color3}{content}{color4}"
