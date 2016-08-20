@@ -134,8 +134,7 @@ def is_windows_system():
 
 if __name__ == "__main__":
     path, file_type = initialize()
-    # keyword = input("[?] 请输入要搜索的关键词: ")
-    keyword = "main"
+    keyword = input("[?] 请输入要搜索的关键词: ")
 
     for root, dirs, files in os.walk(path):
         for each_file in files:
