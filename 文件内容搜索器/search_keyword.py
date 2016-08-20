@@ -86,9 +86,9 @@ def get_keyword(word, content):
     :return: heiheiehei keywordsecond line\n
     """
     if "\r" in content:
-        result = re.search("[^\r\n]*({}[^\r\n]*\r\n)".format(word), content)
+        result = re.search("[^\r\n]*({}[^\r\n]*\r?\n?)".format(word), content)
     else:
-        result = re.search("[^\n]*({}[^\n]*\n)".format(word), content)
+        result = re.search("[^\n]*({}[^\n]*\n?)".format(word), content)
     return result.group() if result else None
 
 
@@ -150,3 +150,4 @@ if __name__ == "__main__":
                     print("[!] {}{color3}{content}{color4}"
                           .format("\t" * 4, color3=color3, content=line_content.strip(), color4=color4))
     print("[*] {} 搜索结束 {}".format("-" * 30, "-" * 30))
+    input("输入任意键退出")

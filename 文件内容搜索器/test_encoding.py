@@ -70,6 +70,10 @@ class TestDecode(unittest.TestCase):
         content = "first line \nheiheiehei {}second line\nthird line\n".format(keyword)
         self.assertEqual(get_keyword(keyword, content), "heiheiehei {}second line\n".format(keyword))
 
+        # 测试情况6: 关键词存在第一行, 且没有换行符
+        content = "first {} line".format(keyword)
+        self.assertEqual(get_keyword(keyword, content), "first {} line".format(keyword))
+
 
 if __name__ == "__main__":
     pass
