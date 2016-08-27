@@ -28,13 +28,13 @@ def get_all_files_path_with_fix(root_path, files_fix):
     return result_list
 
 
-def random_choice(a_list):
+def random_choice(choices):
     """
     实现随机选择
-    :param a_list: ["1", "2", "3"]
+    :param choices: ["1", "2", "3"]
     :return: "3" or "2" or "1"
     """
-    return random.choice(a_list)
+    return random.choice(choices)
 
 
 def open_a_file_with_right_app(file_path):
@@ -59,4 +59,10 @@ def random_player(root_path, file_types):
 
 
 if __name__ == "__main__":
-    pass
+    a_list = ["1", "2", "3"]
+    result_set = set()
+
+    for i in range(3):
+        result_set.add(random.choice(a_list))
+
+    print(result_set)
