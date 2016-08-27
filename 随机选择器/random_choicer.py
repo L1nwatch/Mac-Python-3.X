@@ -49,9 +49,13 @@ def open_a_file_with_right_app(file_path):
     os.system("open {}".format(file_path))
 
 
-def random_player(root_path, file_types):
+def random_choicer(root_path, file_types):
     a_list = get_all_files_path_with_fix(root_path, file_types)
-    open_a_file_with_right_app(random_choice(a_list))
+    return random_choice(a_list)
+
+
+def random_player(root_path, file_types):
+    open_a_file_with_right_app(random_choicer(root_path, file_types))
 
 
 if __name__ == "__main__":
