@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 实现对指定文件夹下所有文件进行内容搜索, 关键词及搜索的文件类型由用户指定
 
+2016.08.27 发现 str 还有一个 splitlines 方法, 这个可以避免让我使用正则以及手动判断 \r\n 的问题
 2016.08.20 发现搜寻 GBK 编码的工程时中文注释不能完全搜索到, 编码方便的能力还是需要加强一下.
 2016.08.13 发现打开不同编码时会出错, 需要加强一下编码方面的能力
 2016.07.27 扩展一下搜索文件类型
@@ -79,17 +80,22 @@ def initialize(default_file_type=".h#.c#.cpp#.pl#.md#.py"):
 
 
 def get_keyword(word, content):
-    """
-    使用正则表达式进行搜索匹配
-    :param word: "keyword"
-    :param content: "first line \nheiheiehei keywordsecond line\nthird line\n"
-    :return: heiheiehei keywordsecond line\n
-    """
-    if "\r" in content:
-        result = re.search("[^\r\n]*({}[^\r\n]*\r?\n?)".format(word), content)
-    else:
-        result = re.search("[^\n]*({}[^\n]*\n?)".format(word), content)
-    return result.group() if result else None
+    def old_get_keyword(word, content):
+        """
+        使用正则表达式进行搜索匹配
+        :param word: "keyword"
+        :param content: "first line \nheiheiehei keywordsecond line\nthird line\n"
+        :return: "heiheiehei keywordsecond line\n"
+        """
+        if "\r" in content:
+            result = re.search("[^\r\n]*({}[^\r\n]*\r?\n?)".format(word), content)
+        else:
+            result = re.search("[^\n]*({}[^\n]*\n?)".format(word), content)
+        return result.group() if result else None
+
+    for each_line in content.splitlines():
+        if word in each_line:
+            return each_line
 
 
 def search_keyword_infile(file_path, word):

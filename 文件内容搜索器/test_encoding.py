@@ -19,6 +19,7 @@ class TestDecode(unittest.TestCase):
         utf8_encode = "呵呵哒".encode("utf8")
         self.assertEqual(decode_content(utf8_encode), "呵呵哒")
 
+    @unittest.skip  # 工程不小心被我删除了...
     def test_search_gbk_comment(self):
         """
         测试是否能够搜索到 gbk 编码的注释
@@ -27,13 +28,13 @@ class TestDecode(unittest.TestCase):
         test_path = "/Users/L1n/Desktop/Python Projects/PyCharm/文件内容搜索器/cacfg_src_v3.60.0010/PMDlgPersonCert.cpp"
         self.assertEqual(search_keyword_infile(test_path, "读存储"), '		AfxMessageBox("读存储设备出错!");')
 
+    @unittest.skip  # 现在暂时不使用正则来匹配
     def test_get_keyword(self):
         """
         测试正则表达式是否能够正确匹配
         :return:
         """
         keyword = "keyword"
-
         # 测试情况1: 关键词位于第一行, 每一行以 \r\n 分隔
         content = "{} first line \r\nsecond \r\n".format(keyword)
         self.assertEqual(get_keyword(keyword, content), "{} first line \r\n".format(keyword))
