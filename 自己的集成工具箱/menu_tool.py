@@ -1,19 +1,24 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
 # version: Python3.X
-''' 本来已经用 automator 写了个显示隐藏文件和隐藏隐藏文件的 app了,但是我想再精简一下,而且提供更加可读的提示,
+"""
+20160827 增加了一个功能, 把自己新写的随机选择器集成进来了, 所以多了一个随机播放机进击的巨人的功能
+20160827 以前:
+本来已经用 automator 写了个显示隐藏文件和隐藏隐藏文件的 app了,但是我想再精简一下,而且提供更加可读的提示,
 所以还是决定用 Python 写脚本后再用 automator 来运行
 
 参考: http://www.conxz.net/blog/2013/10/25/sloppy-python-snippets-to-capture-command-output/
 参考2:
     [Python 执行Shell 外部命令](http://unixman.blog.51cto.com/10163040/1641396)
-'''
+"""
+
 import subprocess
 import tkinter
 import requests
 import tkinter.messagebox
 import os
 from library_wifi import ping_success
+from random_choicer import random_player
 
 __author__ = '__L1n__w@tch'
 
@@ -31,6 +36,7 @@ class MenuTool:
         # self.__initialize_title()
 
         # 设置个列表, 显示相应按钮
+        self.buttons = dict()
         self.set_buttons()
 
         self.main_window.mainloop()
@@ -65,6 +71,10 @@ class MenuTool:
         title.grid()
         label_frame.grid()
 
+    def grid_buttons(self):
+        for each in self.buttons:
+            self.buttons[each].grid()
+
     def set_buttons(self):
         """
         设置相应按钮
@@ -73,17 +83,19 @@ class MenuTool:
         label_frame = tkinter.LabelFrame(self.main_window)
         list_box = tkinter.Listbox(label_frame)
 
-        change_hidden_status_button = tkinter.Button(list_box, text="更改隐藏文件显示状态",
-                                                     command=lambda: change_hidden_status_tool(True))
-        login_school_wifi_button = tkinter.Button(list_box, text="登录西电校园网", command=lambda: logging_school_wifi(True))
-        open_aria2c_button = tkinter.Button(list_box, text="开启 aria2c", command=open_aria2c)
-        open_shadowsocks_button = tkinter.Button(list_box, text="开启 shadowsocks", command=open_shadowsocks)
+        self.buttons["change_hidden_status_button"] = tkinter.Button(list_box, text="更改隐藏文件显示状态",
+                                                                     command=lambda: change_hidden_status_tool(True))
+        self.buttons["login_school_wifi_button"] = tkinter.Button(list_box, text="登录西电校园网",
+                                                                  command=lambda: logging_school_wifi(True))
+        self.buttons["open_aria2c_button"] = tkinter.Button(list_box, text="开启 aria2c", command=open_aria2c)
+        self.buttons["open_shadowsocks_button"] = tkinter.Button(list_box, text="开启 shadowsocks",
+                                                                 command=open_shadowsocks)
+        self.buttons["random_play_attack"] = tkinter.Button(list_box, text="随机播放一集进击的巨人",
+                                                            command=lambda: random_player(
+                                                                "/Users/L1n/Desktop/Entertainment/进击的巨人第一季全集", ["mp4"]))
 
         # 按钮放置
-        change_hidden_status_button.grid()
-        open_aria2c_button.grid()
-        login_school_wifi_button.grid()
-        open_shadowsocks_button.grid()
+        self.grid_buttons()
 
         # listbox 盒放置
         list_box.grid()
@@ -147,7 +159,7 @@ def open_aria2c(verbose=True):
     """
     # subprocess.call("aria2c", shell=True) # 必须得用 os.system 才能运行成功, 原因未知
     # 另外用 os.system("aria2c") 也失败了, 用 Automator 打开的时候好像权限降低了, 自己用 Pycharm 倒是成功的
-    os.system("/usr/local/aria2/bin/aria2c") # 最终成功
+    os.system("/usr/local/aria2/bin/aria2c")  # 最终成功
 
     tkinter.messagebox.showinfo("开启 aria2c", "开启成功") if verbose else None
 
