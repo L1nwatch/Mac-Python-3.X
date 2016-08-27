@@ -107,9 +107,12 @@ def search_keyword_infile(file_path, word):
         encoding = chardet.detect(data)["encoding"]
 
     try:
-        data = data.decode(encoding)
+        data = data.decode("utf8")
     except UnicodeDecodeError:
-        data = data.decode("gbk")
+        try:
+            data = data.decode("gbk")
+        except UnicodeDecodeError:
+            data = data.decode(encoding)
 
     return get_keyword(word, data)
 
