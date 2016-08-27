@@ -49,7 +49,10 @@ def open_a_file_with_right_app(file_path):
     os.system("open {}".format(file_path))
 
 
-if __name__ == "__main__":
-    root = "/Users/L1n/Desktop/Entertainment/进击的巨人第一季全集"
-    a_list = get_all_files_path_with_fix(root, "mp4")
+def random_player(root_path, file_types):
+    a_list = get_all_files_path_with_fix(root_path, file_types)
     open_a_file_with_right_app(random_choice(a_list))
+
+
+if __name__ == "__main__":
+    pass
