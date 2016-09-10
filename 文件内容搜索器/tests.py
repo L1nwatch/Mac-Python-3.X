@@ -75,6 +75,22 @@ class TestDecode(unittest.TestCase):
         content = "first {} line".format(keyword)
         self.assertEqual(get_keyword(keyword, content), "first {} line".format(keyword))
 
+    def test_upper_lower(self):
+        # 测试一下大小写搜索是否正常
+        test_file_path = "/Users/L1n/Desktop/Python Projects/PyCharm/文件内容搜索器/搜索器测试代码/05_ra/03_SZT1106_ra_tables.sql"
+
+        # 全大写搜索
+        self.assertEqual(search_keyword_infile(test_file_path, "RA.TBCODECERTCLASS"),
+                         "CREATE TABLE RA.tbCodeCertClass(")
+
+        # 全小写搜索
+        self.assertEqual(search_keyword_infile(test_file_path, "ra.tbcodecertclass"),
+                         "CREATE TABLE RA.tbCodeCertClass(")
+
+        # 大小写搜索
+        self.assertEqual(search_keyword_infile(test_file_path, "RA.tbCodeCertClass"),
+                         "CREATE TABLE RA.tbCodeCertClass(")
+
 
 if __name__ == "__main__":
     pass
