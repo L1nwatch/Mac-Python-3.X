@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 实现对指定文件夹下所有文件进行内容搜索, 关键词及搜索的文件类型由用户指定
 
+2016.09.10 发现自己昨天写的有个 BUG(命令行参数命名错), 修正了这个 BUG, 另外完善了 keyword 的两种输入方式
 2016.09.10 发现自己的搜索器没法匹配大小写, 于是改进一下
 2016.08.27 发现 str 还有一个 splitlines 方法, 这个可以避免让我使用正则以及手动判断 \r\n 的问题
 2016.08.20 发现搜寻 GBK 编码的工程时中文注释不能完全搜索到, 编码方便的能力还是需要加强一下.
@@ -45,7 +46,7 @@ def add_argument(parser, default_file_type):
                         default=os.curdir, help="文件夹路径")
     parser.add_argument("--type", "-t", type=str, default=default_file_type,
                         help="搜索文件类型, 默认值及格式为: \"{}\"".format(default_file_type))
-    parser.add_argument("--keyword", "-k", type=str, default="main", help="要搜索的关键词")
+    parser.add_argument("--keyword", "-k", type=str, default=None, help="要搜索的关键词")
     parser.add_argument("--ignore_case", "-i", type=bool, default=True, help="是否忽略大小写")
 
 
@@ -58,12 +59,13 @@ def set_argument(options):
     configuration = dict()
     configuration["path"] = options.path
     configuration["file_type"] = options.type.split("#")
-    configuration["ignore_case"] = options.case  # 大小写判定
-    # configuration["keyword"] = options.keyword.lower()
+    configuration["ignore_case"] = options.ignore_case  # 大小写判定
+    configuration["keyword"] = options.keyword
 
     print("[*] 要搜索的路径为: {}".format(configuration["path"]))
     print("[*] 要搜索的文件类型包括: {}".format(configuration["file_type"]))
-    # print("[*] 要搜索的关键词为: {}".format(configuration["keyword"]))
+    print("[*] 要搜索的关键词为: {}".format(configuration["keyword"])) if configuration["keyword"] is not None else None
+    print("[*] 是否忽略大小写: {}".format("是" if configuration["ignore_case"] else "否"))
 
     return configuration
 
@@ -79,7 +81,7 @@ def initialize(default_file_type=".h#.c#.cpp#.pl#.md#.py"):
 
     print("[*] {} 搜索开始 {}".format("-" * 30, "-" * 30))
 
-    return configuration["path"], configuration["file_type"], configuration["ignore_case"]
+    return configuration["path"], configuration["file_type"], configuration["ignore_case"], configuration["keyword"]
 
 
 def get_keyword(word, content, case):
@@ -147,8 +149,9 @@ def is_windows_system():
 
 
 if __name__ == "__main__":
-    path, file_type, ignore_case = initialize()
-    keyword = input("[?] 请输入要搜索的关键词: ")
+    path, file_type, ignore_case, keyword = initialize()
+    if keyword is None:
+        keyword = input("[?] 请输入要搜索的关键词: ")
 
     for root, dirs, files in os.walk(path):
         for each_file in files:
