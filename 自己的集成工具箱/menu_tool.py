@@ -75,16 +75,10 @@ class MenuTool:
         for each in self.buttons:
             self.buttons[each].grid()
 
-    def set_buttons(self):
-        """
-        设置相应按钮
-        :return:
-        """
-        label_frame = tkinter.LabelFrame(self.main_window)
-        list_box = tkinter.Listbox(label_frame)
-
+    def define_buttons(self, list_box):
         self.buttons["change_hidden_status_button"] = tkinter.Button(list_box, text="更改隐藏文件显示状态",
                                                                      command=lambda: change_hidden_status_tool(True))
+
         self.buttons["login_school_wifi_button"] = tkinter.Button(list_box, text="登录西电校园网",
                                                                   command=lambda: logging_school_wifi(True))
         self.buttons["open_aria2c_button"] = tkinter.Button(list_box, text="开启 aria2c", command=open_aria2c)
@@ -93,6 +87,19 @@ class MenuTool:
         self.buttons["random_play_attack"] = tkinter.Button(list_box, text="随机播放一集进击的巨人",
                                                             command=lambda: random_player(
                                                                 "/Users/L1n/Desktop/Entertainment/进击的巨人第一季全集", ["mp4"]))
+        self.buttons["switch_privoxy"] = tkinter.Button(list_box, text="开启或关闭 Privoxy",
+                                                        command=lambda: switch_open_privoxy(True))
+
+    def set_buttons(self):
+        """
+        设置相应按钮
+        :return:
+        """
+        label_frame = tkinter.LabelFrame(self.main_window)
+        list_box = tkinter.Listbox(label_frame)
+
+        # 初始化按钮
+        self.define_buttons(list_box)
 
         # 按钮放置
         self.grid_buttons()
@@ -174,6 +181,34 @@ def open_shadowsocks(verbose=True):
     os.system("open /Applications/ShadowsocksX.app/")
 
     tkinter.messagebox.showinfo("开启 aria2c", "开启成功") if verbose else None
+
+
+def is_privoxy_running():
+    """
+    查看 Privoxy 是否在开启中
+    :return:
+    """
+    try:
+        result = subprocess.check_output("netstat -an | grep 8118", shell=True)
+    except subprocess.CalledProcessError:
+        return False
+    return True
+
+
+def switch_open_privoxy(verbose=True):
+    """
+    如果 privoxy 是开启的, 就关闭掉, 否则就开启
+    :param verbose: True or False, 表示是否要打印详细信息
+    :return:
+    """
+    # 尝试使用 sudo 命令失败了, 最终是参考这篇教程成功的:
+    # http://askubuntu.com/questions/155791/how-do-i-sudo-a-command-in-a-script-without-being-asked-for-a-password
+    if is_privoxy_running():
+        os.system("sudo /Applications/Privoxy/stop_privoxy_without_sudo.sh")
+        tkinter.messagebox.showinfo("关闭 Privoxy", "关闭成功") if verbose else None
+    else:
+        os.system("sudo /Applications/Privoxy/start_privoxy_without_sudo.sh")
+        tkinter.messagebox.showinfo("开启 Privoxy", "开启成功") if verbose else None
 
 
 if __name__ == "__main__":

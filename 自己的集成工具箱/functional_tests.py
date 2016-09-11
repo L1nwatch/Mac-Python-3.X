@@ -10,6 +10,7 @@ import os
 import random
 import string
 from menu_tool import change_hidden_status_tool
+from menu_tool import switch_open_privoxy, is_privoxy_running
 
 __author__ = '__L1n__w@tch'
 
@@ -103,6 +104,34 @@ class TestShowHiddenTools(unittest.TestCase):
 
         # 检查是否显示了出来
         self.assertEqual(self.check_system_file_hide_status(), "显示隐藏文件")
+
+
+class TestOpenPrivoxy(unittest.TestCase):
+    """
+    测试是否能够正常开启 privoxy
+    """
+
+    def setUp(self):
+        self.status = is_privoxy_running()  # 保存测试之前 privoxy 的开启状态
+
+    def tearDown(self):
+        if self.status is True:
+            # 原先的状态应该是开着的
+            os.system("sudo /Applications/Privoxy/start_privoxy_without_sudo.sh")
+        else:
+            # 原先的状态应该是关着的
+            os.system("sudo /Applications/Privoxy/stop_privoxy_without_sudo.sh")
+
+    def test_switch_privoxy_success(self):
+        # 查看 Privoxy 当前状态
+        if self.status:
+            # 已经开启了, 那就关闭掉
+            switch_open_privoxy(verbose=False)
+            self.assertFalse(is_privoxy_running())
+        else:
+            # 没有开启, 那就开启啊
+            switch_open_privoxy(verbose=False)
+            self.assertTrue(is_privoxy_running())
 
 
 if __name__ == "__main__":
