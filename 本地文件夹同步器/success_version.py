@@ -15,8 +15,8 @@ import time
 import os
 import shutil
 import filecmp
-import distutils.dir_util
 import json
+import distutils.dir_util
 
 
 class FilesSaver:
