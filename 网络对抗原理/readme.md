@@ -8,7 +8,7 @@
 
 最终在自己的 macOS 运行的截图如下所示，由于 Python 是跨平台的，所以在其他平台运行差异也许不大，不过自己没有测试过：
 
-![macOS 运行嗅探器截图]()
+![macOS 运行嗅探器截图](https://github.com/L1nwatch/Mac-Python-3.X/blob/master/%E7%BD%91%E7%BB%9C%E5%AF%B9%E6%8A%97%E5%8E%9F%E7%90%86/%E6%BC%94%E7%A4%BA%E7%A4%BA%E4%BE%8B.png?raw=true)
 
 ### PS
 
