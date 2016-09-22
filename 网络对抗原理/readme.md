@@ -16,3 +16,5 @@
 
 `python3.4 sniffer/submit/sniff_ui_threading.py `，这个是封装好的用户界面类，直接使用这个就可以了。
 
+具体文档可以参考放在百度文库的[报告](http://wenku.baidu.com/view/d364978c25c52cc58bd6befb)。
+
