@@ -12,11 +12,11 @@
 
 * 或者直接使用 Python3 跑脚本吧，在我的 Mac 下跑出来的结果是这样的：
 
-  ![搜索结果示例]()
+  ![搜索结果示例](https://github.com/L1nwatch/Mac-Python-3.X/blob/master/%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9%E6%90%9C%E7%B4%A2%E5%99%A8/%E6%90%9C%E7%B4%A2%E7%BB%93%E6%9E%9C%E7%A4%BA%E4%BE%8B.png?raw=true)
 
 * 可以使用 `-h` 参数查看帮助说明，支持中英文、指定关键词、文件搜索类型等：
 
-  ![查看帮助说明]()
+  ![查看帮助说明](https://github.com/L1nwatch/Mac-Python-3.X/blob/master/%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9%E6%90%9C%E7%B4%A2%E5%99%A8/%E5%B8%AE%E5%8A%A9%E8%AF%B4%E6%98%8E.png?raw=true)
 
 ### 待改进地方
 
