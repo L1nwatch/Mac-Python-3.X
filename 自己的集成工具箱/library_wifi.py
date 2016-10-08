@@ -78,7 +78,7 @@ def login_before_update():
         lab_login_before_update()
 
 
-def login_after_update():
+def login_after_update(verbose=False):
     """
     尝试对新的认证系统进行登录操作
     :return:
@@ -89,18 +89,20 @@ def login_after_update():
     # session.get(url)
 
     ifconfig_output = subprocess.check_output("ifconfig")
-    if "std-wlan" not in ifconfig_output.lower():
-        return False
+    # TODO: 获取 wifi 名称
+    # if b"std-xdwlan" not in ifconfig_output.lower():
+    #     return False
 
     # 认证页面
     url = "http://10.255.44.33:803/include/auth_action.php"
-    post_data = {"action": "login", "username": "13030110024", "password": "foreachlf",
+    post_data = {"action": "login", "username": "13030110024", "password": "5w8zPKpw4#cE*5woatwj",
                  "ac_id": "1", "save_me": 0}  # &user_ip=&nas_ip=&user_mac=&save_me=0&ajax=1"}
     response = requests.post(url, post_data)
+
     if ping_success():
-        tkinter.messagebox.showinfo("登录校园网", "登录成功")
+        tkinter.messagebox.showinfo("登录校园网", "登录成功") if verbose else None
     else:
-        tkinter.messagebox.showerror("登录校园网", response.text)
+        tkinter.messagebox.showerror("登录校园网", response.text) if verbose else None
 
 
 if __name__ == "__main__":
@@ -108,4 +110,4 @@ if __name__ == "__main__":
     tk.withdraw()  # 去掉空窗口
     # login_before_update()
 
-    login_after_update()
+    login_after_update(verbose=True)

@@ -14,10 +14,9 @@
 
 import subprocess
 import tkinter
-import requests
 import tkinter.messagebox
 import os
-from library_wifi import ping_success
+from library_wifi import login_after_update as logging_school_wifi
 from random_choicer import random_player
 
 __author__ = '__L1n__w@tch'
@@ -135,27 +134,6 @@ def change_hidden_status_tool(verbose=False):
         tkinter.messagebox.showerror("Something wrong!") if verbose else None
 
     exit()
-
-
-def logging_school_wifi(verbose=False):
-    """
-    尝试登陆学校 wifi
-    :return:
-    """
-    ifconfig_output = subprocess.check_output("ifconfig").decode()
-    if "std-wlan" not in ifconfig_output.lower():
-        tkinter.messagebox.showinfo("登录校园网", "你没连上学校 wifi 啊")
-    else:
-        # 认证页面
-        url = "http://10.255.44.33:803/include/auth_action.php"
-        post_data = {"action": "login", "username": "13030110024", "password": "5w8zPKpw4#cE*5woatwj",
-                     "ac_id": "1", "save_me": 0}  # &user_ip=&nas_ip=&user_mac=&save_me=0&ajax=1"}
-        response = requests.post(url, post_data)
-
-        if ping_success():
-            tkinter.messagebox.showinfo("登录校园网", "登录成功") if verbose else None
-        else:
-            tkinter.messagebox.showerror("登录校园网", response.text) if verbose else None
 
 
 def open_aria2c(verbose=True):
