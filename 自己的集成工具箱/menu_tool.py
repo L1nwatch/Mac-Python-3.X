@@ -88,6 +88,8 @@ class MenuTool:
                                                                 "/Users/L1n/Desktop/Entertainment/进击的巨人第一季全集", ["mp4"]))
         self.buttons["switch_privoxy"] = tkinter.Button(list_box, text="开启或关闭 Privoxy",
                                                         command=lambda: switch_open_privoxy(True))
+        self.buttons["git_exercise_log"] = tkinter.Button(list_box, text="git push 锻炼日志",
+                                                          command=lambda: git_push_exercise_log(True))
 
     def set_buttons(self):
         """
@@ -106,6 +108,22 @@ class MenuTool:
         # listbox 盒放置
         list_box.grid()
         label_frame.pack()
+
+
+def git_push_exercise_log(verbose=False):
+    """
+    负责进行锻炼日志的 git push 操作, 省得每次编写锻炼日志都要先开 PyCharm 写完再 git
+    :param verbose: True or False, 控制是否弹窗提示信息
+    :return:
+    """
+    log_path = "/Users/L1n/Desktop/Job/it_people_healthy"
+    command = ("cd {}"
+               " && git add -A"
+               " && git commit -m '更新锻炼日志'"
+               " && git push".format(log_path))
+    os.system(command)
+    if verbose:
+        tkinter.messagebox.showinfo("git push 锻炼日志", "更新锻炼日志完毕")
 
 
 def change_hidden_status_tool(verbose=False):
