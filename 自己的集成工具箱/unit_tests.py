@@ -14,7 +14,7 @@ from functional_tests import TestShowHiddenTools
 __author__ = '__L1n__w@tch'
 
 
-class TestFunctionalTest(unittest.TestCase):
+class HiddenButtonFunctionalTest(unittest.TestCase):
     """
     对自己的功能测试进行测试
     """
@@ -54,8 +54,6 @@ class TestFunctionalTest(unittest.TestCase):
         for each_file in output:
             if self.file_name in each_file:
                 self.assertIn("@", each_file, "不是隐藏文件")
-
-
 
 
 if __name__ == "__main__":

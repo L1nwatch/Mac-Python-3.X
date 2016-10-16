@@ -80,6 +80,7 @@ def login_before_update():
 
 def login_after_update(verbose=False):
     """
+    2016.10.16 找到了一个在 macOS 下获取 wifi 名称的终端命令
     尝试对新的认证系统进行登录操作
     :return:
     """
@@ -88,10 +89,10 @@ def login_after_update(verbose=False):
     # session = requests.Session()
     # session.get(url)
 
-    ifconfig_output = subprocess.check_output("ifconfig")
-    # TODO: 获取 wifi 名称
-    # if b"std-xdwlan" not in ifconfig_output.lower():
-    #     return False
+    wifi_name = subprocess.check_output("networksetup -getairportnetwork en0 | cut -c 24-", shell=True)
+    if b"std-xdwlan" not in wifi_name.strip().lower():
+        tkinter.messagebox.showerror("登陆校园网", "你没连上 std-xdwlan 啊!") if verbose else None
+        return False
 
     # 认证页面
     url = "http://10.255.44.33:803/include/auth_action.php"
