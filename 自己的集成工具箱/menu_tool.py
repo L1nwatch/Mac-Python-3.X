@@ -185,7 +185,7 @@ def is_privoxy_running():
     :return:
     """
     try:
-        result = subprocess.check_output("netstat -an | grep 8118", shell=True)
+        subprocess.check_output("netstat -an | grep 8118", shell=True)
     except subprocess.CalledProcessError:
         return False
     return True
@@ -200,9 +200,10 @@ def switch_open_privoxy(verbose=True):
     # 尝试使用 sudo 命令失败了, 最终是参考这篇教程成功的:
     # http://askubuntu.com/questions/155791/how-do-i-sudo-a-command-in-a-script-without-being-asked-for-a-password
     # 基本步骤是:
-    # 1. 创建一个 sh 文件,并且赋予执行权限
-    # 2. sudo visudo, 添加这么一句话:
-    # 3. username ALL=(ALL) NOPASSWD: /Applications/Privoxy/start_privoxy_without_sudo.sh
+    # 1. 查看用户名, 利用 W 命令
+    # 2. 创建一个 sh 文件,并且赋予执行权限
+    # 3. sudo visudo, 添加这么一句话:
+    # 4. username ALL=(ALL) NOPASSWD: /Applications/Privoxy/start_privoxy_without_sudo.sh
     if is_privoxy_running():
         os.system("sudo /Applications/Privoxy/stop_privoxy_without_sudo.sh")
         tkinter.messagebox.showinfo("关闭 Privoxy", "关闭成功") if verbose else None
