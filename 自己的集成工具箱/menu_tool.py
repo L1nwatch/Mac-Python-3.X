@@ -205,6 +205,7 @@ def switch_open_privoxy(verbose=True):
     # 2. 创建一个 sh 文件,并且赋予执行权限
     # 3. sudo visudo, 添加这么一句话:
     # 4. username ALL=(ALL) NOPASSWD: /Applications/Privoxy/start_privoxy_without_sudo.sh
+    # 5. 注意添加的位置, 最好是放在最后添加, 省得被覆盖了
     if is_privoxy_running():
         os.system("sudo /Applications/Privoxy/stop_privoxy_without_sudo.sh")
         tkinter.messagebox.showinfo("关闭 Privoxy", "关闭成功") if verbose else None
