@@ -1,0 +1,15 @@
+#新需求，区域
+3|AF_BVT_PC0|[设置当前网关],网关IP:_ConsoleIP,用户名:_ConsoleUser,密码:_ConsolePasswd,网关语言:_AFLanguage,期望结果:成功
+AF_BVT_PC0|[后台执行命令],设备名称:_DeviceName,执行命令:touch /virus/dcweb/rsa_debug,期望结果:成功
+AF_BVT_PC0|[后台执行命令],设备名称:_DeviceName,执行命令:touch /virus/dcweb/debug_rsa,期望结果:成功
+#绕过前台加密
+#3|AF_BVT_PC0|[新增区域],区域名称:default_58,转发类型:三层区域,接口:eth0,WEBUI:是,SSH:是,期望结果:成功
+#3|AF_BVT_PC0|[编辑区域],区域名称:default_58,转发类型:三层区域,接口:eth0,WEBUI:是,SSH:是,期望结果:成功
+3|AF_BVT_PC0|[建立SSH连接],目的IP:_ConsoleIP,端口号:22345,用户名:admin,密码:1,期望结果:成功
+
+#3|AF_BVT_PC0|[删除区域],删除类型:全部删除,排除区域:default_58,期望结果:成功
+#3|AF_BVT_PC0|[建立SSH连接],目的IP:_ConsoleIP,端口号:22345,用户名:admin,密码:1,期望结果:连接未建立
+[teardown]
+#3|AF_BVT_PC0|[删除区域],删除类型:全部删除,排除区域:default_58,期望结果:none
+#AF_BVT_PC0|[后台执行命令],设备名称:_DeviceName,执行命令:touch /virus/dcweb/rsa_debug,期望结果:成功
+#AF_BVT_PC0|[后台执行命令],设备名称:_DeviceName,执行命令:touch /virus/dcweb/debug_rsa,期望结果:成功
