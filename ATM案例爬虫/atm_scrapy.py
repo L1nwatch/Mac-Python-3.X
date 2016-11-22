@@ -6,13 +6,16 @@
 2016.11.16 爬虫, 爬取公司上的 ATM 平台的案例, 要不然学习别人的案例学习起来不方便
 """
 import requests
+import os
+import re
+from my_constant import const
 from selenium import webdriver
 
 __author__ = '__L1n__w@tch'
 
 
 class ATMScrapy:
-    def crawl(self, url):
+    def crawl(self, url, path_dir=os.curdir):
         """
         执行整体爬虫流程
         :param url:
@@ -29,10 +32,24 @@ class ATMScrapy:
         :param url:
         :return:
         """
-        response = requests.get(url=url)
-        with open("test.html", "w") as f:
+        project_id = self.get_project_id_from_url(url)
+        response = requests.get(url="http://200.200.0.33/atm/projects/{}/suites".format(project_id))
+        with open("{}.json".format(project_id), "w") as f:
             f.write(response.text)
-        return "test.html"
+        return const.SUCCESS_MESSAGE
+
+    @staticmethod
+    def get_project_id_from_url(url):
+        """
+        从给定的 url 中解析出项目 id
+        :param url: "http://200.200.0.33/atm/projects/53c49025d105401f5e0003ec"
+        :return: "53c49025d105401f5e0003ec"
+        """
+        project_id = re.findall(".*([0-9a-zA-Z]{24}).*", url)[0]
+        all_possible_id = re.findall("([0-9a-zA-Z]*)", url)
+        if all(possible_id != project_id for possible_id in all_possible_id):
+            raise RuntimeError
+        return project_id
 
     def parse_tree_json_file(self, file_path):
         """
