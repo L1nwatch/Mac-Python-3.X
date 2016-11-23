@@ -1,0 +1,1201 @@
+[
+  {
+    "id": "55c96a08d105400f27067a23",
+    "name": "必选发布测试项new",
+    "isParent": true,
+    "usecases_count": 585,
+    "children": [
+      {
+        "id": "55c96a75d105406a8a02d808",
+        "name": "发布测试项",
+        "isParent": true,
+        "usecases_count": 585,
+        "children": [
+          {
+            "id": "55c96a75d105400f411a1e73",
+            "name": "前置",
+            "isParent": true,
+            "usecases_count": 3,
+            "children": []
+          },
+          {
+            "id": "56946a1dd1054047b2000008",
+            "name": "新增异常处理机制",
+            "isParent": true,
+            "usecases_count": 1,
+            "children": []
+          },
+          {
+            "id": "55c96a78d105400f411a1fd0",
+            "name": "国标测试",
+            "isParent": true,
+            "usecases_count": 37,
+            "children": [
+              {
+                "id": "55c96a78d105400f411a1fd1",
+                "name": "功能列表",
+                "isParent": true,
+                "usecases_count": 24,
+                "children": [
+                  {
+                    "id": "55c96a78d105400f411a1fd2",
+                    "name": "包过滤",
+                    "isParent": true,
+                    "usecases_count": 9,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96a7cd105400f411a2272",
+                    "name": "NAT",
+                    "isParent": true,
+                    "usecases_count": 4,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96a85d105400f411a23b3",
+                    "name": "流量统计",
+                    "isParent": true,
+                    "usecases_count": 4,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96a88d105400f411a2527",
+                    "name": "安全审计",
+                    "isParent": true,
+                    "usecases_count": 7,
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "id": "55c96a8bd105400f411a27f6",
+                "name": "安全测试",
+                "isParent": true,
+                "usecases_count": 13,
+                "children": [
+                  {
+                    "id": "55c96a8bd105400f411a27f7",
+                    "name": "抗渗透和非正常关机",
+                    "isParent": true,
+                    "usecases_count": 9,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96a90d105400f411a2bc1",
+                    "name": "恶意代码防御",
+                    "isParent": true,
+                    "usecases_count": 4,
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "55c96a92d105400f411a2c9e",
+            "name": "IPv6功能-zwj",
+            "isParent": true,
+            "usecases_count": 26,
+            "children": [
+              {
+                "id": "55c96a93d105400f411a2c9f",
+                "name": "前置",
+                "isParent": true,
+                "usecases_count": 1,
+                "children": []
+              },
+              {
+                "id": "55c96a95d105400f411a2cae",
+                "name": "接口区域",
+                "isParent": true,
+                "usecases_count": 6,
+                "children": []
+              },
+              {
+                "id": "55c96a97d105400f411a2df9",
+                "name": "应用控制",
+                "isParent": true,
+                "usecases_count": 8,
+                "children": []
+              },
+              {
+                "id": "55c96a99d105400f411a2fc3",
+                "name": "WEB防护",
+                "isParent": true,
+                "usecases_count": 10,
+                "children": []
+              },
+              {
+                "id": "55c96a9bd105400f411a320c",
+                "name": "后置",
+                "isParent": true,
+                "usecases_count": 1,
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "55eea074d1054046db01721a",
+            "name": "新增20150908",
+            "isParent": true,
+            "usecases_count": 51,
+            "children": []
+          },
+          {
+            "id": "55c96a9dd105400f411a321b",
+            "name": "原发布测试项自动化",
+            "isParent": true,
+            "usecases_count": 430,
+            "children": [
+              {
+                "id": "55c96a9ed105400f411a321c",
+                "name": "运行状态",
+                "isParent": true,
+                "usecases_count": 21,
+                "children": [
+                  {
+                    "id": "55c96a9ed105400f411a321d",
+                    "name": "系统状态",
+                    "isParent": true,
+                    "usecases_count": 6,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96aa0d105400f411a3370",
+                    "name": "在线用户管理",
+                    "isParent": true,
+                    "usecases_count": 7,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96aa3d105400f411a34e8",
+                    "name": "安全事件联动防火墙",
+                    "isParent": true,
+                    "usecases_count": 8,
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "id": "55c96aa6d105400f411a3686",
+                "name": "网络配置-zwj",
+                "isParent": true,
+                "usecases_count": 48,
+                "children": [
+                  {
+                    "id": "55c96aa6d105400f411a3687",
+                    "name": "接口区域wyh",
+                    "isParent": true,
+                    "usecases_count": 10,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96aa9d105400f411a3892",
+                    "name": "接口区域",
+                    "isParent": true,
+                    "usecases_count": 26,
+                    "children": [
+                      {
+                        "id": "55c96aa9d105400f411a3893",
+                        "name": "0",
+                        "isParent": true,
+                        "usecases_count": 16,
+                        "children": []
+                      },
+                      {
+                        "id": "55c96aadd105400f411a3e65",
+                        "name": "1",
+                        "isParent": true,
+                        "usecases_count": 10,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "id": "55c96ab0d105400f411a4163",
+                    "name": "高级网路配置",
+                    "isParent": true,
+                    "usecases_count": 12,
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "id": "55c96ab3d105400f411a43bf",
+                "name": "认证系统-yf",
+                "isParent": true,
+                "usecases_count": 24,
+                "children": [
+                  {
+                    "id": "55c96ab3d105400f411a43c0",
+                    "name": "用户管理和认证",
+                    "isParent": true,
+                    "usecases_count": 24,
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "id": "55c96ab6d105400f411a4746",
+                "name": "防火墙-yf",
+                "isParent": true,
+                "usecases_count": 39,
+                "children": [
+                  {
+                    "id": "55c96ab6d105400f411a4747",
+                    "name": "地址转换",
+                    "isParent": true,
+                    "usecases_count": 7,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96ab9d105400f411a492e",
+                    "name": "连接数控制",
+                    "isParent": true,
+                    "usecases_count": 6,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96abbd105400f411a4ae8",
+                    "name": "DNS-Mapping",
+                    "isParent": true,
+                    "usecases_count": 6,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96abdd105400f411a4c96",
+                    "name": "arp防护",
+                    "isParent": true,
+                    "usecases_count": 3,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96abfd105400f411a4d7c",
+                    "name": "内外网DOS防护",
+                    "isParent": true,
+                    "usecases_count": 9,
+                    "children": []
+                  },
+                  {
+                    "id": "56e76cffd105404e5e000042",
+                    "name": "地域访问控制",
+                    "isParent": true,
+                    "usecases_count": 8,
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "id": "56d6390ad1054017b8000002",
+                "name": "HTTPS",
+                "isParent": true,
+                "usecases_count": 10,
+                "children": []
+              },
+              {
+                "id": "55c96ac2d105400f411a4fb8",
+                "name": "内容安全-zwj",
+                "isParent": true,
+                "usecases_count": 102,
+                "children": [
+                  {
+                    "id": "55c96ac2d105400f411a4fb9",
+                    "name": "应用控制0",
+                    "isParent": true,
+                    "usecases_count": 10,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96ac6d105400f411a532b",
+                    "name": "应用控制",
+                    "isParent": true,
+                    "usecases_count": 9,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96ac8d105400f411a553e",
+                    "name": "AF5.1应用控制",
+                    "isParent": true,
+                    "usecases_count": 7,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96accd105400f411a579b",
+                    "name": "病毒防御",
+                    "isParent": true,
+                    "usecases_count": 22,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96ad0d105400f411a5f3b",
+                    "name": "url过滤",
+                    "isParent": true,
+                    "usecases_count": 6,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96ad2d105400f411a60c9",
+                    "name": "文件过滤",
+                    "isParent": true,
+                    "usecases_count": 12,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96ad6d105400f411a65ae",
+                    "name": "UTM",
+                    "isParent": true,
+                    "usecases_count": 12,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96ad8d105400f411a67f6",
+                    "name": "威胁隔离",
+                    "isParent": true,
+                    "usecases_count": 9,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96aded105400f411a6e95",
+                    "name": "木马远控",
+                    "isParent": true,
+                    "usecases_count": 6,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96ae1d105400f411a6ff3",
+                    "name": "异常连接",
+                    "isParent": true,
+                    "usecases_count": 9,
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "id": "55c96ae3d105400f411a7239",
+                "name": "IPS-yf",
+                "isParent": true,
+                "usecases_count": 20,
+                "children": [
+                  {
+                    "id": "55c96ae4d105400f411a723a",
+                    "name": "IPS基本功能验证",
+                    "isParent": true,
+                    "usecases_count": 14,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96ae7d105400f411a753c",
+                    "name": "自定义IPS",
+                    "isParent": true,
+                    "usecases_count": 6,
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "id": "55c96ae9d105400f411a7750",
+                "name": "服务器安全-zwj",
+                "isParent": true,
+                "usecases_count": 106,
+                "children": [
+                  {
+                    "id": "55c96aead105400f411a7751",
+                    "name": "WAF策略",
+                    "isParent": true,
+                    "usecases_count": 19,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96aeed105400f411a7baf",
+                    "name": "WAF防护(BVT)",
+                    "isParent": true,
+                    "usecases_count": 24,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96af1d105400f411a7ff9",
+                    "name": "弱口令防御",
+                    "isParent": true,
+                    "usecases_count": 11,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96af4d105400f411a814f",
+                    "name": "DLP",
+                    "isParent": true,
+                    "usecases_count": 14,
+                    "children": []
+                  },
+                  {
+                    "id": "55c96af7d105400f411a836a",
+                    "name": "URL参数误判排除",
+                    "isParent": true,
+                    "usecases_count": 20,
+                    "children": []
+                  },
+                  {
+                    "id": "55f12850d10540362d07ee6c",
+                    "name": "自定义IPS&WAF",
+                    "isParent": true,
+                    "usecases_count": 18,
+                    "children": [
+                      {
+                        "id": "55f12850d10540362d07ee6d",
+                        "name": "环境前置",
+                        "isParent": true,
+                        "usecases_count": 1,
+                        "children": []
+                      },
+                      {
+                        "id": "55f12852d10540362d07eefd",
+                        "name": "自定义IPS",
+                        "isParent": true,
+                        "usecases_count": 10,
+                        "children": []
+                      },
+                      {
+                        "id": "55f12854d10540362d07f094",
+                        "name": "自定义WAF",
+                        "isParent": true,
+                        "usecases_count": 7,
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "55c96afcd105400f411a872b",
+                "name": "流量管理-yf",
+                "isParent": true,
+                "usecases_count": 19,
+                "children": [
+                  {
+                    "id": "55c96afcd105400f411a872c",
+                    "name": "流量管理",
+                    "isParent": true,
+                    "usecases_count": 19,
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "id": "55c96b00d105400f411a8ad0",
+                "name": "风险发现和防护-yf",
+                "isParent": true,
+                "usecases_count": 41,
+                "children": [
+                  {
+                    "id": "55c96b00d105400f411a8ad1",
+                    "name": "WEB扫描",
+                    "isParent": true,
+                    "usecases_count": 26,
+                    "children": [
+                      {
+                        "id": "55c96b00d105400f411a8ad2",
+                        "name": "基本功能",
+                        "isParent": true,
+                        "usecases_count": 13,
+                        "children": []
+                      },
+                      {
+                        "id": "55c96b03d105400f411a8db7",
+                        "name": "模板配置",
+                        "isParent": true,
+                        "usecases_count": 13,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "id": "55c96b07d105400f411a90a6",
+                    "name": "被动扫描",
+                    "isParent": true,
+                    "usecases_count": 15,
+                    "children": [
+                      {
+                        "id": "55c96b07d105400f411a90a7",
+                        "name": "被动扫描前置",
+                        "isParent": true,
+                        "usecases_count": 2,
+                        "children": []
+                      },
+                      {
+                        "id": "55c96b09d105400f411a913f",
+                        "name": "实时漏洞分析",
+                        "isParent": true,
+                        "usecases_count": 12,
+                        "children": [
+                          {
+                            "id": "55c96b09d105400f411a9140",
+                            "name": "前置",
+                            "isParent": true,
+                            "usecases_count": 1,
+                            "children": []
+                          },
+                          {
+                            "id": "55c96b0bd105400f411a91d5",
+                            "name": "类型测试",
+                            "isParent": true,
+                            "usecases_count": 2,
+                            "children": []
+                          },
+                          {
+                            "id": "55c96b0ed105400f411a9291",
+                            "name": "依赖关系测试",
+                            "isParent": true,
+                            "usecases_count": 3,
+                            "children": []
+                          },
+                          {
+                            "id": "55c96b10d105400f411a93ce",
+                            "name": "协议方向测试",
+                            "isParent": true,
+                            "usecases_count": 2,
+                            "children": []
+                          },
+                          {
+                            "id": "55c96b12d105400f411a9456",
+                            "name": "不同字符集测试",
+                            "isParent": true,
+                            "usecases_count": 1,
+                            "children": []
+                          },
+                          {
+                            "id": "55c96b14d105400f411a9488",
+                            "name": "非标准端口数据匹配测试",
+                            "isParent": true,
+                            "usecases_count": 2,
+                            "children": []
+                          },
+                          {
+                            "id": "55c96b16d105400f411a958c",
+                            "name": "后置",
+                            "isParent": true,
+                            "usecases_count": 1,
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "id": "55c96b18d105400f411a95b1",
+                        "name": "被动扫描后置",
+                        "isParent": true,
+                        "usecases_count": 1,
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "56d6b543d105404d2f000024",
+            "name": "国标测试6.8",
+            "isParent": true,
+            "usecases_count": 37,
+            "children": [
+              {
+                "id": "56d6b54ed105404cc700002f",
+                "name": "功能列表",
+                "isParent": true,
+                "usecases_count": 24,
+                "children": [
+                  {
+                    "id": "56d6b54fd1054058af34e9b0",
+                    "name": "包过滤",
+                    "isParent": true,
+                    "usecases_count": 9,
+                    "children": []
+                  },
+                  {
+                    "id": "56d6b552d1054058af34ec0d",
+                    "name": "NAT",
+                    "isParent": true,
+                    "usecases_count": 4,
+                    "children": []
+                  },
+                  {
+                    "id": "56d6b555d1054058af34ed1d",
+                    "name": "流量统计",
+                    "isParent": true,
+                    "usecases_count": 4,
+                    "children": []
+                  },
+                  {
+                    "id": "56d6b558d1054058af34ee59",
+                    "name": "安全审计",
+                    "isParent": true,
+                    "usecases_count": 7,
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "id": "56d6b567d1054051da000015",
+                "name": "安全测试",
+                "isParent": true,
+                "usecases_count": 13,
+                "children": [
+                  {
+                    "id": "56d6b569d1054058af34f06c",
+                    "name": "抗渗透和非正常关机",
+                    "isParent": true,
+                    "usecases_count": 9,
+                    "children": []
+                  },
+                  {
+                    "id": "56d6b56dd1054058af34f3df",
+                    "name": "恶意代码防御",
+                    "isParent": true,
+                    "usecases_count": 4,
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "56d3fdcad1054031ac0000a1",
+    "name": "储运母盘测试(适用于32G SSD)",
+    "isParent": true,
+    "usecases_count": 455,
+    "children": [
+      {
+        "id": "56d3fdcbd1054058af32561f",
+        "name": "前置",
+        "isParent": true,
+        "usecases_count": 3,
+        "children": []
+      },
+      {
+        "id": "56d55d90d105402abd000129",
+        "name": "新增异常处理机制",
+        "isParent": true,
+        "usecases_count": 1,
+        "children": []
+      },
+      {
+        "id": "56d3fdcfd1054058af3257cc",
+        "name": "国标测试",
+        "isParent": true,
+        "usecases_count": 37,
+        "children": [
+          {
+            "id": "56d3fdcfd1054058af3257cd",
+            "name": "功能列表",
+            "isParent": true,
+            "usecases_count": 24,
+            "children": [
+              {
+                "id": "56d3fdd0d1054058af3257ce",
+                "name": "包过滤",
+                "isParent": true,
+                "usecases_count": 9,
+                "children": []
+              },
+              {
+                "id": "56d3fdd3d1054058af325a2b",
+                "name": "NAT",
+                "isParent": true,
+                "usecases_count": 4,
+                "children": []
+              },
+              {
+                "id": "56d3fdd5d1054058af325b32",
+                "name": "流量统计",
+                "isParent": true,
+                "usecases_count": 4,
+                "children": []
+              },
+              {
+                "id": "56d3fdd8d1054058af325c6e",
+                "name": "安全审计",
+                "isParent": true,
+                "usecases_count": 7,
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "56d3fddbd1054058af325e81",
+            "name": "安全测试",
+            "isParent": true,
+            "usecases_count": 13,
+            "children": [
+              {
+                "id": "56d3fddcd1054058af325e82",
+                "name": "抗渗透和非正常关机",
+                "isParent": true,
+                "usecases_count": 9,
+                "children": []
+              },
+              {
+                "id": "56d3fddfd1054058af3261f5",
+                "name": "恶意代码防御",
+                "isParent": true,
+                "usecases_count": 4,
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "56d3fde1d1054058af3262d8",
+        "name": "IPv6功能-zwj",
+        "isParent": true,
+        "usecases_count": 26,
+        "children": [
+          {
+            "id": "56d3fde2d1054058af3262d9",
+            "name": "前置",
+            "isParent": true,
+            "usecases_count": 1,
+            "children": []
+          },
+          {
+            "id": "56d3fde4d1054058af3262ee",
+            "name": "接口区域",
+            "isParent": true,
+            "usecases_count": 6,
+            "children": []
+          },
+          {
+            "id": "56d3fde6d1054058af326439",
+            "name": "应用控制",
+            "isParent": true,
+            "usecases_count": 8,
+            "children": []
+          },
+          {
+            "id": "56d3fde9d1054058af326603",
+            "name": "WEB防护",
+            "isParent": true,
+            "usecases_count": 10,
+            "children": []
+          },
+          {
+            "id": "56d3fdecd1054058af32684c",
+            "name": "后置",
+            "isParent": true,
+            "usecases_count": 1,
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "56d55d9bd105402040000067",
+        "name": "新增20150908",
+        "isParent": true,
+        "usecases_count": 51,
+        "children": []
+      },
+      {
+        "id": "56d3fdf4d1054058af3273fa",
+        "name": "原发布测试项自动化",
+        "isParent": true,
+        "usecases_count": 337,
+        "children": [
+          {
+            "id": "56d51267d105402b05000035",
+            "name": "运行状态",
+            "isParent": true,
+            "usecases_count": 17,
+            "children": [
+              {
+                "id": "56d51269d1054058af33883f",
+                "name": "系统状态",
+                "isParent": true,
+                "usecases_count": 5,
+                "children": []
+              },
+              {
+                "id": "56d5126cd1054058af33891b",
+                "name": "在线用户管理",
+                "isParent": true,
+                "usecases_count": 7,
+                "children": []
+              },
+              {
+                "id": "56d5126ed1054058af338a97",
+                "name": "安全事件联动防火墙",
+                "isParent": true,
+                "usecases_count": 5,
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "56d3fdfdd1054058af32785b",
+            "name": "网络配置-zwj",
+            "isParent": true,
+            "usecases_count": 48,
+            "children": [
+              {
+                "id": "56d3fdfdd1054058af32785c",
+                "name": "接口区域wyh",
+                "isParent": true,
+                "usecases_count": 10,
+                "children": []
+              },
+              {
+                "id": "56d3fe00d1054058af327a67",
+                "name": "接口区域",
+                "isParent": true,
+                "usecases_count": 26,
+                "children": [
+                  {
+                    "id": "56d3fe00d1054058af327a68",
+                    "name": "0",
+                    "isParent": true,
+                    "usecases_count": 16,
+                    "children": []
+                  },
+                  {
+                    "id": "56d3fe05d1054058af32807d",
+                    "name": "1",
+                    "isParent": true,
+                    "usecases_count": 10,
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "id": "56d3fe08d1054058af328383",
+                "name": "高级网路配置",
+                "isParent": true,
+                "usecases_count": 12,
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "56d3fe0cd1054058af3286a6",
+            "name": "认证系统-yf",
+            "isParent": true,
+            "usecases_count": 23,
+            "children": [
+              {
+                "id": "56d3fe0cd1054058af3286a7",
+                "name": "用户管理和认证",
+                "isParent": true,
+                "usecases_count": 23,
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "56d3fe10d1054058af328bd7",
+            "name": "防火墙-yf",
+            "isParent": true,
+            "usecases_count": 22,
+            "children": [
+              {
+                "id": "56d3fe10d1054058af328bd8",
+                "name": "地址转换",
+                "isParent": true,
+                "usecases_count": 7,
+                "children": []
+              },
+              {
+                "id": "56d3fe14d1054058af328f7a",
+                "name": "连接数控制",
+                "isParent": true,
+                "usecases_count": 6,
+                "children": []
+              },
+              {
+                "id": "56d3fe16d1054058af329134",
+                "name": "DNS-Mapping",
+                "isParent": true,
+                "usecases_count": 6,
+                "children": []
+              },
+              {
+                "id": "56d3fe19d1054058af3292e9",
+                "name": "arp防护",
+                "isParent": true,
+                "usecases_count": 3,
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "56d3fe21d1054058af32989e",
+            "name": "内容安全-zwj",
+            "isParent": true,
+            "usecases_count": 44,
+            "children": [
+              {
+                "id": "56d3fe25d1054058af329c11",
+                "name": "应用控制",
+                "isParent": true,
+                "usecases_count": 4,
+                "children": []
+              },
+              {
+                "id": "56d3fe28d1054058af329e24",
+                "name": "AF5.1应用控制",
+                "isParent": true,
+                "usecases_count": 6,
+                "children": []
+              },
+              {
+                "id": "56d3fe36d1054058af32aea6",
+                "name": "UTM",
+                "isParent": true,
+                "usecases_count": 11,
+                "children": []
+              },
+              {
+                "id": "56d3fe39d1054058af32b0ee",
+                "name": "威胁隔离",
+                "isParent": true,
+                "usecases_count": 8,
+                "children": []
+              },
+              {
+                "id": "56d3fe3cd1054058af32b2eb",
+                "name": "木马远控",
+                "isParent": true,
+                "usecases_count": 6,
+                "children": []
+              },
+              {
+                "id": "56d3fe3fd1054058af32b455",
+                "name": "异常连接",
+                "isParent": true,
+                "usecases_count": 9,
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "56d3fe42d1054058af32b6a0",
+            "name": "IPS-yf",
+            "isParent": true,
+            "usecases_count": 18,
+            "children": [
+              {
+                "id": "56d3fe42d1054058af32b6a1",
+                "name": "IPS基本功能验证",
+                "isParent": true,
+                "usecases_count": 12,
+                "children": []
+              },
+              {
+                "id": "56d3fe46d1054058af32b9fe",
+                "name": "自定义IPS",
+                "isParent": true,
+                "usecases_count": 6,
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "56d3fe49d1054058af32bc12",
+            "name": "服务器安全-zwj",
+            "isParent": true,
+            "usecases_count": 105,
+            "children": [
+              {
+                "id": "56d3fe49d1054058af32bc13",
+                "name": "WAF策略",
+                "isParent": true,
+                "usecases_count": 19,
+                "children": []
+              },
+              {
+                "id": "56d3fe4dd1054058af32c0ca",
+                "name": "WAF防护(BVT)",
+                "isParent": true,
+                "usecases_count": 23,
+                "children": []
+              },
+              {
+                "id": "56d3fe51d1054058af32c5cc",
+                "name": "弱口令防御",
+                "isParent": true,
+                "usecases_count": 11,
+                "children": []
+              },
+              {
+                "id": "56d3fe54d1054058af32c728",
+                "name": "DLP",
+                "isParent": true,
+                "usecases_count": 14,
+                "children": []
+              },
+              {
+                "id": "56d3fe56d1054058af32c93f",
+                "name": "URL参数误判排除",
+                "isParent": true,
+                "usecases_count": 20,
+                "children": []
+              },
+              {
+                "id": "56d3fe5ad1054058af32cc99",
+                "name": "自定义IPS&WAF",
+                "isParent": true,
+                "usecases_count": 18,
+                "children": [
+                  {
+                    "id": "56d3fe5ad1054058af32cc9a",
+                    "name": "环境前置",
+                    "isParent": true,
+                    "usecases_count": 1,
+                    "children": []
+                  },
+                  {
+                    "id": "56d3fe5dd1054058af32cd1b",
+                    "name": "自定义IPS",
+                    "isParent": true,
+                    "usecases_count": 10,
+                    "children": []
+                  },
+                  {
+                    "id": "56d3fe60d1054058af32cf16",
+                    "name": "自定义WAF",
+                    "isParent": true,
+                    "usecases_count": 7,
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "56d3fe64d1054058af32d0f1",
+            "name": "流量管理-yf",
+            "isParent": true,
+            "usecases_count": 19,
+            "children": [
+              {
+                "id": "56d3fe64d1054058af32d0f2",
+                "name": "流量管理",
+                "isParent": true,
+                "usecases_count": 19,
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "56d3fe68d1054058af32d496",
+            "name": "风险发现和防护-yf",
+            "isParent": true,
+            "usecases_count": 41,
+            "children": [
+              {
+                "id": "56d3fe68d1054058af32d497",
+                "name": "WEB扫描",
+                "isParent": true,
+                "usecases_count": 26,
+                "children": [
+                  {
+                    "id": "56d3fe68d1054058af32d498",
+                    "name": "基本功能",
+                    "isParent": true,
+                    "usecases_count": 13,
+                    "children": []
+                  },
+                  {
+                    "id": "56d3fe6cd1054058af32d77d",
+                    "name": "模板配置",
+                    "isParent": true,
+                    "usecases_count": 13,
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "id": "56d3fe6fd1054058af32da35",
+                "name": "被动扫描",
+                "isParent": true,
+                "usecases_count": 15,
+                "children": [
+                  {
+                    "id": "56d3fe70d1054058af32da36",
+                    "name": "被动扫描前置",
+                    "isParent": true,
+                    "usecases_count": 2,
+                    "children": []
+                  },
+                  {
+                    "id": "56d3fe72d1054058af32daca",
+                    "name": "实时漏洞分析",
+                    "isParent": true,
+                    "usecases_count": 12,
+                    "children": [
+                      {
+                        "id": "56d3fe73d1054058af32dacb",
+                        "name": "前置",
+                        "isParent": true,
+                        "usecases_count": 1,
+                        "children": []
+                      },
+                      {
+                        "id": "56d3fe75d1054058af32db68",
+                        "name": "类型测试",
+                        "isParent": true,
+                        "usecases_count": 2,
+                        "children": []
+                      },
+                      {
+                        "id": "56d3fe78d1054058af32dc24",
+                        "name": "依赖关系测试",
+                        "isParent": true,
+                        "usecases_count": 3,
+                        "children": []
+                      },
+                      {
+                        "id": "56d3fe7bd1054058af32dd61",
+                        "name": "协议方向测试",
+                        "isParent": true,
+                        "usecases_count": 2,
+                        "children": []
+                      },
+                      {
+                        "id": "56d3fe7ed1054058af32ddea",
+                        "name": "不同字符集测试",
+                        "isParent": true,
+                        "usecases_count": 1,
+                        "children": []
+                      },
+                      {
+                        "id": "56d3fe81d1054058af32de1d",
+                        "name": "非标准端口数据匹配测试",
+                        "isParent": true,
+                        "usecases_count": 2,
+                        "children": []
+                      },
+                      {
+                        "id": "56d3fe83d1054058af32df21",
+                        "name": "后置",
+                        "isParent": true,
+                        "usecases_count": 1,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "id": "56d3fe86d1054058af32df4e",
+                    "name": "被动扫描后置",
+                    "isParent": true,
+                    "usecases_count": 1,
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
