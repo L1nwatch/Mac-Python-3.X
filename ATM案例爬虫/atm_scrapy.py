@@ -74,8 +74,12 @@ class ATMScrapy:
         :param url: "http://200.200.0.33/atm/projects/53c49025d105401f5e0003ec"
         :return: "53c49025d105401f5e0003ec"
         """
-        project_id = re.findall(".*([0-9a-zA-Z]{24}).*", url)[0]
+        try:
+            project_id = re.findall(".*([0-9a-zA-Z]{24}).*", url)[0]
+        except IndexError:
+            raise IndexError("[!] URL 是不是有问题啊你")
         all_possible_id = re.findall("([0-9a-zA-Z]*)", url)
+
         if all(possible_id != project_id for possible_id in all_possible_id):
             raise RuntimeError
         return project_id
