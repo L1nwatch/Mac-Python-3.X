@@ -145,7 +145,7 @@ class ATMScrapy:
         # 解析保存的 json 文件, 创建对应案例
         a_list = self.parse_tree_json_file(json_file_path)
         for each_case in a_list:
-            case_file_path = os.path.join(path, "{}".format(each_case["name"].replace("/", "-").replace("\\", "-")))
+            case_file_path = os.path.join(path, "{}".format(each_case["name"].replace("/", "-")))
             with open(case_file_path, "w") as f:
                 f.write(self.get_case_content_from_case_id(each_case["id"]))
 
