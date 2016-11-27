@@ -15,7 +15,8 @@ from my_constant import const
 from atm_scrapy import ATMScrapy
 
 __author__ = '__L1n__w@tch'
-# TODO:2016.11.27 爬虫发现 TODO:'./ATM爬虫:20161127-0911/调试测试套/mrl/07-认证系统-llx/02-原来/策略包含IP/MAC匹配测试',案例名字包括特殊字符
+# TODO: 2016.11.27 爬虫发现 TODO:'./ATM爬虫:20161127-0911/调试测试套/mrl/07-认证系统-llx/02-原来/策略包含IP/MAC匹配测试',案例名字包括特殊字符
+# TODO: 名字中含有特殊字符的处理
 
 class UnittestATMScrapy(unittest.TestCase):
     @classmethod
