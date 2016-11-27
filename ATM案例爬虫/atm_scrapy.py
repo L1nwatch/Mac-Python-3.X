@@ -2,10 +2,12 @@
 # -*- coding: utf-8 -*-
 # version: Python3.X
 """
+2016.11.27 爬虫正常了, 加入参数使用吧
 2016.11.26 陆续编写, 到今天终于可以完成下载功能了, 简称爬虫 v1.0
 2016.11.20 发现 ATM 本身就提供导出案例的功能, 不过是导出成 excel 格式的
 2016.11.16 爬虫, 爬取公司上的 ATM 平台的案例, 要不然学习别人的案例学习起来不方便
 """
+import argparse
 import requests
 import os
 import re
@@ -21,9 +23,8 @@ __author__ = '__L1n__w@tch'
 
 
 class ATMScrapy:
-    def __init__(self, url, path_dir=os.curdir):
-        self.project_id = self.get_project_id_from_url(url)
-        print("开始爬, 目标项目:{}".format(self.project_id))
+    def __init__(self, project_url, path_dir=os.curdir):
+        self.project_id = self.get_project_id_from_url(project_url)
 
         # 初始化默认下载目录
         if path_dir == os.curdir:
@@ -32,7 +33,7 @@ class ATMScrapy:
                 year=today.year, month=today.month, day=today.day,
                 hour=str(today.hour).zfill(2), minute=str(today.minute).zfill(2)))
 
-        os.mkdir(path_dir) if not os.path.exists(path_dir) else None
+        os.makedirs(path_dir, exist_ok=True)
 
     def crawl(self):
         """
@@ -48,7 +49,6 @@ class ATMScrapy:
 
         os.remove(json_file_path)
 
-        print("项目{}:{}".format(self.project_id, result))
         return result
 
     def download_tree_json_file(self, project_id=None):
@@ -107,7 +107,7 @@ class ATMScrapy:
                 path = os.path.join(root_path, each_kid["name"])
                 os.makedirs(path, exist_ok=True)
 
-                print("下载{}中...".format(each_kid["name"]))
+                print("[!] 下载 {} 中...".format(each_kid["name"]))
 
                 # 不是最后一级目录
                 if len(each_kid["children"]) > 0:
@@ -138,7 +138,7 @@ class ATMScrapy:
         # 解析保存的 json 文件, 创建对应案例
         a_list = self.parse_tree_json_file(json_file_path)
         for each_case in a_list:
-            case_file_path = os.path.join(path, "{}".format(each_case["name"]))
+            case_file_path = os.path.join(path, "{}".format(each_case["name"].replace("/", "-").replace("\\", "-")))
             with open(case_file_path, "w") as f:
                 f.write(self.get_case_content_from_case_id(each_case["id"]))
 
@@ -156,10 +156,56 @@ class ATMScrapy:
         return response.text
 
 
+def add_argument(parser):
+    """
+    为解析器添加参数
+    :param parser: ArgumentParser 实例对象
+    :return: None
+    """
+    parser.add_argument("--path", "-p", type=str,
+                        default=os.curdir, help="指定存放路径")
+    parser.add_argument("--url", "-u", type=str, required=True, help=" 项目的链接, 也可以直接输入项目 id")
+
+
+def set_argument(options):
+    """
+    读取用户输入的参数, 检验是否合法
+    :param options: parser.opts
+    :return: dict()
+    """
+    configuration = dict()
+    configuration["path"] = options.path
+    configuration["url"] = options.url
+
+    print("[*] 指定存放的路径为: {}".format(configuration["path"]))
+    print("[*] 指定项目 url 为: {}".format(configuration["url"]))
+
+    return configuration
+
+
+def initialize():
+    """
+    进行初始化操作, 包括 argparse 解析程序的初始化, 参数的相关设定等
+    :return: path, file_type, keyword
+    """
+    parser = argparse.ArgumentParser(description="ATM 案例爬虫 v1.0-Author: 林丰35516")
+    add_argument(parser)
+    configuration = set_argument(parser.parse_args())
+
+    return configuration["url"], configuration["path"]
+
+
 if __name__ == "__main__":
     # atm_project_url = "http://200.200.0.33/atm/projects/53c49025d105401f5e0003ec/suites"
     # case_url = "http://200.200.0.33/atm/projects/53c49025d105401f5e0003ec/suites?id=57eb3d9ed10540526e00116f"
     # case_content = "http://200.200.0.33/atm/projects/53c49025d105401f5e0003ec/usecases/5832d192d105400a3100006e"
-    test_project_id = "53c49025d105401f5e0003ec"
-    my_atm_crawl = ATMScrapy(test_project_id)
+
+    print("[*] ATM 案例爬虫 v1.0-Author: 林丰35516")
+    url, path = initialize()
+    project_id = ATMScrapy.get_project_id_from_url(url)
+
+    print("[*] {sep} 开始爬项目{project_id} {sep}".format(sep="=" * 30, project_id=project_id))
+    my_atm_crawl = ATMScrapy(project_id, path)
     my_atm_crawl.crawl()
+    print("[*] {sep} 项目{project_id}爬取完毕 {sep}".format(sep="=" * 30, project_id=project_id))
+    input("[?] 输入任意键退出")

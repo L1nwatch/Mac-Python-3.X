@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # version: Python3.X
 """
+2016.11.27 爬虫发现 './ATM爬虫:20161127-0911/调试测试套/mrl/07-认证系统-llx/02-原来/策略包含IP/MAC匹配测试',案例名字包括特殊字符
 2016.11.26 通过了好多单元测试,但是整体运行了之后感觉测试效率下降了,所以优化一下,在单元测试里面就只爬一次
 2016.11.22 新增两个单元测试并且通过了, 分别是获取项目 id 以及下载 json 文件
 2016.11.20 作为爬虫的测试文件, 这里存放的是单元测试文件
@@ -14,7 +15,7 @@ from my_constant import const
 from atm_scrapy import ATMScrapy
 
 __author__ = '__L1n__w@tch'
-
+# TODO:2016.11.27 爬虫发现 TODO:'./ATM爬虫:20161127-0911/调试测试套/mrl/07-认证系统-llx/02-原来/策略包含IP/MAC匹配测试',案例名字包括特殊字符
 
 class UnittestATMScrapy(unittest.TestCase):
     @classmethod
@@ -26,7 +27,7 @@ class UnittestATMScrapy(unittest.TestCase):
         os.makedirs(cls.test_path, exist_ok=True)
 
         # 爬虫操作
-        cls.test_atm_scrapy = ATMScrapy(path_dir=cls.test_path, url=cls.test_project_id)
+        cls.test_atm_scrapy = ATMScrapy(path_dir=cls.test_path, project_url=cls.test_project_id)
 
     def test_can_download_json_file_from_project_id(self):
         """

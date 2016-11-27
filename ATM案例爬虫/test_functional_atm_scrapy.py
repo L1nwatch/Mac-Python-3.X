@@ -19,7 +19,7 @@ class FunctionalTestATMScrapy(unittest.TestCase):
     def setUpClass(cls):
         cls.test_project_id = "53c49025d105401f5e0003ec"
         cls.test_path = os.path.join(os.curdir, "test_for_functional")
-        cls.test_atm_crawl = ATMScrapy(url=cls.test_project_id)
+        cls.test_atm_crawl = ATMScrapy(project_url=cls.test_project_id)
 
         # Y 运行了这个工具
         cls.test_atm_crawl.crawl()
