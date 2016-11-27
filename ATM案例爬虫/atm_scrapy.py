@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 # version: Python3.X
 """
-2016.11.27 爬虫正常了, 加入参数使用吧
+2016.11.27 爬虫正常了, 加入参数使用吧, 打包发现 queue 报错, 需要手动导入, 另外路径参数有点问题, 已修正
 2016.11.26 陆续编写, 到今天终于可以完成下载功能了, 简称爬虫 v1.0
 2016.11.20 发现 ATM 本身就提供导出案例的功能, 不过是导出成 excel 格式的
 2016.11.16 爬虫, 爬取公司上的 ATM 平台的案例, 要不然学习别人的案例学习起来不方便
 """
+import queue
 import argparse
 import requests
 import os
@@ -32,8 +33,10 @@ class ATMScrapy:
             self.path_dir = os.path.join(path_dir, "ATM爬虫:{year}{month}{day}-{hour}{minute}".format(
                 year=today.year, month=today.month, day=today.day,
                 hour=str(today.hour).zfill(2), minute=str(today.minute).zfill(2)))
+        else:
+            self.path_dir = path_dir
 
-        os.makedirs(path_dir, exist_ok=True)
+        os.makedirs(self.path_dir, exist_ok=True)
 
     def crawl(self):
         """
