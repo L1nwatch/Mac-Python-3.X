@@ -127,6 +127,19 @@ class ATMScrapy:
 
         return const.SUCCESS_MESSAGE
 
+    @staticmethod
+    def get_safe_name(raw_name):
+        """
+        过滤掉特殊字符
+        :param raw_name: 原来的名字, 可能包含特殊字符
+        :return: 不包含特殊字符的名字
+        """
+        special_char = ["\\", "/", "*", ":", "?", '"', ">", "<", "|"]
+        result = raw_name
+        for each_char in special_char:
+            result = result.replace(each_char, "-")
+        return result
+
     def create_cases_from_cases_id(self, cases_id, path):
         """
         根据字典, 在不同文件夹下创建对应的案例
@@ -145,7 +158,8 @@ class ATMScrapy:
         # 解析保存的 json 文件, 创建对应案例
         a_list = self.parse_tree_json_file(json_file_path)
         for each_case in a_list:
-            case_file_path = os.path.join(path, "{}".format(each_case["name"].replace("/", "-")))
+            name = self.get_safe_name(each_case["name"])
+            case_file_path = os.path.join(path, name)
             with open(case_file_path, "w") as f:
                 f.write(self.get_case_content_from_case_id(each_case["id"]))
 
