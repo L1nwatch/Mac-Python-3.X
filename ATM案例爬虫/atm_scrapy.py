@@ -30,7 +30,7 @@ class ATMScrapy:
         # 初始化默认下载目录
         if path_dir == os.curdir:
             today = datetime.datetime.now()
-            self.path_dir = os.path.join(path_dir, "ATM爬虫:{year}{month}{day}-{hour}{minute}".format(
+            self.path_dir = os.path.join(path_dir, "ATM爬虫-{year}{month}{day}-{hour}{minute}".format(
                 year=today.year, month=today.month, day=today.day,
                 hour=str(today.hour).zfill(2), minute=str(today.minute).zfill(2)))
         else:
