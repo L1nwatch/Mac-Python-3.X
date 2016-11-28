@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # version: Python3.X
 """
+2016.11.28 添加名字特殊字符的单元测试
 2016.11.27 爬虫发现 './ATM爬虫:20161127-0911/调试测试套/mrl/07-认证系统-llx/02-原来/策略包含IP/MAC匹配测试',案例名字包括特殊字符
 2016.11.26 通过了好多单元测试,但是整体运行了之后感觉测试效率下降了,所以优化一下,在单元测试里面就只爬一次
 2016.11.22 新增两个单元测试并且通过了, 分别是获取项目 id 以及下载 json 文件
@@ -15,8 +16,7 @@ from my_constant import const
 from atm_scrapy import ATMScrapy
 
 __author__ = '__L1n__w@tch'
-# TODO: 2016.11.27 爬虫发现 TODO:'./ATM爬虫:20161127-0911/调试测试套/mrl/07-认证系统-llx/02-原来/策略包含IP/MAC匹配测试',案例名字包括特殊字符
-# TODO: 名字中含有特殊字符的处理
+
 
 class UnittestATMScrapy(unittest.TestCase):
     @classmethod
@@ -25,7 +25,6 @@ class UnittestATMScrapy(unittest.TestCase):
 
         # 创建测试时所下载的东西会保存的路径
         cls.test_path = os.path.join(os.path.abspath(os.curdir), "test_for_crawl")
-        os.makedirs(cls.test_path, exist_ok=True)
 
         # 爬虫操作
         cls.test_atm_scrapy = ATMScrapy(path_dir=cls.test_path, project_url=cls.test_project_id)
@@ -134,6 +133,17 @@ class UnittestATMScrapy(unittest.TestCase):
         result = result.splitlines()  # 清除换行符差异
 
         self.assertEqual(right_content, result)
+
+    def test_can_get_safe_name(self):
+        """
+        中文文件名不允许: \, /, *, :, ?, ", >, <, |
+        :return:
+        """
+        # 不合法的名字
+        invalid_name = r"\asdascas/csadasdsa(*21312321<dsadsa>DAS!@#!|?:*dsadas"
+        result = self.test_atm_scrapy.get_safe_name(invalid_name)
+        for each_invalid_char in ["\\", "/", "*", ":", "?", '"', ">", "<", "|"]:
+            self.assertTrue(each_invalid_char not in result)
 
 
 if __name__ == "__main__":
