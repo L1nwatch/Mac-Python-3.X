@@ -13,6 +13,7 @@ import requests
 import os
 import re
 import datetime
+import pymysql
 from my_constant import const
 
 try:
@@ -24,8 +25,10 @@ __author__ = '__L1n__w@tch'
 
 
 class ATMScrapy:
-    def __init__(self, project_url, path_dir=os.curdir):
+    def __init__(self, project_url, path_dir=os.curdir, sql_connector=None):
         self.project_id = self.get_project_id_from_url(project_url)
+        self.mysql = sql_connector
+        self.case_table_name = "t_atm_cases"
 
         # 初始化默认下载目录
         if path_dir == os.curdir:
@@ -43,6 +46,11 @@ class ATMScrapy:
         执行整体爬虫流程
         :return:
         """
+        # 数据库判断
+        if self.mysql is not None:
+            self.mysql.create_tables_for_case(self.case_table_name)
+            print("[!] 创建表 {} 成功, 接下来会将案例写进数据库而不是保存到文件中".format(self.case_table_name))
+
         # 下载并解析 json 文件
         json_file_path = self.download_tree_json_file()
         parse_result = self.parse_tree_json_file(json_file_path)
@@ -140,17 +148,17 @@ class ATMScrapy:
             result = result.replace(each_char, "-")
         return result
 
-    def create_cases_from_cases_id(self, cases_id, path):
+    def create_cases_from_cases_id(self, cases_id, cases_path):
         """
         根据字典, 在不同文件夹下创建对应的案例
         :param cases_id: cases 的 id, 通过这个 id 可以获取到这个文件夹下的所有案例
-        :param path: 要放置的目录
+        :param cases_path: 要放置的目录
         :return:
         """
-        url = "http://200.200.0.33/atm/projects/{}/suites?id={}".format(self.project_id, cases_id)
+        cases_url = "http://200.200.0.33/atm/projects/{}/suites?id={}".format(self.project_id, cases_id)
 
         # 获取最后一级目录中所有案例 id, 保存到 json 中
-        response = requests.get(url)
+        response = requests.get(cases_url)
         json_file_path = "{}.json".format(cases_id)
         with open(json_file_path, "w") as f:
             f.write(response.text)
@@ -158,12 +166,37 @@ class ATMScrapy:
         # 解析保存的 json 文件, 创建对应案例
         a_list = self.parse_tree_json_file(json_file_path)
         for each_case in a_list:
-            name = "{}.txt".format(self.get_safe_name(each_case["name"]))
-            case_file_path = os.path.join(path, name)
-            with open(case_file_path, "w") as f:
-                f.write(self.get_case_content_from_case_id(each_case["id"]))
+            if self.mysql is None:
+                self.write_case_into_file(each_case, cases_path)
+            else:
+                self.write_case_into_db(each_case, cases_path)
 
         os.remove(json_file_path)
+
+    def write_case_into_db(self, case, cases_path):
+        """
+        将下载到的案例写入数据库中
+        :param case: 案例
+        :param cases_path: 案例所在的根目录
+        :return:
+        """
+        case_id = case["id"]
+        case_name = self.get_safe_name(case["name"])
+        case_path = os.path.join(cases_path, case_name)
+        case_content = self.get_case_content_from_case_id(case_id)
+        self.mysql.insert_data_to_case_table(self.case_table_name, case_id, case_path, case_content)
+
+    def write_case_into_file(self, case, cases_path):
+        """
+        将下载到的案例写入文件中
+        :param case: 案例字典, 包括名称, id 等
+        :param cases_path: 案例所在的根目录
+        :return:
+        """
+        name = "{}.txt".format(self.get_safe_name(case["name"]))
+        case_file_path = os.path.join(cases_path, name)
+        with open(case_file_path, "w") as f:
+            f.write(self.get_case_content_from_case_id(case["id"]))
 
     def get_case_content_from_case_id(self, case_id):
         """
@@ -177,6 +210,84 @@ class ATMScrapy:
         return response.text
 
 
+class DBConnector:
+    def __init__(self, host, user, passwd, db="", charset="utf8"):
+        self.db_connector = pymysql.connect(host=host, user=user, passwd=passwd, db=db, charset=charset)
+        self.db_cursor = self.db_connector.cursor()
+
+    def create_tables_for_case(self, table_name):
+        """
+        为案例创建表格, 字段是固定死的
+        :param table_name: 表格名
+        :return:
+        """
+        # 使用 execute() 方法执行 SQL，如果表存在则删除
+        self.db_cursor.execute("DROP TABLE IF EXISTS {}".format(table_name))
+
+        # 使用预处理语句创建表
+        sql = ("""CREATE TABLE {} (
+               case_id CHAR(24) NOT NULL,
+               case_path TEXT NOT NULL,
+               case_content TEXT,
+               PRIMARY KEY (case_id) )""".format(table_name)
+               )
+
+        self.db_cursor.execute(sql)
+
+    def insert_data_to_case_table(self, table_name, case_id, case_path, case_content):
+        """
+        插入数据到案例表格中对应字段
+        :param table_name: 表格名字, 比如 "t_atm_cases"
+        :param case_id: 固定 24 个字符, 比如 "57eb3d9ed10540526e001170"
+        :param case_path: 案例的路径, 比如 "预发布测试项/前置/大家好"
+        :param case_content: 案例的内容, 比如 "[我只是个虚拟的关键字]"
+        :return:
+        """
+        safe_case_content = pymysql.escape_string(case_content)
+
+        # SQL 插入语句
+        sql = r"INSERT INTO {}(case_id, case_path, case_content) VALUES ('{}', '{}', '{}')" \
+            .format(table_name, case_id, case_path, safe_case_content)
+
+        # print("[!!] 尝试写入数据: {}".format(safe_case_content))
+
+        try:
+            # 执行sql语句
+            self.db_cursor.execute(sql)
+            # 提交到数据库执行
+            self.db_connector.commit()
+        except Exception as e:
+            # 如果发生错误则回滚
+            self.db_connector.rollback()
+            raise e
+
+    def query_data_from_case_table(self, table_name, limit_number=100):
+        """
+        从案例表格中读取数据
+        :param table_name: 表格名字, 比如 "t_atm_cases"
+        :param limit_number: 限制读取多少条, 比如 100
+        :return:
+        """
+        # SQL 查询语句
+        sql = "SELECT * FROM {} LIMIT {}".format(table_name, limit_number)
+        try:
+            # 执行SQL语句
+            self.db_cursor.execute(sql)
+            # 获取所有记录列表
+            results = self.db_cursor.fetchall()
+            print(results)
+        except Exception as e:
+            print("[!] 获取数据失败")
+            raise e
+
+    def close_db(self):
+        """
+        关闭数据库连接
+        :return:
+        """
+        self.db_connector.close()
+
+
 def add_argument(parser):
     """
     为解析器添加参数
@@ -185,7 +296,9 @@ def add_argument(parser):
     """
     parser.add_argument("--path", "-p", type=str,
                         default=os.curdir, help="指定存放路径")
-    parser.add_argument("--url", "-u", type=str, required=True, help=" 项目的链接, 也可以直接输入项目 id")
+    parser.add_argument("--url", "-u", type=str, required=True, help="项目的链接, 也可以直接输入项目 id")
+    parser.add_argument("--db", "-d", type=str, required=False,
+                        help="选择写入数据库中, 格式比如:'localhost#root#password#TESTDB#utf8', 分别表示'主机#用户名#密码#数据库名#编码'")
 
 
 def set_argument(options):
@@ -197,9 +310,11 @@ def set_argument(options):
     configuration = dict()
     configuration["path"] = options.path
     configuration["url"] = options.url
+    configuration['db'] = options.db
 
     print("[*] 指定存放的路径为: {}".format(configuration["path"]))
     print("[*] 指定项目 url 为: {}".format(configuration["url"]))
+    print("[*] 指定数据库信息为: {}".format(configuration["db"])) if configuration["db"] else None
 
     return configuration
 
@@ -213,7 +328,7 @@ def initialize():
     add_argument(parser)
     configuration = set_argument(parser.parse_args())
 
-    return configuration["url"], configuration["path"]
+    return configuration["url"], configuration["path"], configuration["db"]
 
 
 if __name__ == "__main__":
@@ -222,11 +337,18 @@ if __name__ == "__main__":
     # case_content = "http://200.200.0.33/atm/projects/53c49025d105401f5e0003ec/usecases/5832d192d105400a3100006e"
 
     print("[*] ATM 案例爬虫 v1.0-Author: 林丰35516")
-    url, path = initialize()
+    url, path, db = initialize()
     project_id = ATMScrapy.get_project_id_from_url(url)
 
     print("[*] {sep} 开始爬项目{project_id} {sep}".format(sep="=" * 30, project_id=project_id))
-    my_atm_crawl = ATMScrapy(project_id, path)
+
+    if db is not None:
+        host, user, password, db_name, charset = db.split("#")
+        sql_connector = DBConnector(host, user, password, db_name, charset)
+        my_atm_crawl = ATMScrapy(project_id, path, sql_connector)
+    else:
+        my_atm_crawl = ATMScrapy(project_id, path)
     my_atm_crawl.crawl()
+
     print("[*] {sep} 项目{project_id}爬取完毕 {sep}".format(sep="=" * 30, project_id=project_id))
     input("[?] 输入任意键退出")

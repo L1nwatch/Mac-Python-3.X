@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # version: Python3.X
 """
+2016.11.30 添加测试完删除文件的操作
 2016.11.28 添加名字特殊字符的单元测试
 2016.11.27 爬虫发现 './ATM爬虫:20161127-0911/调试测试套/mrl/07-认证系统-llx/02-原来/策略包含IP/MAC匹配测试',案例名字包括特殊字符
 2016.11.26 通过了好多单元测试,但是整体运行了之后感觉测试效率下降了,所以优化一下,在单元测试里面就只爬一次
@@ -13,6 +14,7 @@ import unittest
 import random
 import string
 from my_constant import const
+import distutils.dir_util
 from atm_scrapy import ATMScrapy
 
 __author__ = '__L1n__w@tch'
@@ -34,8 +36,7 @@ class UnittestATMScrapy(unittest.TestCase):
         测试给定一个项目id, 能够下载到 json 文件并命名为 id.json
         :return:
         """
-        response = self.test_atm_scrapy.download_tree_json_file(self.test_project_id)
-        self.assertTrue(response in const.SUCCESS_MESSAGE)
+        self.test_atm_scrapy.download_tree_json_file(self.test_project_id)
         self.assertTrue(os.path.exists(os.path.join(os.curdir, "{}.json".format(self.test_project_id))))
 
     def test_can_get_project_id_from_url(self):
@@ -118,7 +119,9 @@ class UnittestATMScrapy(unittest.TestCase):
 
         self.test_atm_scrapy.create_cases_from_cases_id(test_cases_id, test_path)
 
-        self.assertTrue(all(os.path.exists(os.path.join(test_path, each_case)) for each_case in cases))
+        # 验证每个案例是否存在
+        self.assertTrue(all(
+            os.path.exists(os.path.join(os.path.join(test_path, "{}.txt".format(each_case)))) for each_case in cases))
 
     def test_can_get_case_content_from_case_id(self):
         """
@@ -144,6 +147,18 @@ class UnittestATMScrapy(unittest.TestCase):
         result = self.test_atm_scrapy.get_safe_name(invalid_name)
         for each_invalid_char in ["\\", "/", "*", ":", "?", '"', ">", "<", "|"]:
             self.assertTrue(each_invalid_char not in result)
+
+    @classmethod
+    def tearDownClass(cls):
+        """
+        删除测试出来的文件
+        :return:
+        """
+        # 测试运行完之后不存在 json file
+        # assert not os.path.exists(os.path.join(os.curdir, "{}.json".format(cls.test_project_id)))
+
+        # 删除测试下载到的案例文件夹
+        distutils.dir_util.remove_tree(cls.test_path)
 
 
 if __name__ == "__main__":
