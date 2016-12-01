@@ -35,8 +35,8 @@ class ATMScrapy:
         if path_dir == os.curdir:
             today = datetime.datetime.now()
             self.path_dir = os.path.join(path_dir, "ATM爬虫-{year}{month}{day}-{hour}{minute}".format(
-                year=today.year, month=today.month, day=today.day,
-                hour=str(today.hour).zfill(2), minute=str(today.minute).zfill(2)))
+                    year=today.year, month=today.month, day=today.day,
+                    hour=str(today.hour).zfill(2), minute=str(today.minute).zfill(2)))
         else:
             self.path_dir = path_dir
 
@@ -199,13 +199,15 @@ class ATMScrapy:
         :param cases_path: 案例所在的根目录
         :return:
         """
+        name = "{}.txt".format(self.get_safe_name(case["name"]))
+        case_file_path = os.path.join(cases_path, name)
+        case_content = self.get_case_content_from_case_id(case["id"])
         try:
-            name = "{}.txt".format(self.get_safe_name(case["name"]))
-            case_file_path = os.path.join(cases_path, name)
             with open(case_file_path, "w") as f:
-                f.write(self.get_case_content_from_case_id(case["id"]))
+                f.write(case_content)
         except Exception as e:
             print("[!] 下载文件: {} 中的 {} 出错".format(cases_path, case))
+            print(case_content)
             raise e
 
     def get_case_content_from_case_id(self, case_id):
@@ -216,7 +218,6 @@ class ATMScrapy:
         """
         case_content_url = "http://200.200.0.33/atm/projects/{}/usecases/{}".format(self.project_id, case_id)
         response = requests.get(case_content_url)
-
         content = self.get_right_encoding_content(response.content)
 
         return content
