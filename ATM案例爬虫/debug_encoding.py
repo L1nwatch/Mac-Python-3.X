@@ -6,6 +6,7 @@
 """
 import os
 import atm_scrapy
+import codecs
 
 __author__ = '__L1n__w@tch'
 
@@ -17,7 +18,13 @@ if __name__ == "__main__":
 
     debug_atm_crawl = atm_scrapy.ATMScrapy(project_url)
 
-    # 解析保存的 json 文件, 创建对应案例
-    a_list = debug_atm_crawl.parse_tree_json_file(debug_json_file)
-    for each_case in a_list:
-        debug_atm_crawl.write_case_into_file(each_case, "./debug_encoding")
+    name = "{}.txt".format(debug_atm_crawl.get_safe_name("debug_test_case_txt"))
+    case_file_path = os.path.join("./{}".format(debug_dir), name)
+    case_content = debug_atm_crawl.get_case_content_from_case_id("583be601d1054076520000e1")
+
+    try:
+        with open(case_file_path, "w") as f:
+            f.write(case_content)
+    except UnicodeEncodeError as e:
+        with open(case_file_path, "w", encoding="utf8") as f:
+            f.write(case_content)
