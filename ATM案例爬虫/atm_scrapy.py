@@ -180,10 +180,15 @@ class ATMScrapy:
         :param cases_path: 案例所在的根目录
         :return:
         """
-        case_id = case["id"]
-        case_name = self.get_safe_name(case["name"])
-        case_path = os.path.join(cases_path, case_name)
-        case_content = self.get_case_content_from_case_id(case_id)
+        try:
+            case_id = case["id"]
+            case_name = self.get_safe_name(case["name"])
+            case_path = os.path.join(cases_path, case_name)
+            case_content = self.get_case_content_from_case_id(case_id)
+        except Exception as e:
+            print("[!] 下载文件: {} 中的 {} 出错".format(cases_path, case))
+            raise e
+
         self.mysql.insert_data_to_case_table(self.case_table_name, case_id, case_path, case_content)
 
     def write_case_into_file(self, case, cases_path):
@@ -193,8 +198,13 @@ class ATMScrapy:
         :param cases_path: 案例所在的根目录
         :return:
         """
-        name = "{}.txt".format(self.get_safe_name(case["name"]))
-        case_file_path = os.path.join(cases_path, name)
+        try:
+            name = "{}.txt".format(self.get_safe_name(case["name"]))
+            case_file_path = os.path.join(cases_path, name)
+        except Exception as e:
+            print("[!] 下载文件: {} 中的 {} 出错".format(cases_path, case))
+            raise e
+
         with open(case_file_path, "w") as f:
             f.write(self.get_case_content_from_case_id(case["id"]))
 
