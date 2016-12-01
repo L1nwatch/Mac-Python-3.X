@@ -202,12 +202,11 @@ class ATMScrapy:
         try:
             name = "{}.txt".format(self.get_safe_name(case["name"]))
             case_file_path = os.path.join(cases_path, name)
+            with open(case_file_path, "w") as f:
+                f.write(self.get_case_content_from_case_id(case["id"]))
         except Exception as e:
             print("[!] 下载文件: {} 中的 {} 出错".format(cases_path, case))
             raise e
-
-        with open(case_file_path, "w") as f:
-            f.write(self.get_case_content_from_case_id(case["id"]))
 
     def get_case_content_from_case_id(self, case_id):
         """
@@ -240,6 +239,7 @@ class ATMScrapy:
                 data = raw_content.decode(encoding)
 
         return data
+
 
 class DBConnector:
     def __init__(self, host, user, passwd, db="", charset="utf8"):
@@ -375,8 +375,8 @@ if __name__ == "__main__":
 
     if db is not None:
         host, user, password, db_name, charset = db.split("#")
-        sql_connector = DBConnector(host, user, password, db_name, charset)
-        my_atm_crawl = ATMScrapy(project_id, path, sql_connector)
+        sql_conn = DBConnector(host, user, password, db_name, charset)
+        my_atm_crawl = ATMScrapy(project_id, path, sql_conn)
     else:
         my_atm_crawl = ATMScrapy(project_id, path)
     my_atm_crawl.crawl()
