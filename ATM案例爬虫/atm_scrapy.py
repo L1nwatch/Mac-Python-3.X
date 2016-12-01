@@ -8,6 +8,7 @@
 2016.11.16 爬虫, 爬取公司上的 ATM 平台的案例, 要不然学习别人的案例学习起来不方便
 """
 import queue
+import chardet
 import argparse
 import requests
 import os
@@ -217,8 +218,27 @@ class ATMScrapy:
         case_content_url = "http://200.200.0.33/atm/projects/{}/usecases/{}".format(self.project_id, case_id)
         response = requests.get(case_content_url)
 
-        return response.text
+        content = self.get_right_encoding_content(response.content)
 
+        return content
+
+    def get_right_encoding_content(raw_content):
+        """
+        涉及编码问题,尝试解决
+        :param raw_content: 二进制数据, 待解码
+        :return: 文件内容, str() 形式
+        """
+        encoding = chardet.detect(raw_content)["encoding"]
+
+        try:
+            data = raw_content.decode("utf8")
+        except UnicodeDecodeError:
+            try:
+                data = raw_content.decode("gbk")
+            except UnicodeDecodeError:
+                data = raw_content.decode(encoding)
+
+        return data
 
 class DBConnector:
     def __init__(self, host, user, passwd, db="", charset="utf8"):
