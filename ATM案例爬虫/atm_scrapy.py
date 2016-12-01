@@ -222,6 +222,7 @@ class ATMScrapy:
 
         return content
 
+    @staticmethod
     def get_right_encoding_content(raw_content):
         """
         涉及编码问题,尝试解决
