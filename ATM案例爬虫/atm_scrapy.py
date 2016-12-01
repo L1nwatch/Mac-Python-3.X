@@ -35,8 +35,8 @@ class ATMScrapy:
         if path_dir == os.curdir:
             today = datetime.datetime.now()
             self.path_dir = os.path.join(path_dir, "ATM爬虫-{year}{month}{day}-{hour}{minute}".format(
-                    year=today.year, month=today.month, day=today.day,
-                    hour=str(today.hour).zfill(2), minute=str(today.minute).zfill(2)))
+                year=today.year, month=today.month, day=today.day,
+                hour=str(today.hour).zfill(2), minute=str(today.minute).zfill(2)))
         else:
             self.path_dir = path_dir
 
@@ -205,10 +205,10 @@ class ATMScrapy:
         try:
             with open(case_file_path, "w") as f:
                 f.write(case_content)
-        except Exception as e:
-            print("[!] 下载文件: {} 中的 {} 出错".format(cases_path, case))
-            print(case_content)
-            raise e
+        except UnicodeEncodeError as e:
+            print("[!] 文件 {} 存在编码问题, 转成 utf8 编码".format(case_file_path))
+            with open(case_file_path, "w", encoding="utf8") as f:
+                f.write(case_content)
 
     def get_case_content_from_case_id(self, case_id):
         """
@@ -218,9 +218,8 @@ class ATMScrapy:
         """
         case_content_url = "http://200.200.0.33/atm/projects/{}/usecases/{}".format(self.project_id, case_id)
         response = requests.get(case_content_url)
-        content = self.get_right_encoding_content(response.content)
 
-        return content
+        return response.text
 
     @staticmethod
     def get_right_encoding_content(raw_content):
