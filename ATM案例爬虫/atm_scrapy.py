@@ -26,10 +26,11 @@ __author__ = '__L1n__w@tch'
 
 
 class ATMScrapy:
-    def __init__(self, project_url, path_dir=os.curdir, sql_connector=None):
+    def __init__(self, project_url, path_dir=os.curdir, sql_connector=None, cases_filter=None):
         self.project_id = self.get_project_id_from_url(project_url)
         self.mysql = sql_connector
         self.case_table_name = "t_atm_cases"
+        self.cases_filter = cases_filter
 
         # 初始化默认下载目录
         if path_dir == os.curdir:
@@ -80,17 +81,17 @@ class ATMScrapy:
         return json_file_path
 
     @staticmethod
-    def get_project_id_from_url(url):
+    def get_project_id_from_url(project_url):
         """
         从给定的 url 中解析出项目 id
-        :param url: "http://200.200.0.33/atm/projects/53c49025d105401f5e0003ec"
+        :param project_url: "http://200.200.0.33/atm/projects/53c49025d105401f5e0003ec"
         :return: "53c49025d105401f5e0003ec"
         """
         try:
-            project_id = re.findall(".*([0-9a-zA-Z]{24}).*", url)[0]
+            project_id = re.findall(".*([0-9a-zA-Z]{24}).*", project_url)[0]
         except IndexError:
             raise IndexError("[!] URL 是不是有问题啊你")
-        all_possible_id = re.findall("([0-9a-zA-Z]*)", url)
+        all_possible_id = re.findall("([0-9a-zA-Z]*)", project_url)
 
         if all(possible_id != project_id for possible_id in all_possible_id):
             raise RuntimeError
@@ -120,17 +121,22 @@ class ATMScrapy:
 
         def __recursion_create_dirs(children_list, root_path):
             for each_kid in children_list:
-                path = os.path.join(root_path, each_kid["name"])
-                os.makedirs(path, exist_ok=True)
+                if each_kid["name"] in self.cases_filter:
+                    print("[!] 用户选择跳过 {} 文件夹的下载...".format(each_kid["name"]))
+                    continue
 
-                print("[!] 下载 {} 中...".format(each_kid["name"]))
+                cases_dir_name = self.get_safe_name(each_kid["name"])
+                dir_path = os.path.join(root_path, cases_dir_name)
+                os.makedirs(dir_path, exist_ok=True)
+
+                print("[!] 下载 {} 中...".format(cases_dir_name))
 
                 # 不是最后一级目录
                 if len(each_kid["children"]) > 0:
-                    __recursion_create_dirs(each_kid["children"], path)
+                    __recursion_create_dirs(each_kid["children"], dir_path)
                 # 已经是最后一级目录了
                 else:
-                    self.create_cases_from_cases_id(each_kid["id"], path)
+                    self.create_cases_from_cases_id(each_kid["id"], dir_path)
 
         __recursion_create_dirs(a_list, path_dir)
 
@@ -147,7 +153,7 @@ class ATMScrapy:
         result = raw_name
         for each_char in special_char:
             result = result.replace(each_char, "-")
-        return result
+        return result.strip()
 
     def create_cases_from_cases_id(self, cases_id, cases_path):
         """
@@ -330,6 +336,7 @@ def add_argument(parser):
     parser.add_argument("--url", "-u", type=str, required=True, help="项目的链接, 也可以直接输入项目 id")
     parser.add_argument("--db", "-d", type=str, required=False,
                         help="选择写入数据库中, 格式比如:'localhost#root#password#TESTDB#utf8', 分别表示'主机#用户名#密码#数据库名#编码'")
+    parser.add_argument("--skip", "-s", type=str, required=False, help="想跳过的文件夹, 格式比如 '回收站#AF7.0'")
 
 
 def set_argument(options):
@@ -342,24 +349,35 @@ def set_argument(options):
     configuration["path"] = options.path
     configuration["url"] = options.url
     configuration['db'] = options.db
+    configuration['skip'] = options.skip
 
     print("[*] 指定存放的路径为: {}".format(configuration["path"]))
     print("[*] 指定项目 url 为: {}".format(configuration["url"]))
     print("[*] 指定数据库信息为: {}".format(configuration["db"])) if configuration["db"] else None
+    print("[*] 用户指定不爬取文件夹: {}".format(configuration["skip"])) if configuration["skip"] else None
 
     return configuration
 
 
 def initialize():
     """
-    进行初始化操作, 包括 argparse 解析程序的初始化, 参数的相关设定等
+    进行初始化操作, 包括 arg_parse 解析程序的初始化, 参数的相关设定等
     :return: path, file_type, keyword
     """
     parser = argparse.ArgumentParser(description="ATM 案例爬虫 v1.0-Author: 林丰35516")
     add_argument(parser)
     configuration = set_argument(parser.parse_args())
 
-    return configuration["url"], configuration["path"], configuration["db"]
+    db_connector = None
+    if configuration["db"] is not None:
+        host, user, password, db_name, charset = configuration["db"].split("#")
+        db_connector = DBConnector(host, user, password, db_name, charset)
+
+    skip_dirs_list = None
+    if configuration["skip"] is not None:
+        skip_dirs_list = configuration["skip"].split("#")
+
+    return configuration["url"], configuration["path"], db_connector, skip_dirs_list
 
 
 if __name__ == "__main__":
@@ -368,17 +386,12 @@ if __name__ == "__main__":
     # case_content = "http://200.200.0.33/atm/projects/53c49025d105401f5e0003ec/usecases/5832d192d105400a3100006e"
 
     print("[*] ATM 案例爬虫 v1.0-Author: 林丰35516")
-    url, path, db = initialize()
+    url, path, db, skip_dirs = initialize()
     project_id = ATMScrapy.get_project_id_from_url(url)
 
     print("[*] {sep} 开始爬项目{project_id} {sep}".format(sep="=" * 30, project_id=project_id))
 
-    if db is not None:
-        host, user, password, db_name, charset = db.split("#")
-        sql_conn = DBConnector(host, user, password, db_name, charset)
-        my_atm_crawl = ATMScrapy(project_id, path, sql_conn)
-    else:
-        my_atm_crawl = ATMScrapy(project_id, path)
+    my_atm_crawl = ATMScrapy(project_id, path, db, skip_dirs)
     my_atm_crawl.crawl()
 
     print("[*] {sep} 项目{project_id}爬取完毕 {sep}".format(sep="=" * 30, project_id=project_id))
