@@ -122,7 +122,7 @@ class ATMScrapy:
 
         def __recursion_create_dirs(children_list, root_path):
             for each_kid in children_list:
-                if each_kid["name"] in self.cases_filter:
+                if self.cases_filter and each_kid["name"] in self.cases_filter:
                     print("[!] 用户选择跳过 {} 文件夹的下载...".format(each_kid["name"]))
                     continue
 
