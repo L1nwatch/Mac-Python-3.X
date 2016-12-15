@@ -1,0 +1,194 @@
+关键字信息: 
+原始关键字: [下发JSON],JSON名称:修改密码,AF版本:_AFVersion,替换表达式:record->name=admin;data->oldpasswd=$newPasswd;data->passwd=_ConsolePasswd;data->confirm=_ConsolePasswd,期望结果:成功 
+替换关键字: [下发JSON],JSON名称:修改密码,AF版本:af7.1,替换表达式:record->name=admin;data->oldpasswd=a1234567;data->passwd=admin;data->confirm=admin,期望结果:成功 
+详细结果: 期望对比失败: 期望结果 => 成功 实际结果 => 失败
+关键字执行主机: AF_BVT_PC0(200.200.88.209:8080)
+关键字开始执行时间: 2016-12-15 07:42:21 
+关键字结束执行时间: 2016-12-15 07:42:30
+关键字执行日志: "
+DEBUG 07-04-09 05:45:04
+./lib/att_ext/keyword_change.rb:28:in `run_kw_before_hook': Before run KeywordMethod:OprJson::JsonDown::post_json
+
+INFO 07-04-09 05:45:04
+./lib/att_ext/keyword_change.rb:33:in `run_kw_before_hook': Start run keyword,Time::Mon Apr 09 05:45:04 +0800 2007
+
+INFO 07-04-09 05:45:05
+/keywords/keyword/opr_json/json_down.rb:35:in `post_json': language:中文
+
+INFO 07-04-09 05:45:05
+/keywords/keyword/opr_json/json_down.rb:56:in `post_json': JSON文件路径：/json/LoginAccount/cn/af7.1/Change_Pwd_af7.1cn.json
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:67:in `getJsonData': c:/atm/xB7xA2xB2xBCxB2xE2xCAxD4xCFxEE/json/LoginAccount/cn/af7.1/Change_Pwd_af7.1cn.json
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:77:in `getJsonData': 读取的JSON原始字符串:{"opr":"savePassword","record":{"status":true,"name":"mrl","id":1,"role":"administrator","depict":""},"data":{"oldpasswd":"","passwd":"sangfor1234","confirm":"sangfor1234"},"cf":"b096a9eeab9ad052694c7a9686eef428"}
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:118:in `modifyJson': JSONtype:String
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:128:in `modifyJson': 进行位置查找替换
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:139:in `modifyJson': 进入递归检索
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:243:in `recursionFind': keyArray:record,name，hashData:Hash_count: 4 { (opr=>savePassword), (data=>Hash_count: 3 { (passwd=>sangfor1234), (confirm=>sangfor1234), (oldpasswd=>) }), (cf=>b096a9eeab9ad052694c7a9686eef428), (record=>Hash_count: 5 { (id=>1), (depict=>), (status=>true), (name=>mrl), (role=>administrator) }) },newValue:admin
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:269:in `recursionFind': 非最终节点，递归..
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:243:in `recursionFind': keyArray:name，hashData:Hash_count: 5 { (id=>1), (depict=>), (status=>true), (name=>mrl), (role=>administrator) },newValue:admin
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:163:in `checkValue': 进行匹配的内容：hashdata:{"id":1,"depict":"","status":true,"name":"mrl","role":"administrator"}，key:name,期望值(要替换的):admin，替换还是检查true
+
+ERROR 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:212:in `checkValue': 替换成功
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:128:in `modifyJson': 进行位置查找替换
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:139:in `modifyJson': 进入递归检索
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:243:in `recursionFind': keyArray:data,oldpasswd，hashData:Hash_count: 4 { (opr=>savePassword), (data=>Hash_count: 3 { (passwd=>sangfor1234), (confirm=>sangfor1234), (oldpasswd=>) }), (cf=>b096a9eeab9ad052694c7a9686eef428), (record=>Hash_count: 5 { (id=>1), (depict=>), (status=>true), (name=>admin), (role=>administrator) }) },newValue:a1234567
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:269:in `recursionFind': 非最终节点，递归..
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:243:in `recursionFind': keyArray:oldpasswd，hashData:Hash_count: 3 { (passwd=>sangfor1234), (confirm=>sangfor1234), (oldpasswd=>) },newValue:a1234567
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:163:in `checkValue': 进行匹配的内容：hashdata:{"passwd":"sangfor1234","confirm":"sangfor1234","oldpasswd":""}，key:oldpasswd,期望值(要替换的):a1234567，替换还是检查true
+
+ERROR 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:212:in `checkValue': 替换成功
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:128:in `modifyJson': 进行位置查找替换
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:139:in `modifyJson': 进入递归检索
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:243:in `recursionFind': keyArray:data,passwd，hashData:Hash_count: 4 { (opr=>savePassword), (data=>Hash_count: 3 { (passwd=>sangfor1234), (confirm=>sangfor1234), (oldpasswd=>a1234567) }), (cf=>b096a9eeab9ad052694c7a9686eef428), (record=>Hash_count: 5 { (id=>1), (depict=>), (status=>true), (name=>admin), (role=>administrator) }) },newValue:admin
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:269:in `recursionFind': 非最终节点，递归..
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:243:in `recursionFind': keyArray:passwd，hashData:Hash_count: 3 { (passwd=>sangfor1234), (confirm=>sangfor1234), (oldpasswd=>a1234567) },newValue:admin
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:163:in `checkValue': 进行匹配的内容：hashdata:{"passwd":"sangfor1234","confirm":"sangfor1234","oldpasswd":"a1234567"}，key:passwd,期望值(要替换的):admin，替换还是检查true
+
+ERROR 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:212:in `checkValue': 替换成功
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:128:in `modifyJson': 进行位置查找替换
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:139:in `modifyJson': 进入递归检索
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:243:in `recursionFind': keyArray:data,confirm，hashData:Hash_count: 4 { (opr=>savePassword), (data=>Hash_count: 3 { (passwd=>admin), (confirm=>sangfor1234), (oldpasswd=>a1234567) }), (cf=>b096a9eeab9ad052694c7a9686eef428), (record=>Hash_count: 5 { (id=>1), (depict=>), (status=>true), (name=>admin), (role=>administrator) }) },newValue:admin
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:269:in `recursionFind': 非最终节点，递归..
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:243:in `recursionFind': keyArray:confirm，hashData:Hash_count: 3 { (passwd=>admin), (confirm=>sangfor1234), (oldpasswd=>a1234567) },newValue:admin
+
+INFO 07-04-09 05:45:07
+/keywords/helper/opr_json/json_down.rb:163:in `checkValue': 进行匹配的内容：hashdata:{"passwd":"admin","confirm":"sangfor1234","oldpasswd":"a1234567"}，key:confirm,期望值(要替换的):admin，替换还是检查true
+
+ERROR 07-04-09 05:45:07
+/keywords/helper/opr_json/json_down.rb:212:in `checkValue': 替换成功
+
+INFO 07-04-09 05:45:07
+/keywords/helper/opr_json/json_down.rb:24:in `getCgiName': Get the CGI name:LoginAccount
+
+ERROR 07-04-09 05:45:07
+/keywords/keyword/opr_json/json_down.rb:116:in `post_json': 检查是否成功
+
+INFO 07-04-09 05:45:07
+./lib/login.rb:18:in `get_session': begin get session or login...
+
+INFO 07-04-09 05:45:07
+./lib/login.rb:53:in `login': debuglogin console....
+
+ERROR 07-04-09 05:45:07
+./lib/session.rb:60:in `post': debuglogin console....
+
+INFO 07-04-09 05:45:07
+./lib/session.rb:82:in `post': post到/cgi-bin/login.cgi的数据是:
+{"opr":"login","data":{"user":"admin","pwd":"a1234567"},"cf":"91568486f2aeeeb267ae08fe71894937"}
+
+
+INFO 07-04-09 05:45:07
+./lib/session.rb:94:in `post': post到/cgi-bin/login.cgi得到的BODY是::
+{"msg":"default success msg while original msg is null","cf":"","ErrorMsg":"Have Not HTTP_Cookie","success":true,"errorno":0}
+
+
+INFO 07-04-09 05:45:07
+./lib/session.rb:126:in `post': 登录成功,$cookie = D152473C81D4377EB6FA66EE3440B82AEF6325BCC3FDFAF3CC16ED1CCF6DE51,$session_csrf = e4d76cd44557b2960f2f778ee8abeab8
+
+INFO 07-04-09 05:45:07
+./lib/session.rb:138:in `post': after post /cgi-bin/login.cgi
+result is: 
+{"success":true, "msg":["AF登录成功"]}
+
+ERROR 07-04-09 05:45:07
+./lib/session.rb:60:in `post': debuglogin console....
+
+INFO 07-04-09 05:45:07
+./lib/session.rb:82:in `post': post到/cgi-bin/statusmsg.cgi的数据是:
+{"opr":"list","cf":"e4d76cd44557b2960f2f778ee8abeab8"}
+
+
+INFO 07-04-09 05:45:07
+./lib/session.rb:94:in `post': post到/cgi-bin/statusmsg.cgi得到的BODY是::
+{"msg":[],"cf":"e4d76cd44557b2960f2f778ee8abeab8","success":true,"errorno":0}
+
+
+INFO 07-04-09 05:45:08
+./lib/session.rb:138:in `post': after post /cgi-bin/statusmsg.cgi
+result is: 
+{"msg":[],"cf":"e4d76cd44557b2960f2f778ee8abeab8","success":true,"errorno":0}
+
+ERROR 07-04-09 05:45:08
+./lib/session.rb:60:in `post': debuglogin console....
+
+INFO 07-04-09 05:45:08
+./lib/session.rb:82:in `post': post到/cgi-bin/LoginAccount.cgi的数据是:
+{"opr":"savePassword","data":{"passwd":"admin","confirm":"admin","oldpasswd":"a1234567"},"cf":"e4d76cd44557b2960f2f778ee8abeab8","record":{"id":1,"depict":"","status":true,"name":"admin","role":"administrator"}}
+
+
+INFO 07-04-09 05:45:08
+./lib/session.rb:94:in `post': post到/cgi-bin/LoginAccount.cgi得到的BODY是::
+{"msg":"新密码比较简单，请重新输入新密码","cf":"e4d76cd44557b2960f2f778ee8abeab8","success":false,"errorno":8}
+
+
+INFO 07-04-09 05:45:08
+./lib/session.rb:138:in `post': after post /cgi-bin/LoginAccount.cgi
+result is: 
+{"msg":"新密码比较简单，请重新输入新密码","cf":"e4d76cd44557b2960f2f778ee8abeab8","success":false,"errorno":8}
+
+ERROR 07-04-09 05:45:08
+./keywords/keyword/device_console.rb:135:in `check_result': JSON下发......错误消息是新密码比较简单，请重新输入新密码
+
+DEBUG 07-04-09 05:45:08
+./lib/att_ext/keyword_change.rb:38:in `run_kw_after_hook': After run KeywordMethod:OprJson::JsonDown::post_json
+
+INFO 07-04-09 05:45:08
+./lib/att_ext/keyword_change.rb:42:in `run_kw_after_hook': Finish run keyword,Time::Mon Apr 09 05:45:08 +0800 2007
+
+ERROR 07-04-09 05:45:08
+C:/ATT_rake_server_ruby187/ruby/lib/ruby/gems/1.8/gems/att-1.9.2/lib/att/keyword_result.rb:67:in `parse_exception': 执行失败,实际结果失败,与期望结果成功不符
+"

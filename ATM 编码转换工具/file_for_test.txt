@@ -1,0 +1,194 @@
+关键字信息: 
+原始关键字: [下发JSON],JSON名称:修改密码,AF版本:_AFVersion,替换表达式:record->name=admin;data->oldpasswd=$newPasswd;data->passwd=_ConsolePasswd;data->confirm=_ConsolePasswd,期望结果:成功 
+替换关键字: [下发JSON],JSON名称:修改密码,AF版本:af7.1,替换表达式:record->name=admin;data->oldpasswd=a1234567;data->passwd=admin;data->confirm=admin,期望结果:成功 
+详细结果: 期望对比失败: 期望结果 => 成功 实际结果 => 失败
+关键字执行主机: AF_BVT_PC0(200.200.88.209:8080)
+关键字开始执行时间: 2016-12-15 07:42:21 
+关键字结束执行时间: 2016-12-15 07:42:30
+关键字执行日志: "
+DEBUG 07-04-09 05:45:04
+./lib/att_ext/keyword_change.rb:28:in `run_kw_before_hook': Before run KeywordMethod:OprJson::JsonDown::post_json
+
+INFO 07-04-09 05:45:04
+./lib/att_ext/keyword_change.rb:33:in `run_kw_before_hook': Start run keyword,Time::Mon Apr 09 05:45:04 +0800 2007
+
+INFO 07-04-09 05:45:05
+/keywords/keyword/opr_json/json_down.rb:35:in `post_json': language:\u{4e2d}\u{6587}
+
+INFO 07-04-09 05:45:05
+/keywords/keyword/opr_json/json_down.rb:56:in `post_json': JSON\u{6587}\u{4ef6}\u{8def}\u{5f84}\u{ff1a}/json/LoginAccount/cn/af7.1/Change_Pwd_af7.1cn.json
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:67:in `getJsonData': c:/atm/\xB7\xA2\xB2\xBC\xB2\xE2\xCA\xD4\xCF\xEE/json/LoginAccount/cn/af7.1/Change_Pwd_af7.1cn.json
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:77:in `getJsonData': \u{8bfb}\u{53d6}\u{7684}JSON\u{539f}\u{59cb}\u{5b57}\u{7b26}\u{4e32}:{\"opr\":\"savePassword\",\"record\":{\"status\":true,\"name\":\"mrl\",\"id\":1,\"role\":\"administrator\",\"depict\":\"\"},\"data\":{\"oldpasswd\":\"\",\"passwd\":\"sangfor1234\",\"confirm\":\"sangfor1234\"},\"cf\":\"b096a9eeab9ad052694c7a9686eef428\"}
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:118:in `modifyJson': JSONtype:String
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:128:in `modifyJson': \u{8fdb}\u{884c}\u{4f4d}\u{7f6e}\u{67e5}\u{627e}\u{66ff}\u{6362}
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:139:in `modifyJson': \u{8fdb}\u{5165}\u{9012}\u{5f52}\u{68c0}\u{7d22}
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:243:in `recursionFind': keyArray:record,name\u{ff0c}hashData:Hash_count: 4 { (opr=>savePassword), (data=>Hash_count: 3 { (passwd=>sangfor1234), (confirm=>sangfor1234), (oldpasswd=>) }), (cf=>b096a9eeab9ad052694c7a9686eef428), (record=>Hash_count: 5 { (id=>1), (depict=>), (status=>true), (name=>mrl), (role=>administrator) }) },newValue:admin
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:269:in `recursionFind': \u{975e}\u{6700}\u{7ec8}\u{8282}\u{70b9}\u{ff0c}\u{9012}\u{5f52}..
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:243:in `recursionFind': keyArray:name\u{ff0c}hashData:Hash_count: 5 { (id=>1), (depict=>), (status=>true), (name=>mrl), (role=>administrator) },newValue:admin
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:163:in `checkValue': \u{8fdb}\u{884c}\u{5339}\u{914d}\u{7684}\u{5185}\u{5bb9}\u{ff1a}hashdata:{\"id\":1,\"depict\":\"\",\"status\":true,\"name\":\"mrl\",\"role\":\"administrator\"}\u{ff0c}key:name,\u{671f}\u{671b}\u{503c}(\u{8981}\u{66ff}\u{6362}\u{7684}):admin\u{ff0c}\u{66ff}\u{6362}\u{8fd8}\u{662f}\u{68c0}\u{67e5}true
+
+ERROR 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:212:in `checkValue': \u{66ff}\u{6362}\u{6210}\u{529f}
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:128:in `modifyJson': \u{8fdb}\u{884c}\u{4f4d}\u{7f6e}\u{67e5}\u{627e}\u{66ff}\u{6362}
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:139:in `modifyJson': \u{8fdb}\u{5165}\u{9012}\u{5f52}\u{68c0}\u{7d22}
+
+INFO 07-04-09 05:45:05
+/keywords/helper/opr_json/json_down.rb:243:in `recursionFind': keyArray:data,oldpasswd\u{ff0c}hashData:Hash_count: 4 { (opr=>savePassword), (data=>Hash_count: 3 { (passwd=>sangfor1234), (confirm=>sangfor1234), (oldpasswd=>) }), (cf=>b096a9eeab9ad052694c7a9686eef428), (record=>Hash_count: 5 { (id=>1), (depict=>), (status=>true), (name=>admin), (role=>administrator) }) },newValue:a1234567
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:269:in `recursionFind': \u{975e}\u{6700}\u{7ec8}\u{8282}\u{70b9}\u{ff0c}\u{9012}\u{5f52}..
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:243:in `recursionFind': keyArray:oldpasswd\u{ff0c}hashData:Hash_count: 3 { (passwd=>sangfor1234), (confirm=>sangfor1234), (oldpasswd=>) },newValue:a1234567
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:163:in `checkValue': \u{8fdb}\u{884c}\u{5339}\u{914d}\u{7684}\u{5185}\u{5bb9}\u{ff1a}hashdata:{\"passwd\":\"sangfor1234\",\"confirm\":\"sangfor1234\",\"oldpasswd\":\"\"}\u{ff0c}key:oldpasswd,\u{671f}\u{671b}\u{503c}(\u{8981}\u{66ff}\u{6362}\u{7684}):a1234567\u{ff0c}\u{66ff}\u{6362}\u{8fd8}\u{662f}\u{68c0}\u{67e5}true
+
+ERROR 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:212:in `checkValue': \u{66ff}\u{6362}\u{6210}\u{529f}
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:128:in `modifyJson': \u{8fdb}\u{884c}\u{4f4d}\u{7f6e}\u{67e5}\u{627e}\u{66ff}\u{6362}
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:139:in `modifyJson': \u{8fdb}\u{5165}\u{9012}\u{5f52}\u{68c0}\u{7d22}
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:243:in `recursionFind': keyArray:data,passwd\u{ff0c}hashData:Hash_count: 4 { (opr=>savePassword), (data=>Hash_count: 3 { (passwd=>sangfor1234), (confirm=>sangfor1234), (oldpasswd=>a1234567) }), (cf=>b096a9eeab9ad052694c7a9686eef428), (record=>Hash_count: 5 { (id=>1), (depict=>), (status=>true), (name=>admin), (role=>administrator) }) },newValue:admin
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:269:in `recursionFind': \u{975e}\u{6700}\u{7ec8}\u{8282}\u{70b9}\u{ff0c}\u{9012}\u{5f52}..
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:243:in `recursionFind': keyArray:passwd\u{ff0c}hashData:Hash_count: 3 { (passwd=>sangfor1234), (confirm=>sangfor1234), (oldpasswd=>a1234567) },newValue:admin
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:163:in `checkValue': \u{8fdb}\u{884c}\u{5339}\u{914d}\u{7684}\u{5185}\u{5bb9}\u{ff1a}hashdata:{\"passwd\":\"sangfor1234\",\"confirm\":\"sangfor1234\",\"oldpasswd\":\"a1234567\"}\u{ff0c}key:passwd,\u{671f}\u{671b}\u{503c}(\u{8981}\u{66ff}\u{6362}\u{7684}):admin\u{ff0c}\u{66ff}\u{6362}\u{8fd8}\u{662f}\u{68c0}\u{67e5}true
+
+ERROR 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:212:in `checkValue': \u{66ff}\u{6362}\u{6210}\u{529f}
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:128:in `modifyJson': \u{8fdb}\u{884c}\u{4f4d}\u{7f6e}\u{67e5}\u{627e}\u{66ff}\u{6362}
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:139:in `modifyJson': \u{8fdb}\u{5165}\u{9012}\u{5f52}\u{68c0}\u{7d22}
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:243:in `recursionFind': keyArray:data,confirm\u{ff0c}hashData:Hash_count: 4 { (opr=>savePassword), (data=>Hash_count: 3 { (passwd=>admin), (confirm=>sangfor1234), (oldpasswd=>a1234567) }), (cf=>b096a9eeab9ad052694c7a9686eef428), (record=>Hash_count: 5 { (id=>1), (depict=>), (status=>true), (name=>admin), (role=>administrator) }) },newValue:admin
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:269:in `recursionFind': \u{975e}\u{6700}\u{7ec8}\u{8282}\u{70b9}\u{ff0c}\u{9012}\u{5f52}..
+
+INFO 07-04-09 05:45:06
+/keywords/helper/opr_json/json_down.rb:243:in `recursionFind': keyArray:confirm\u{ff0c}hashData:Hash_count: 3 { (passwd=>admin), (confirm=>sangfor1234), (oldpasswd=>a1234567) },newValue:admin
+
+INFO 07-04-09 05:45:07
+/keywords/helper/opr_json/json_down.rb:163:in `checkValue': \u{8fdb}\u{884c}\u{5339}\u{914d}\u{7684}\u{5185}\u{5bb9}\u{ff1a}hashdata:{\"passwd\":\"admin\",\"confirm\":\"sangfor1234\",\"oldpasswd\":\"a1234567\"}\u{ff0c}key:confirm,\u{671f}\u{671b}\u{503c}(\u{8981}\u{66ff}\u{6362}\u{7684}):admin\u{ff0c}\u{66ff}\u{6362}\u{8fd8}\u{662f}\u{68c0}\u{67e5}true
+
+ERROR 07-04-09 05:45:07
+/keywords/helper/opr_json/json_down.rb:212:in `checkValue': \u{66ff}\u{6362}\u{6210}\u{529f}
+
+INFO 07-04-09 05:45:07
+/keywords/helper/opr_json/json_down.rb:24:in `getCgiName': Get the CGI name:LoginAccount
+
+ERROR 07-04-09 05:45:07
+/keywords/keyword/opr_json/json_down.rb:116:in `post_json': \u{68c0}\u{67e5}\u{662f}\u{5426}\u{6210}\u{529f}
+
+INFO 07-04-09 05:45:07
+./lib/login.rb:18:in `get_session': begin get session or login...
+
+INFO 07-04-09 05:45:07
+./lib/login.rb:53:in `login': debuglogin console....
+
+ERROR 07-04-09 05:45:07
+./lib/session.rb:60:in `post': debuglogin console....
+
+INFO 07-04-09 05:45:07
+./lib/session.rb:82:in `post': post\u{5230}/cgi-bin/login.cgi\u{7684}\u{6570}\u{636e}\u{662f}:
+{\"opr\":\"login\",\"data\":{\"user\":\"admin\",\"pwd\":\"a1234567\"},\"cf\":\"91568486f2aeeeb267ae08fe71894937\"}
+
+
+INFO 07-04-09 05:45:07
+./lib/session.rb:94:in `post': post\u{5230}/cgi-bin/login.cgi\u{5f97}\u{5230}\u{7684}BODY\u{662f}::
+{\"msg\":\"default success msg while original msg is null\",\"cf\":\"\",\"ErrorMsg\":\"Have Not HTTP_Cookie\",\"success\":true,\"errorno\":0}
+
+
+INFO 07-04-09 05:45:07
+./lib/session.rb:126:in `post': \u{767b}\u{5f55}\u{6210}\u{529f},$cookie = D152473C81D4377EB6FA66EE3440B82AEF6325BCC3FDFAF3CC16ED1CCF6DE51,$session_csrf = e4d76cd44557b2960f2f778ee8abeab8
+
+INFO 07-04-09 05:45:07
+./lib/session.rb:138:in `post': after post /cgi-bin/login.cgi
+result is: 
+{\"success\":true, \"msg\":[\"AF\u{767b}\u{5f55}\u{6210}\u{529f}\"]}
+
+ERROR 07-04-09 05:45:07
+./lib/session.rb:60:in `post': debuglogin console....
+
+INFO 07-04-09 05:45:07
+./lib/session.rb:82:in `post': post\u{5230}/cgi-bin/statusmsg.cgi\u{7684}\u{6570}\u{636e}\u{662f}:
+{\"opr\":\"list\",\"cf\":\"e4d76cd44557b2960f2f778ee8abeab8\"}
+
+
+INFO 07-04-09 05:45:07
+./lib/session.rb:94:in `post': post\u{5230}/cgi-bin/statusmsg.cgi\u{5f97}\u{5230}\u{7684}BODY\u{662f}::
+{\"msg\":[],\"cf\":\"e4d76cd44557b2960f2f778ee8abeab8\",\"success\":true,\"errorno\":0}
+
+
+INFO 07-04-09 05:45:08
+./lib/session.rb:138:in `post': after post /cgi-bin/statusmsg.cgi
+result is: 
+{\"msg\":[],\"cf\":\"e4d76cd44557b2960f2f778ee8abeab8\",\"success\":true,\"errorno\":0}
+
+ERROR 07-04-09 05:45:08
+./lib/session.rb:60:in `post': debuglogin console....
+
+INFO 07-04-09 05:45:08
+./lib/session.rb:82:in `post': post\u{5230}/cgi-bin/LoginAccount.cgi\u{7684}\u{6570}\u{636e}\u{662f}:
+{\"opr\":\"savePassword\",\"data\":{\"passwd\":\"admin\",\"confirm\":\"admin\",\"oldpasswd\":\"a1234567\"},\"cf\":\"e4d76cd44557b2960f2f778ee8abeab8\",\"record\":{\"id\":1,\"depict\":\"\",\"status\":true,\"name\":\"admin\",\"role\":\"administrator\"}}
+
+
+INFO 07-04-09 05:45:08
+./lib/session.rb:94:in `post': post\u{5230}/cgi-bin/LoginAccount.cgi\u{5f97}\u{5230}\u{7684}BODY\u{662f}::
+{\"msg\":\"\u{65b0}\u{5bc6}\u{7801}\u{6bd4}\u{8f83}\u{7b80}\u{5355}\u{ff0c}\u{8bf7}\u{91cd}\u{65b0}\u{8f93}\u{5165}\u{65b0}\u{5bc6}\u{7801}\",\"cf\":\"e4d76cd44557b2960f2f778ee8abeab8\",\"success\":false,\"errorno\":8}
+
+
+INFO 07-04-09 05:45:08
+./lib/session.rb:138:in `post': after post /cgi-bin/LoginAccount.cgi
+result is: 
+{\"msg\":\"\u{65b0}\u{5bc6}\u{7801}\u{6bd4}\u{8f83}\u{7b80}\u{5355}\u{ff0c}\u{8bf7}\u{91cd}\u{65b0}\u{8f93}\u{5165}\u{65b0}\u{5bc6}\u{7801}\",\"cf\":\"e4d76cd44557b2960f2f778ee8abeab8\",\"success\":false,\"errorno\":8}
+
+ERROR 07-04-09 05:45:08
+./keywords/keyword/device_console.rb:135:in `check_result': JSON\u{4e0b}\u{53d1}......\u{9519}\u{8bef}\u{6d88}\u{606f}\u{662f}\u{65b0}\u{5bc6}\u{7801}\u{6bd4}\u{8f83}\u{7b80}\u{5355}\u{ff0c}\u{8bf7}\u{91cd}\u{65b0}\u{8f93}\u{5165}\u{65b0}\u{5bc6}\u{7801}
+
+DEBUG 07-04-09 05:45:08
+./lib/att_ext/keyword_change.rb:38:in `run_kw_after_hook': After run KeywordMethod:OprJson::JsonDown::post_json
+
+INFO 07-04-09 05:45:08
+./lib/att_ext/keyword_change.rb:42:in `run_kw_after_hook': Finish run keyword,Time::Mon Apr 09 05:45:08 +0800 2007
+
+ERROR 07-04-09 05:45:08
+C:/ATT_rake_server_ruby187/ruby/lib/ruby/gems/1.8/gems/att-1.9.2/lib/att/keyword_result.rb:67:in `parse_exception': \u{6267}\u{884c}\u{5931}\u{8d25},\u{5b9e}\u{9645}\u{7ed3}\u{679c}\u{5931}\u{8d25},\u{4e0e}\u{671f}\u{671b}\u{7ed3}\u{679c}\u{6210}\u{529f}\u{4e0d}\u{7b26}
+"
