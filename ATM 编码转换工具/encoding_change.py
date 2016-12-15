@@ -16,8 +16,6 @@ class CodingChange:
     def __init__(self):
         self.root_tk = tkinter.Tk()
         self.text_label = None
-
-        # tear-off设置成0就不会有开头的虚线，也不会让你的菜单可以单独成为窗口
         self.menu = None
 
     def set_button(self):
@@ -54,8 +52,6 @@ class CodingChange:
         # 滚动事件
         text_label_scroll_bar.config(command=self.text_label.yview)
 
-        # self.text_label.config(command=self.text_label.xview)
-
         label_frame.grid(row=1, columnspan=1)
         frame.grid()
 
@@ -73,6 +69,7 @@ class CodingChange:
         # 添加三个按钮，command设置回调函数
         # menu.add_separator 用来设置每个菜单按钮之间的间隔符（横线）
         if not self.menu:
+            # tear-off设置成0就不会有开头的虚线，也不会让你的菜单可以单独成为窗口
             self.menu = tkinter.Menu(self.text_label, tearoff=0)
             self.menu.add_command(label="复制全部", command=self.on_copy)
             self.menu.add_separator()
