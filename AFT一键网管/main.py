@@ -7,16 +7,14 @@
 __author__ = '__L1n__w@tch'
 
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow
+from aft_cisco_control import *
 
 if __name__ == '__main__':
+    app = 0
     app = QApplication(sys.argv)
-
-    w = QWidget()
-    w.resize(250, 150)
-    w.move(300, 300)
-    w.setWindowTitle('Simple')
-    w.show()
-
-    if app.exec_():
-        sys.ext()
+    mainWindow = QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(mainWindow)
+    mainWindow.show()
+    sys.exit(app.exec_())
