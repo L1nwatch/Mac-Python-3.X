@@ -1,0 +1,2147 @@
+{
+  'name': '预发布项自动化案例',
+  'count': 866,
+  'isParent': True,
+  'flag': 1,
+  'children': [
+    {
+      'name': '发布测试项案例优化rxl_llx_AF7.1',
+      'count': 866,
+      'isParent': True,
+      'flag': 1,
+      'children': [
+        {
+          'name': '发布测试项-路由部署',
+          'count': 866,
+          'isParent': True,
+          'flag': 1,
+          'children': [
+            {
+              'name': '大前置',
+              'count': 3,
+              'isParent': True,
+              'flag': 1,
+              'children': [],
+              'type': 'suite',
+              'id': '585f344dd10540715b07f015',
+              'percent': '100%'
+            },
+            {
+              'name': '01-运行状态-rxl-【lsc负责执行】',
+              'count': 105,
+              'isParent': True,
+              'flag': 1,
+              'children': [
+                {
+                  'name': '前置',
+                  'count': 1,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344dd10540715b07f01a',
+                  'percent': '100%'
+                },
+                {
+                  'name': '01-系统状态',
+                  'count': 47,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [
+                    {
+                      'name': '01-待处理问题',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344dd10540715b07f01d',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '04-接口状态',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344dd10540715b07f01f',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '05-入侵风险',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344dd10540715b07f021',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '06-僵尸主机',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344dd10540715b07f023',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '07-实时漏洞风险',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344dd10540715b07f025',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '08-数据风险',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344dd10540715b07f027',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '09-对外DoS攻击',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344dd10540715b07f029',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '10-黑链风险',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344dd10540715b07f02b',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '15-安全服务',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344dd10540715b07f02d',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '【马瑞玲】11-统计分析',
+                      'count': 38,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [
+                        {
+                          'name': '前置',
+                          'count': 1,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f344dd10540715b07f030',
+                          'percent': '100%'
+                        },
+                        {
+                          'name': '僵尸主机',
+                          'count': 5,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f344dd10540715b07f032',
+                          'percent': '100%'
+                        },
+                        {
+                          'name': '入侵风险',
+                          'count': 8,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f344dd10540715b07f038',
+                          'percent': '100%'
+                        },
+                        {
+                          'name': '黑链风险',
+                          'count': 4,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f344dd10540715b07f041',
+                          'percent': '100%'
+                        },
+                        {
+                          'name': '数据风险',
+                          'count': 7,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f344dd10540715b07f046',
+                          'percent': '100%'
+                        },
+                        {
+                          'name': '对外DOS',
+                          'count': 3,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f344dd10540715b07f04e',
+                          'percent': '100%'
+                        },
+                        {
+                          'name': '攻击地图',
+                          'count': 6,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f344dd10540715b07f052',
+                          'percent': '100%'
+                        },
+                        {
+                          'name': '待处理问题',
+                          'count': 3,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f344dd10540715b07f059',
+                          'percent': '100%'
+                        },
+                        {
+                          'name': '后置',
+                          'count': 1,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f344dd10540715b07f05d',
+                          'percent': '100%'
+                        }
+                      ],
+                      'type': 'suite',
+                      'id': '585f344dd10540715b07f02f',
+                      'percent': '100%'
+                    }
+                  ],
+                  'type': 'suite',
+                  'id': '585f344dd10540715b07f01c',
+                  'percent': '100%'
+                },
+                {
+                  'name': '02-在线用户管理',
+                  'count': 11,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344dd10540715b07f05f',
+                  'percent': '100%'
+                },
+                {
+                  'name': '08-实时漏洞风险',
+                  'count': 5,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344dd10540715b07f06b',
+                  'percent': '100%'
+                },
+                {
+                  'name': '03-流量排行',
+                  'count': 6,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344dd10540715b07f071',
+                  'percent': '100%'
+                },
+                {
+                  'name': '04-安全事件',
+                  'count': 4,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344dd10540715b07f078',
+                  'percent': '100%'
+                },
+                {
+                  'name': '05-安全状况',
+                  'count': 23,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [
+                    {
+                      'name': '01-待处理问题',
+                      'count': 5,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344dd10540715b07f07e',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '03-僵尸主机',
+                      'count': 10,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344dd10540715b07f084',
+                      'percent': '20%'
+                    },
+                    {
+                      'name': '04-数据风险',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344dd10540715b07f08f',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '06-对外DoS攻击',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344ed10540715b07f091',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '07-联动封锁',
+                      'count': 5,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344ed10540715b07f093',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '后置',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344ed10540715b07f099',
+                      'percent': '100%'
+                    }
+                  ],
+                  'type': 'suite',
+                  'id': '585f344dd10540715b07f07d',
+                  'percent': '65%'
+                },
+                {
+                  'name': '06-封锁攻击者IP',
+                  'count': 5,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f09b',
+                  'percent': '100%'
+                },
+                {
+                  'name': '07-异常流量',
+                  'count': 3,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f0a1',
+                  'percent': '0%'
+                }
+              ],
+              'type': 'suite',
+              'id': '585f344dd10540715b07f019',
+              'percent': '89%'
+            },
+            {
+              'name': '02-网络配置-【zwj负责执行】',
+              'count': 40,
+              'isParent': True,
+              'flag': 1,
+              'children': [
+                {
+                  'name': '01-接口区域',
+                  'count': 14,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [
+                    {
+                      'name': '01-物理接口',
+                      'count': 10,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344ed10540715b07f0a7',
+                      'percent': '80%'
+                    },
+                    {
+                      'name': '02-子接口',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344ed10540715b07f0b2',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '03-vLAN接口',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344ed10540715b07f0b4',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '05-区域',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344ed10540715b07f0b6',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '06-接口联动',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344ed10540715b07f0b8',
+                      'percent': '0%'
+                    }
+                  ],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f0a6',
+                  'percent': '78%'
+                },
+                {
+                  'name': '02-路由',
+                  'count': 8,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [
+                    {
+                      'name': '静态路由',
+                      'count': 5,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344ed10540715b07f0bb',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '路由测试',
+                      'count': 3,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344ed10540715b07f0c1',
+                      'percent': '100%'
+                    }
+                  ],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f0ba',
+                  'percent': '100%'
+                },
+                {
+                  'name': '03-虚拟网线',
+                  'count': 1,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f0c5',
+                  'percent': '0%'
+                },
+                {
+                  'name': '04-高级网络配置',
+                  'count': 17,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [
+                    {
+                      'name': 'ARP',
+                      'count': 2,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344ed10540715b07f0c8',
+                      'percent': '50%'
+                    },
+                    {
+                      'name': 'DHCP',
+                      'count': 4,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [
+                        {
+                          'name': 'DHCP中继',
+                          'count': 1,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f344ed10540715b07f0cc',
+                          'percent': '100%'
+                        },
+                        {
+                          'name': 'DHCP服务器',
+                          'count': 3,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f344ed10540715b07f0ce',
+                          'percent': '100%'
+                        }
+                      ],
+                      'type': 'suite',
+                      'id': '585f344ed10540715b07f0cb',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': 'DNS',
+                      'count': 2,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344ed10540715b07f0d2',
+                      'percent': '0%'
+                    },
+                    {
+                      'name': 'SNMP',
+                      'count': 6,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [
+                        {
+                          'name': 'SNMP TRAP',
+                          'count': 6,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f344ed10540715b07f0d6',
+                          'percent': '83%'
+                        }
+                      ],
+                      'type': 'suite',
+                      'id': '585f344ed10540715b07f0d5',
+                      'percent': '83%'
+                    },
+                    {
+                      'name': 'TCP MSS',
+                      'count': 2,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344ed10540715b07f0dd',
+                      'percent': '0%'
+                    },
+                    {
+                      'name': 'HOSTS',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344ed10540715b07f0e0',
+                      'percent': '100%'
+                    }
+                  ],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f0c7',
+                  'percent': '64%'
+                }
+              ],
+              'type': 'suite',
+              'id': '585f344ed10540715b07f0a5',
+              'percent': '75%'
+            },
+            {
+              'name': '03-安全防护对象',
+              'count': 30,
+              'isParent': True,
+              'flag': 1,
+              'children': [
+                {
+                  'name': 'IPS漏洞特征识别库',
+                  'count': 4,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f0e3',
+                  'percent': '100%'
+                },
+                {
+                  'name': 'WEB应用防护识别库',
+                  'count': 4,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f0e8',
+                  'percent': '75%'
+                },
+                {
+                  'name': '僵尸网络识别库',
+                  'count': 1,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f0ed',
+                  'percent': '100%'
+                },
+                {
+                  'name': '实时漏洞分析识别库',
+                  'count': 1,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f0ef',
+                  'percent': '100%'
+                },
+                {
+                  'name': '数据泄密防护识别库',
+                  'count': 2,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f0f1',
+                  'percent': '100%'
+                },
+                {
+                  'name': 'IPS自定义规则',
+                  'count': 12,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f0f4',
+                  'percent': '91%'
+                },
+                {
+                  'name': 'WAF自定义规则',
+                  'count': 6,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f101',
+                  'percent': '100%'
+                }
+              ],
+              'type': 'suite',
+              'id': '585f344ed10540715b07f0e2',
+              'percent': '93%'
+            },
+            {
+              'name': '05-对象定义-【linfeng负责执行】',
+              'count': 25,
+              'isParent': True,
+              'flag': 1,
+              'children': [
+                {
+                  'name': '01-IPS地址库',
+                  'count': 2,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f109',
+                  'percent': '100%'
+                },
+                {
+                  'name': '02-应用特征识别库',
+                  'count': 1,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f10c',
+                  'percent': '100%'
+                },
+                {
+                  'name': '04-自定义应用',
+                  'count': 5,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f10e',
+                  'percent': '100%'
+                },
+                {
+                  'name': '05-url分类库',
+                  'count': 2,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f114',
+                  'percent': '100%'
+                },
+                {
+                  'name': '06-服务 ',
+                  'count': 3,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f117',
+                  'percent': '100%'
+                },
+                {
+                  'name': '07-IP组',
+                  'count': 3,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f11b',
+                  'percent': '33%'
+                },
+                {
+                  'name': '08-内网服务器',
+                  'count': 4,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f11f',
+                  'percent': '100%'
+                },
+                {
+                  'name': '09-时间计划',
+                  'count': 2,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f124',
+                  'percent': '100%'
+                },
+                {
+                  'name': '10-文件类型组----------大前置中已有应用控制自力策略，使用大前置中就行，修改',
+                  'count': 2,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f127',
+                  'percent': '50%'
+                },
+                {
+                  'name': '11-信任证书颁发机构',
+                  'count': 1,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f12a',
+                  'percent': '100%'
+                }
+              ],
+              'type': 'suite',
+              'id': '585f344ed10540715b07f108',
+              'percent': '88%'
+            },
+            {
+              'name': '06-解密-【zwj负责执行】',
+              'count': 19,
+              'isParent': True,
+              'flag': 1,
+              'children': [
+                {
+                  'name': '证书测试',
+                  'count': 5,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f12d',
+                  'percent': '100%'
+                },
+                {
+                  'name': 'HTTPS上网场景保护',
+                  'count': 8,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f133',
+                  'percent': '75%'
+                },
+                {
+                  'name': 'HTTPS服务器场景保护',
+                  'count': 6,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f13c',
+                  'percent': '100%'
+                }
+              ],
+              'type': 'suite',
+              'id': '585f344ed10540715b07f12c',
+              'percent': '89%'
+            },
+            {
+              'name': '07-认证系统-【zwj负责执行】',
+              'count': 36,
+              'isParent': True,
+              'flag': 1,
+              'children': [
+                {
+                  'name': '前置-环境准备',
+                  'count': 1,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f144',
+                  'percent': '100%'
+                },
+                {
+                  'name': '用户认证',
+                  'count': 21,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [
+                    {
+                      'name': '外部认证服务器',
+                      'count': 2,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344ed10540715b07f147',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '认证策略',
+                      'count': 13,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344ed10540715b07f14a',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '认证选项',
+                      'count': 6,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344ed10540715b07f158',
+                      'percent': '100%'
+                    }
+                  ],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f146',
+                  'percent': '100%'
+                },
+                {
+                  'name': '用户管理 ',
+                  'count': 13,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [
+                    {
+                      'name': '组或用户',
+                      'count': 10,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344ed10540715b07f160',
+                      'percent': '90%'
+                    },
+                    {
+                      'name': '用户导入',
+                      'count': 3,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344ed10540715b07f16b',
+                      'percent': '100%'
+                    }
+                  ],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f15f',
+                  'percent': '92%'
+                },
+                {
+                  'name': '后置-环境清理',
+                  'count': 1,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f16f',
+                  'percent': '100%'
+                }
+              ],
+              'type': 'suite',
+              'id': '585f344ed10540715b07f143',
+              'percent': '97%'
+            },
+            {
+              'name': '08-防火墙-【zwj负责执行】',
+              'count': 63,
+              'isParent': True,
+              'flag': 1,
+              'children': [
+                {
+                  'name': 'arp欺骗防御',
+                  'count': 1,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344ed10540715b07f172',
+                  'percent': '100%'
+                },
+                {
+                  'name': '内外网DOS防护',
+                  'count': 18,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [
+                    {
+                      'name': 'dos策略操作',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344fd10540715b07f175',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '内网防护',
+                      'count': 2,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344fd10540715b07f177',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '外网防护',
+                      'count': 7,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344fd10540715b07f17a',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '本机抗渗透',
+                      'count': 2,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344fd10540715b07f182',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '查看攻击者IP',
+                      'count': 6,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344fd10540715b07f185',
+                      'percent': '100%'
+                    }
+                  ],
+                  'type': 'suite',
+                  'id': '585f344fd10540715b07f174',
+                  'percent': '100%'
+                },
+                {
+                  'name': '地址转换',
+                  'count': 23,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [
+                    {
+                      'name': 'DNS-Mapping-有点问题，需要确认',
+                      'count': 6,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344fd10540715b07f18d',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': 'IPv4地址转换',
+                      'count': 9,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344fd10540715b07f194',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': 'nat导入导出',
+                      'count': 4,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344fd10540715b07f19e',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': 'NAT策略操作',
+                      'count': 4,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344fd10540715b07f1a3',
+                      'percent': '100%'
+                    }
+                  ],
+                  'type': 'suite',
+                  'id': '585f344fd10540715b07f18c',
+                  'percent': '100%'
+                },
+                {
+                  'name': '地域访问控制-实体机跑ok',
+                  'count': 14,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344fd10540715b07f1a8',
+                  'percent': '100%'
+                },
+                {
+                  'name': '连接数控制',
+                  'count': 7,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344fd10540715b07f1b7',
+                  'percent': '100%'
+                }
+              ],
+              'type': 'suite',
+              'id': '585f344ed10540715b07f171',
+              'percent': '100%'
+            },
+            {
+              'name': '09-内容安全-【snj负责执行】',
+              'count': 262,
+              'isParent': True,
+              'flag': 1,
+              'children': [
+                {
+                  'name': '应用控制策略--ok',
+                  'count': 8,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f344fd10540715b07f1c0',
+                  'percent': '87%'
+                },
+                {
+                  'name': '内容安全',
+                  'count': 207,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [
+                    {
+                      'name': '邮件安全-ok-案例没问题，但发送接收邮件不稳定',
+                      'count': 36,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [
+                        {
+                          'name': '前置',
+                          'count': 2,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f344fd10540715b07f1cb',
+                          'percent': '100%'
+                        },
+                        {
+                          'name': '01-钓鱼邮件检测与防御',
+                          'count': 27,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f344fd10540715b07f1ce',
+                          'percent': '3%'
+                        },
+                        {
+                          'name': '02-邮件附件类型识别',
+                          'count': 6,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f344fd10540715b07f1ea',
+                          'percent': '66%'
+                        },
+                        {
+                          'name': '后置',
+                          'count': 1,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f344fd10540715b07f1f1',
+                          'percent': '100%'
+                        }
+                      ],
+                      'type': 'suite',
+                      'id': '585f344fd10540715b07f1ca',
+                      'percent': '22%'
+                    },
+                    {
+                      'name': 'url过滤-ok',
+                      'count': 12,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f344fd10540715b07f1f3',
+                      'percent': '91%'
+                    },
+                    {
+                      'name': '文件安全',
+                      'count': 159,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [
+                        {
+                          'name': '文件过滤-ok',
+                          'count': 7,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f344fd10540715b07f201',
+                          'percent': '71%'
+                        },
+                        {
+                          'name': '文件杀毒',
+                          'count': 13,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f344fd10540715b07f209',
+                          'percent': '15%'
+                        },
+                        {
+                          'name': '基于数据驱动',
+                          'count': 139,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [
+                            {
+                              'name': '大前置-创建文件',
+                              'count': 1,
+                              'isParent': True,
+                              'flag': 1,
+                              'children': [],
+                              'type': 'suite',
+                              'id': '585f344fd10540715b07f218',
+                              'percent': '100%'
+                            },
+                            {
+                              'name': '文件类型过滤方向上传和下载',
+                              'count': 46,
+                              'isParent': True,
+                              'flag': 1,
+                              'children': [],
+                              'type': 'suite',
+                              'id': '585f344fd10540715b07f21a',
+                              'percent': '4%'
+                            },
+                            {
+                              'name': '文件类型过滤方向上传',
+                              'count': 46,
+                              'isParent': True,
+                              'flag': 1,
+                              'children': [],
+                              'type': 'suite',
+                              'id': '585f3450d10540715b07f249',
+                              'percent': '4%'
+                            },
+                            {
+                              'name': '文件类型过滤方向下载',
+                              'count': 46,
+                              'isParent': True,
+                              'flag': 1,
+                              'children': [],
+                              'type': 'suite',
+                              'id': '585f3450d10540715b07f278',
+                              'percent': '100%'
+                            }
+                          ],
+                          'type': 'suite',
+                          'id': '585f344fd10540715b07f217',
+                          'percent': '36%'
+                        }
+                      ],
+                      'type': 'suite',
+                      'id': '585f344fd10540715b07f200',
+                      'percent': '36%'
+                    }
+                  ],
+                  'type': 'suite',
+                  'id': '585f344fd10540715b07f1c9',
+                  'percent': '37%'
+                },
+                {
+                  'name': 'ACL改进',
+                  'count': 17,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [
+                    {
+                      'name': '前置',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f2a8',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '01-失效策略检测',
+                      'count': 6,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f2aa',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '03-策略分组',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f2b1',
+                      'percent': '0%'
+                    },
+                    {
+                      'name': '06-模拟策略匹配',
+                      'count': 7,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f2b3',
+                      'percent': '71%'
+                    },
+                    {
+                      'name': '后置',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f2bb',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '02-ACL策略操作',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f2bd',
+                      'percent': '100%'
+                    }
+                  ],
+                  'type': 'suite',
+                  'id': '585f3451d10540715b07f2a7',
+                  'percent': '82%'
+                },
+                {
+                  'name': '内容安全策略',
+                  'count': 26,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [
+                    {
+                      'name': '邮件安全',
+                      'count': 6,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [
+                        {
+                          'name': '04-撞库攻击',
+                          'count': 3,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f3451d10540715b07f2c1',
+                          'percent': '100%'
+                        },
+                        {
+                          'name': '05-邮件解析',
+                          'count': 1,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f3451d10540715b07f2c5',
+                          'percent': '0%'
+                        },
+                        {
+                          'name': '07-排除功能',
+                          'count': 2,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f3451d10540715b07f2c7',
+                          'percent': '0%'
+                        }
+                      ],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f2c0',
+                      'percent': '50%'
+                    },
+                    {
+                      'name': '僵尸网络',
+                      'count': 17,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [
+                        {
+                          'name': '行为监测',
+                          'count': 17,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f3451d10540715b07f2cb',
+                          'percent': '64%'
+                        }
+                      ],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f2ca',
+                      'percent': '64%'
+                    },
+                    {
+                      'name': '策略操作',
+                      'count': 3,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f2dd',
+                      'percent': '100%'
+                    }
+                  ],
+                  'type': 'suite',
+                  'id': '585f3451d10540715b07f2bf',
+                  'percent': '65%'
+                },
+                {
+                  'name': '僵尸网络',
+                  'count': 4,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [
+                    {
+                      'name': '高级配置',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f2e2',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '异常流量',
+                      'count': 3,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [
+                        {
+                          'name': 'idos',
+                          'count': 3,
+                          'isParent': True,
+                          'flag': 1,
+                          'children': [],
+                          'type': 'suite',
+                          'id': '585f3451d10540715b07f2e5',
+                          'percent': '100%'
+                        }
+                      ],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f2e4',
+                      'percent': '100%'
+                    }
+                  ],
+                  'type': 'suite',
+                  'id': '585f3451d10540715b07f2e1',
+                  'percent': '100%'
+                }
+              ],
+              'type': 'suite',
+              'id': '585f344fd10540715b07f1bf',
+              'percent': '45%'
+            },
+            {
+              'name': '10-IPS-【fxy负责执行】',
+              'count': 19,
+              'isParent': True,
+              'flag': 1,
+              'children': [
+                {
+                  'name': 'IPS',
+                  'count': 12,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f3451d10540715b07f2ea',
+                  'percent': '83%'
+                },
+                {
+                  'name': 'IPS例外排除',
+                  'count': 5,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f3451d10540715b07f2f7',
+                  'percent': '100%'
+                },
+                {
+                  'name': 'IPS防暴力破解',
+                  'count': 2,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f3451d10540715b07f2fd',
+                  'percent': '100%'
+                }
+              ],
+              'type': 'suite',
+              'id': '585f3451d10540715b07f2e9',
+              'percent': '89%'
+            },
+            {
+              'name': '11-服务器保护-【zwj负责执行】',
+              'count': 109,
+              'isParent': True,
+              'flag': 1,
+              'children': [
+                {
+                  'name': '01-WEB 应用防护',
+                  'count': 107,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [
+                    {
+                      'name': '前置-环境准备',
+                      'count': 2,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f302',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': 'SQL语法分析',
+                      'count': 5,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f305',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': 'SQL响应包分析',
+                      'count': 8,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f30b',
+                      'percent': '75%'
+                    },
+                    {
+                      'name': '非标准http应用识别',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f314',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': 'WAF新增特性',
+                      'count': 6,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f316',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': 'DLP',
+                      'count': 9,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f31d',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': 'multipart解析',
+                      'count': 3,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f327',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': 'WAF改进',
+                      'count': 3,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f32b',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': 'WAF策略',
+                      'count': 7,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f32f',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': 'WEB 应用防护',
+                      'count': 38,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f337',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': 'XSS误判排除',
+                      'count': 5,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f35e',
+                      'percent': '80%'
+                    },
+                    {
+                      'name': '上网场景性能优化',
+                      'count': 3,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f364',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '会话管理及cookie篡改',
+                      'count': 5,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f368',
+                      'percent': '0%'
+                    },
+                    {
+                      'name': '误判排除',
+                      'count': 3,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3451d10540715b07f36e',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': 'URL参数排除',
+                      'count': 8,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3452d10540715b07f372',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '后置',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3452d10540715b07f37b',
+                      'percent': '100%'
+                    }
+                  ],
+                  'type': 'suite',
+                  'id': '585f3451d10540715b07f301',
+                  'percent': '92%'
+                },
+                {
+                  'name': '03-网站篡改防护1.0-【磁盘空间要求，物理环境下执行】',
+                  'count': 1,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f3452d10540715b07f37d',
+                  'percent': '0%'
+                },
+                {
+                  'name': '02-网站篡改防护',
+                  'count': 1,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [
+                    {
+                      'name': '管理员邮箱',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3452d10540715b07f380',
+                      'percent': '100%'
+                    }
+                  ],
+                  'type': 'suite',
+                  'id': '585f3452d10540715b07f37f',
+                  'percent': '100%'
+                }
+              ],
+              'type': 'suite',
+              'id': '585f3451d10540715b07f300',
+              'percent': '91%'
+            },
+            {
+              'name': '12-风险发现和防护-【lgl负责执行】',
+              'count': 51,
+              'isParent': True,
+              'flag': 1,
+              'children': [
+                {
+                  'name': '01-风险分析',
+                  'count': 8,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f3452d10540715b07f383',
+                  'percent': '100%'
+                },
+                {
+                  'name': '02-web扫描',
+                  'count': 7,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f3452d10540715b07f38c',
+                  'percent': '57%'
+                },
+                {
+                  'name': '03-实时漏洞分析',
+                  'count': 36,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [
+                    {
+                      'name': '前置-环境准备',
+                      'count': 3,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3452d10540715b07f395',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '不安全配置',
+                      'count': 2,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3452d10540715b07f399',
+                      'percent': '0%'
+                    },
+                    {
+                      'name': '弱口令',
+                      'count': 8,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3452d10540715b07f39c',
+                      'percent': '75%'
+                    },
+                    {
+                      'name': '报表',
+                      'count': 15,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3452d10540715b07f3a5',
+                      'percent': '80%'
+                    },
+                    {
+                      'name': '版本漏洞识别',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3452d10540715b07f3b5',
+                      'percent': '0%'
+                    },
+                    {
+                      'name': 'web应用风险分析',
+                      'count': 2,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3452d10540715b07f3b7',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '暗链检测',
+                      'count': 2,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3452d10540715b07f3ba',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': 'pvs高级设置',
+                      'count': 2,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3452d10540715b07f3bd',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '后置',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3452d10540715b07f3c0',
+                      'percent': '100%'
+                    }
+                  ],
+                  'type': 'suite',
+                  'id': '585f3452d10540715b07f394',
+                  'percent': '77%'
+                }
+              ],
+              'type': 'suite',
+              'id': '585f3452d10540715b07f382',
+              'percent': '78%'
+            },
+            {
+              'name': '13-流量管理',
+              'count': 15,
+              'isParent': True,
+              'flag': 1,
+              'children': [
+                {
+                  'name': '前置',
+                  'count': 1,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f3452d10540715b07f3c3',
+                  'percent': '100%'
+                },
+                {
+                  'name': '流控通道',
+                  'count': 9,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [
+                    {
+                      'name': '带宽分配',
+                      'count': 8,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3452d10540715b07f3c6',
+                      'percent': '87%'
+                    },
+                    {
+                      'name': '排除策略',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3452d10540715b07f3cf',
+                      'percent': '100%'
+                    }
+                  ],
+                  'type': 'suite',
+                  'id': '585f3452d10540715b07f3c5',
+                  'percent': '88%'
+                },
+                {
+                  'name': '虚拟线路配置',
+                  'count': 4,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [
+                    {
+                      'name': '虚拟线路列表',
+                      'count': 1,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3452d10540715b07f3d2',
+                      'percent': '100%'
+                    },
+                    {
+                      'name': '虚拟线路规则',
+                      'count': 3,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3452d10540715b07f3d4',
+                      'percent': '100%'
+                    }
+                  ],
+                  'type': 'suite',
+                  'id': '585f3452d10540715b07f3d1',
+                  'percent': '100%'
+                },
+                {
+                  'name': '后置',
+                  'count': 1,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f3452d10540715b07f3d8',
+                  'percent': '100%'
+                }
+              ],
+              'type': 'suite',
+              'id': '585f3452d10540715b07f3c2',
+              'percent': '93%'
+            },
+            {
+              'name': '14-系统-【chenli负责执行】',
+              'count': 42,
+              'isParent': True,
+              'flag': 1,
+              'children': [
+                {
+                  'name': '原功能',
+                  'count': 10,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f3452d10540715b07f3db',
+                  'percent': '100%'
+                },
+                {
+                  'name': '日志设置',
+                  'count': 8,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f3452d10540715b07f3e6',
+                  'percent': '75%'
+                },
+                {
+                  'name': '管理员账号',
+                  'count': 10,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [
+                    {
+                      'name': '管理员权限',
+                      'count': 10,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3452d10540715b07f3f0',
+                      'percent': '100%'
+                    }
+                  ],
+                  'type': 'suite',
+                  'id': '585f3452d10540715b07f3ef',
+                  'percent': '100%'
+                },
+                {
+                  'name': '系统配置',
+                  'count': 14,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [
+                    {
+                      'name': '控制台配置',
+                      'count': 6,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3452d10540715b07f3fc',
+                      'percent': '83%'
+                    },
+                    {
+                      'name': '网络参数',
+                      'count': 8,
+                      'isParent': True,
+                      'flag': 1,
+                      'children': [],
+                      'type': 'suite',
+                      'id': '585f3452d10540715b07f403',
+                      'percent': '87%'
+                    }
+                  ],
+                  'type': 'suite',
+                  'id': '585f3452d10540715b07f3fb',
+                  'percent': '85%'
+                }
+              ],
+              'type': 'suite',
+              'id': '585f3452d10540715b07f3da',
+              'percent': '90%'
+            },
+            {
+              'name': '15-系统维护-【xx负责执行】',
+              'count': 33,
+              'isParent': True,
+              'flag': 1,
+              'children': [
+                {
+                  'name': '前置',
+                  'count': 1,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f3452d10540715b07f40d',
+                  'percent': '100%'
+                },
+                {
+                  'name': '数据包拦截日志与直通',
+                  'count': 3,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f3452d10540715b07f40f',
+                  'percent': '66%'
+                },
+                {
+                  'name': '命令控制台',
+                  'count': 4,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f3452d10540715b07f413',
+                  'percent': '100%'
+                },
+                {
+                  'name': '系统故障日志',
+                  'count': 4,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f3452d10540715b07f418',
+                  'percent': '75%'
+                },
+                {
+                  'name': '系统更新',
+                  'count': 20,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f3452d10540715b07f41d',
+                  'percent': '0%'
+                },
+                {
+                  'name': '后置',
+                  'count': 1,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f3453d10540715b07f432',
+                  'percent': '0%'
+                }
+              ],
+              'type': 'suite',
+              'id': '585f3452d10540715b07f40c',
+              'percent': '0%'
+            },
+            {
+              'name': '16-数据中心-rxl',
+              'count': 13,
+              'isParent': True,
+              'flag': 1,
+              'children': [
+                {
+                  'name': '日志查询',
+                  'count': 12,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f3453d10540715b07f435',
+                  'percent': '0%'
+                },
+                {
+                  'name': '系统',
+                  'count': 1,
+                  'isParent': True,
+                  'flag': 1,
+                  'children': [],
+                  'type': 'suite',
+                  'id': '585f3453d10540715b07f442',
+                  'percent': '0%'
+                }
+              ],
+              'type': 'suite',
+              'id': '585f3453d10540715b07f434',
+              'percent': '0%'
+            },
+            {
+              'name': '大后置',
+              'count': 1,
+              'isParent': True,
+              'flag': 1,
+              'children': [],
+              'type': 'suite',
+              'id': '585f3453d10540715b07f444',
+              'percent': '0%'
+            }
+          ],
+          'type': 'suite',
+          'id': '585f344dd10540715b07f014',
+          'percent': '0%'
+        }
+      ],
+      'type': 'suite',
+      'id': '585f344dd10540715b07f013',
+      'percent': '0%'
+    }
+  ],
+  'type': 'suite',
+  'id': '585f344dd10540715b07f012',
+  'percent': '0%'
+}
