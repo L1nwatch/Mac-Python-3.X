@@ -49,6 +49,26 @@ class TestPcapParser(unittest.TestCase):
         packet /= Raw(b"test")
         self.assertTrue(self.pcap_parser.is_http_packet(packet))
 
+        # 非 TCP 包
+        packet = Ether() / IP() / UDP()
+        self.assertFalse(self.pcap_parser.is_http_packet(packet))
+
+    def test_filter_header(self):
+        filter_list = ["favicon.ico"]
+        test_header = "b'GET /favicon.ico HTTP/1.1\\r\\nHost: www.sangfor.com\\r\\nConnection: keep-alive\\r\\nUser-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36\\r\\nAccept: */*\\r\\nReferer: http://www.sangfor.com/wp-admin/admin.php?page=booking%2Fwpdev-booking.phpwpdev-booking&wh_approved&wh_is_new=1&wh_booking_date=3&view_mode=vm_listing\\r\\nAccept-Encoding: gzip, deflate, sdch\\r\\nAccept-Language: zh-CN,zh;q=0.8\\r\\nCookie: Hm_lvt_a3edfd653736089ca7c875a3ea4ebe59=1476155748; _ga=GA1.2.19483797.1471240472\\r\\n\\r\\n'"
+
+        # 应该过滤为空
+        self.assertEqual(self.pcap_parser.filter_header(test_header, filter_list), None)
+
+    def test_has_point_info(self):
+        pass
+
+    def test_is_http_post_request_header(self):
+        pass
+
+    def test_is_http_get_request_header(self):
+        pass
+
 
 if __name__ == "__main__":
     pass

@@ -8,13 +8,15 @@ __author__ = '__L1n__w@tch'
 
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow
-import demo_atm_result_parse_tool
+from demo_atm_result_parse_tool import Ui_MainWindow
+
+
+class MainWindow(QMainWindow, Ui_MainWindow):
+    pass
+
 
 if __name__ == '__main__':
-    app = 0
-    app = QApplication(sys.argv)
-    mainWindow = QMainWindow()
-    ui = demo_atm_result_parse_tool.Ui_MainWindow()
-    ui.setupUi(mainWindow)
-    mainWindow.show()
-    sys.exit(app.exec_())
+    a = QApplication(sys.argv)
+    w = MainWindow()
+    w.show()
+    sys.exit(a.exec_())
