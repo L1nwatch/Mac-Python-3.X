@@ -5,10 +5,11 @@
 超时装饰器链接:
 http://www.cnblogs.com/fengmk2/archive/2008/08/30/python_tips_timeout_decorator.html
 '''
-__author__ = '__L1n__w@tch'
 import time
 import threading
 import sys
+
+__author__ = '__L1n__w@tch'
 
 
 # 网上的超时检测器
@@ -105,5 +106,5 @@ if __name__ == '__main__':
         try:
             print('*' * 20)
             print(method_timeout(sec, 'test waiting %d seconds' % sec))
-        except Timeout as  e:
+        except Timeout as e:
             print(e)
