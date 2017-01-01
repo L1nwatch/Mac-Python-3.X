@@ -91,15 +91,18 @@ class MainWindow(Ui_MainWindow, QMainWindow):
         error_message_window.showMessage(message)
         error_message_window.exec_()
 
-    def _show_layer_result_from_json_result(self):
+    def _show_layer_result_from_json_result(self, format_display_style=1):
         """
         显示 json 结果到窗口中
         :return: None
         """
         layer = int(self.lineEdit_2.text())
 
-        layer_result = recursion_get_rate(self.json_result, layer)
-        self.plainTextEdit.setPlainText("\n".join(layer_result))
+        layer_result = recursion_get_rate(self.json_result, layer, format_display_style)
+        if format_display_style == 1 or format_display_style == 2 or format_display_style == 4:
+            self.plainTextEdit.setPlainText("\n".join(layer_result))
+        elif format_display_style == 3:
+            self.plainTextEdit.setPlainText(",".join(layer_result))
 
     def get_result(self):
         try:
@@ -112,6 +115,18 @@ class MainWindow(Ui_MainWindow, QMainWindow):
             self._show_error_message("输入有误: {}".format(str(e)))
         except Exception as e:
             self._show_error_message("未知错误: {}".format(str(e)))
+
+    def format_display1(self):
+        self._show_layer_result_from_json_result(1)
+
+    def format_display2(self):
+        self._show_layer_result_from_json_result(2)
+
+    def format_display3(self):
+        self._show_layer_result_from_json_result(3)
+
+    def format_display4(self):
+        self._show_layer_result_from_json_result(4)
 
 
 if __name__ == '__main__':

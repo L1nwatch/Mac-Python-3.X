@@ -50,7 +50,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="state_board">
         <property name="text">
          <string>状态</string>
         </property>
@@ -237,10 +237,94 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushButton_4</sender>
+   <signal>clicked()</signal>
+   <receiver>lineEdit</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>420</x>
+     <y>251</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>230</x>
+     <y>61</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_6</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>format_display1()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>411</x>
+     <y>318</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>362</x>
+     <y>440</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_8</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>format_display3()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>433</x>
+     <y>401</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>463</x>
+     <y>446</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_7</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>format_display2()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>399</x>
+     <y>349</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>451</x>
+     <y>33</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_9</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>format_display4()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>456</x>
+     <y>427</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>387</x>
+     <y>26</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>get_result()</slot>
   <slot>add_layer()</slot>
   <slot>sub_layer()</slot>
+  <slot>format_display1()</slot>
+  <slot>format_display3()</slot>
+  <slot>format_display4()</slot>
+  <slot>format_display2()</slot>
  </slots>
 </ui>

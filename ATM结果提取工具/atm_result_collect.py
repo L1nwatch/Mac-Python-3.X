@@ -14,15 +14,16 @@ except ImportError:
 __author__ = '__L1n__w@tch'
 
 
-def recursion_get_rate(json_data, depth_layer=None):
+def recursion_get_rate(json_data, depth_layer=None, format_display_style=1):
     """
     递归解析 json 树, 获取对应模块及其成功率
     :param json_data: 解析好的 json 数据
     :param depth_layer: 限制最深读取到第几层
+    :param format_display_style: 可以分为几种不同的格式进行打印
     :return: list(), 每个元素是其模块及其成功率
     """
 
-    def __recursion_get_rate(json_list, a_list, layer, depth_limit=None):
+    def __recursion_get_rate(json_list, a_list, layer, depth_limit=None, style=1):
         temp_list = list()
 
         # 到了限定的最后一层了
@@ -31,15 +32,24 @@ def recursion_get_rate(json_data, depth_layer=None):
                 return temp_list
         # 递归处理
         for each in json_list:
-            temp_list.append("{sep}{0} => {1}".format(each["name"], each["percent"], sep=" " * layer))
+            if style == 1:
+                temp_list.append("{sep}{0} => {1}".format(each["name"], each["percent"], sep=" " * layer))
+            elif style == 2:
+                temp_list.append("{sep}{0}【{1}】".format(each["name"], each["percent"], sep=" " * layer))
+            elif style == 3:
+                temp_list.append("{0}成功率【{1}】".format(each["name"], each["percent"]))
+            elif style == 4:
+                format_text = "{sep}{0} => {1}".format(each["name"], each["percent"], sep="{}  +- ".format("  |" * layer))
+                temp_list.append(format_text)
+
             if len(each["children"]) > 0:
-                __recursion_get_rate(each["children"], temp_list, layer + 1, depth_limit)
+                __recursion_get_rate(each["children"], temp_list, layer + 1, depth_limit, style)
 
         return a_list.extend(temp_list)
 
     result_list = list()
 
-    __recursion_get_rate(json_data, result_list, 0, depth_layer)
+    __recursion_get_rate(json_data, result_list, 0, depth_layer, format_display_style)
 
     return result_list
 
