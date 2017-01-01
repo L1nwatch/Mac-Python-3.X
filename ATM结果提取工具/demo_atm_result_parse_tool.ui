@@ -26,7 +26,7 @@
     <property name="orientation">
      <enum>Qt::Horizontal</enum>
     </property>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
@@ -46,13 +46,6 @@
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
          <widget class="QPlainTextEdit" name="plainTextEdit"/>
-        </item>
-        <item>
-         <widget class="QScrollBar" name="verticalScrollBar">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-         </widget>
         </item>
        </layout>
       </item>
@@ -151,16 +144,6 @@
      </layout>
     </widget>
    </widget>
-   <zorder>textBrowser</zorder>
-   <zorder>layoutWidget</zorder>
-   <zorder>label_3</zorder>
-   <zorder>label_3</zorder>
-   <zorder>label</zorder>
-   <zorder>lineEdit</zorder>
-   <zorder>label</zorder>
-   <zorder>lineEdit</zorder>
-   <zorder>plainTextEdit</zorder>
-   <zorder>verticalScrollBar</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

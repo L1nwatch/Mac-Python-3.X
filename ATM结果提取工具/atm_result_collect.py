@@ -26,7 +26,7 @@ def recursion_get_rate(json_data, depth_layer=None):
         temp_list = list()
 
         # 到了限定的最后一层了
-        if depth_limit:
+        if depth_limit:  # 为 0 时显示全部
             if layer >= depth_limit:
                 return temp_list
         # 递归处理
@@ -44,11 +44,16 @@ def recursion_get_rate(json_data, depth_layer=None):
     return result_list
 
 
+def get_json_data_from_result_url(url):
+    response = requests.get("{}/rsuites".format(url))
+    parse_data = json.loads(response.text)
+    return parse_data
+
+
 if __name__ == "__main__":
     result_url = "http://200.200.0.33/atm/projects/53c49025d105401f5e0003ec/results/585f344dd10540715b07f011"
-    response = requests.get("{}/rsuites".format(result_url))
-    parse_data = json.loads(response.text)
-    result = recursion_get_rate(parse_data, 4)
+    json_result = get_json_data_from_result_url(result_url)
+    result = recursion_get_rate(json_result, 4)
 
     for each_module in result:
         print(each_module)
