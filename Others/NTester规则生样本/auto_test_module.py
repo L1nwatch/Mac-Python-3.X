@@ -38,7 +38,8 @@ class AutoTester:
 
         return result_list
 
-    def parse_http_header(self, http_header):
+    @staticmethod
+    def parse_http_header(http_header):
         """
         解析 http 头, 拿到 url 以及 http 头其他参数
         :return: (url, http_header), 提供给 requests 作为封装使用
