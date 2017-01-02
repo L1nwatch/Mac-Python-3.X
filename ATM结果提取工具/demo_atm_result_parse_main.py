@@ -4,6 +4,7 @@
 """
 2016.12.21 调用 QT 创建的 UI
 """
+import queue
 import sys
 import re
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QErrorMessage)
