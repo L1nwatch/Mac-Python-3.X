@@ -38,43 +38,60 @@ class AutoTester:
 
         return result_list
 
-    def parse_http_header(self):
+    def parse_http_header(self, http_header):
         """
         解析 http 头, 拿到 url 以及 http 头其他参数
         :return: (url, http_header), 提供给 requests 作为封装使用
         """
-        pass
+        url = PcapParser.get_url_from_raw_data(http_header)
+        http_parameter = dict()
 
-    def create_http_request(self):
+        for each_parameter in str(http_header).split(r"\r\n"):
+            item = each_parameter.split(":", 1)
+            # 正常的 http 头字段
+            if len(item) == 2:
+                key, value = item[0], item[1]
+                http_parameter[key] = value
+            # 不是 http 头字段, 忽视
+            else:
+                continue
+
+        return url, http_parameter
+
+    def create_http_request(self, ip):
+        """
+        :param ip: 目标 IP, 构造请求时使用
+        """
         # 提取每一个 HTTP 头
         http_header_list = self.get_http_headers_list()
 
         for each_http in http_header_list:
             # POST 请求
             if PcapParser.is_http_post_request_header(each_http):
-                print("POST 请求")
-                input()
+                url, header = self.parse_http_header(each_http)
+                response = requests.get("http://{}{}".format(ip, url), header=header)
+                print(response.text)
+                exit(0)
+
             # GET 请求
             elif PcapParser.is_http_get_request_header(each_http):
-                url, header = self.parse_http_header()
-                response = requests.get(url, header=header)
+                url, header = self.parse_http_header(each_http)
+                response = requests.get("http://{}{}".format(ip, url), headers=header)
                 print(response.text)
 
                 exit(0)
             else:
                 raise RuntimeError("遇到无法解析的 HTTP 头了")
 
-    def run(self):
+    def run(self, target_ip):
         """
         完成自动化测试流程
+        :param target_ip: 测试服务器的 IP 地址
         """
-        # 解析 HTTP 请求头, 按照 requests 库封装好
-        self.create_http_request()
-
-        # 发送 HTTP 请求到虚拟 IP
-        pass
+        # 解析 HTTP 请求头, 按照 requests 库封装好并发送出去
+        self.create_http_request(target_ip)
 
 
 if __name__ == "__main__":
     at = AutoTester("2th_headers_result.json")
-    at.run()
+    at.run("192.168.114.2")

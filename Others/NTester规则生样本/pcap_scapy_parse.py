@@ -26,7 +26,7 @@ class PcapParser:
         :param data: b'GET /wordpress/wp-content/plugins/wpSS/ss_handler.php?display=0&edit=&ss_id=1%27%22 HTTP/1.1\r\nAccept: text/html, application/xhtml+xml, */*\r\nAccept-Language: zh-CN\r\nUser-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)\r\nAccept-Encoding: gzip, deflate\r\nHost: 192.168.41.68\r\nConnection: Keep-Alive\r\nCookie: acopendivids=swingset,phpbb2,redmine; acgroupswithpersist=nada; JSESSIONID=024D3D2EDA89A7BB595684F55788684A\r\n\r\n'
         :return: 'GET /wordpress/wp-content/plugins/wpSS/ss_handler.php?display=0&edit=&ss_id=1%27%22 HTTP/1.1'
         """
-        result = re.findall("GET.*HTTP/1\.1", str(data))
+        result = re.findall("[GETPOST]{3,4} (.*) HTTP/1\.1", str(data))
         if len(result) == 1:
             return result[0]
 
@@ -71,7 +71,7 @@ class PcapParser:
         判断是不是 GET 请求的 http 头
         :return: True or False
         """
-        result = re.findall("GET.*HTTP/1\.[01]", str(data))
+        result = re.findall("^GET .*HTTP/1\.[01]", str(data), flags=re.IGNORECASE)
         return len(result) == 1
 
     @staticmethod
@@ -80,7 +80,7 @@ class PcapParser:
         判断是不是 POST 请求的 http 头
         :return: True or False
         """
-        result = re.findall("POST.*HTTP/1\.[01]", str(data))
+        result = re.findall("^POST .*HTTP/1\.[01]", str(data), flags=re.IGNORECASE)
         return len(result) == 1
 
     @staticmethod
