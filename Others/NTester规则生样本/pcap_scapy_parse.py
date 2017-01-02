@@ -2,12 +2,18 @@
 # -*- coding: utf-8 -*-
 # version: Python3.X
 """
+2017.01.02 加入 json 模块, 用于封装中间数据
 2016.12.27 导师说不要获取 URL 了, 而是直接拿下整个 http 头
 2016.12.26 尝试使用 scapy 库解析 pcap 包
 """
 import scapy.all
 import re
 import os
+
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 __author__ = '__L1n__w@tch'
 
@@ -126,13 +132,22 @@ class PcapParser:
 
         return headers
 
+    def run(self, result_file_path):
+        """
+        完成从读取 pcap 包到提取结果写入 json 文件
+        :param result_file_path:
+        :return:
+        """
+        with open(result_file_path, "w") as f:
+            data_dict = dict()
+            for each_pcap in os.listdir("waf"):
+                file_path = "waf/{}".format(each_pcap)
+                urls = self.get_http_headers(file_path)
+                data_dict[file_path] = urls
+
+            json.dump(data_dict, f)
+
 
 if __name__ == "__main__":
-    with open("2th_headers_result.txt", "w") as f:
-        for each_pcap in os.listdir("waf"):
-            file_path = "waf/{}".format(each_pcap)
-            print("{} --> ".format(file_path), end="", file=f)
-
-            parser = PcapParser()
-            urls = parser.get_http_headers(file_path)
-            print("{}".format(urls), file=f)
+    parser = PcapParser()
+    parser.run("2th_headers_result.json")
