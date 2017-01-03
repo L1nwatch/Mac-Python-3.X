@@ -63,7 +63,7 @@ class TestPcapParser(unittest.TestCase):
         测试是否能过正确过滤包含指定资源的头部
         """
         filter_list = ["favicon.ico"]
-        test_header = "b'GET /favicon.ico HTTP/1.1\\r\\nHost: www.sangfor.com\\r\\nConnection: keep-alive\\r\\nUser-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36\\r\\nAccept: */*\\r\\nReferer: http://www.sangfor.com/wp-admin/admin.php?page=booking%2Fwpdev-booking.phpwpdev-booking&wh_approved&wh_is_new=1&wh_booking_date=3&view_mode=vm_listing\\r\\nAccept-Encoding: gzip, deflate, sdch\\r\\nAccept-Language: zh-CN,zh;q=0.8\\r\\nCookie: Hm_lvt_a3edfd653736089ca7c875a3ea4ebe59=1476155748; _ga=GA1.2.19483797.1471240472\\r\\n\\r\\n'"
+        test_header = "b'GET /favicon.ico HTTP/1.1\r\nHost: www.sangfor.com\r\nConnection: keep-alive\r\nUser-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36\r\nAccept: */*\r\nReferer: http://www.sangfor.com/wp-admin/admin.php?page=booking%2Fwpdev-booking.phpwpdev-booking&wh_approved&wh_is_new=1&wh_booking_date=3&view_mode=vm_listing\r\nAccept-Encoding: gzip, deflate, sdch\r\nAccept-Language: zh-CN,zh;q=0.8\r\nCookie: Hm_lvt_a3edfd653736089ca7c875a3ea4ebe59=1476155748; _ga=GA1.2.19483797.1471240472\r\n\r\n'"
 
         # 应该过滤为空
         self.assertEqual(self.pcap_parser.filter_header(test_header, filter_list), None)

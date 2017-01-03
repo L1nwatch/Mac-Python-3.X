@@ -126,6 +126,7 @@ class PcapParser:
         for each_packet in parse_data:
             if self.is_http_packet(each_packet):
                 header = str(self.get_raw_info(each_packet)).strip("b'")  # 去掉表示 byte 的符号
+                header = header.replace(r"\r\n", "\r\n")  # 去掉多余转义符号
                 # 过滤一下
                 header = self.filter_header(header)
                 headers.append(header) if header else None  # 如果过滤完不为空就添加

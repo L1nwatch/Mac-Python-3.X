@@ -25,12 +25,28 @@ class AutoTester:
     def get_http_headers_dict(self):
         """
         从 json 文件中读取每一个 http 头放到字典中
-        :return: list(), 每一个元素是一个 http 头
+        :return: dict(), 每一个元素是一个 http 头及其 pcap 包
         """
         with open(self.test_json_file, "r") as f:
             data_dict = json.load(f)
 
         return data_dict
+
+    def get_http_headers_list(self):
+        """
+        从 json 文件中读取每一个 http 头放到列表中
+        :return: list(), 每一个元素是一个 http 头
+        """
+        with open(self.test_json_file, "r") as f:
+            data_dict = json.load(f)
+
+        result_list = list()
+
+        for each_pcap, each_pcap_https in data_dict.items():
+            for each_http in each_pcap_https:
+                result_list.append(each_http)
+
+        return result_list
 
     @staticmethod
     def parse_http_header(http_header):
@@ -41,12 +57,12 @@ class AutoTester:
         url = PcapParser.get_url_from_raw_data(http_header)
         http_parameter = dict()
 
-        for each_parameter in str(http_header).split(r"\r\n"):
+        for each_parameter in str(http_header).split("\r\n"):
             item = each_parameter.split(":", 1)
             # 正常的 http 头字段
             if len(item) == 2:
                 key, value = item[0], item[1]
-                http_parameter[key] = value
+                http_parameter[key] = value.strip()
             # 不是 http 头字段, 忽视
             else:
                 continue
@@ -57,11 +73,10 @@ class AutoTester:
     def get_post_data_from_http_header(http_header):
         """
         从 http 头获取 post 数据
-        :param http_header: str(), "POST /simple.php HTTP/1.1\\r\\nHost: 10.0.1.70\\r\\nConnection: keep-alive\\r\\nContent-Length: 113\\r\\nCache-Control: max-age=0\\r\\nOrigin: http://10.0.1.70\\r\\nUser-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.79 Safari/537.4\\r\\nContent-Type: application/x-www-form-urlencoded\\r\\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\\r\\nReferer: http://10.0.1.70/simple.php\\r\\nAccept-Encoding: gzip,deflate,sdch\\r\\nAccept-Language: zh-CN,zh;q=0.8\\r\\nAccept-Charset: GBK,utf-8;q=0.7,*;q=0.3\\r\\n\\r\\ninput=%3CSTYLE%3E%40%5C0069mport+%27http%3A%2F%2Fevil.com%2Fevil.css%27%3C%2FSTYLE%3E++&%CC%E1%BD%BB=%CC%E1%BD%BB"
+        :param http_header: str(), "POST /simple.php HTTP/1.1\r\nHost: 10.0.1.70\r\nConnection: keep-alive\r\nContent-Length: 113\r\nCache-Control: max-age=0\r\nOrigin: http://10.0.1.70\r\nUser-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.79 Safari/537.4\r\nContent-Type: application/x-www-form-urlencoded\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nReferer: http://10.0.1.70/simple.php\r\nAccept-Encoding: gzip,deflate,sdch\r\nAccept-Language: zh-CN,zh;q=0.8\r\nAccept-Charset: GBK,utf-8;q=0.7,*;q=0.3\r\n\r\ninput=%3CSTYLE%3E%40%5C0069mport+%27http%3A%2F%2Fevil.com%2Fevil.css%27%3C%2FSTYLE%3E++&%CC%E1%BD%BB=%CC%E1%BD%BB"
         :return: str(), input=%3CSTYLE%3E%40%5C0069mport+%27http%3A%2F%2Fevil.com%2Fevil.css%27%3C%2FSTYLE%3E++&%CC%E1%BD%BB=%CC%E1%BD%BB
         """
-        post_data = http_header.split(r"\r\n\r\n", 1)[1]
-        post_data = str(post_data).replace(r"\r\n", "\r\n")  # 去除多余转义符号
+        post_data = http_header.split("\r\n\r\n", 1)[1]
         return post_data
 
     def send_post_request(self, http_header, ip):
