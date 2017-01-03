@@ -26,6 +26,11 @@ class TestPcapParser(unittest.TestCase):
         my_answer = self.pcap_parser.get_url_from_raw_data(test_input)
         self.assertEqual(my_answer, right_answer)
 
+        test_input = "GET /dvwa/vulnerabilities/c99shell.php HTTP/1.0\r\nAccept: */*\r\nUser-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0; .NET CLR 1.1.4322)\r\nHost: 192.168.41.68\r\nCookie: PHPSESSID=812tfnicu1dt2lu9u5btnkjm92;security=low\r\nConnection: Close\r\nPragma: no-cache\r\nAcunetix-Product: WVS/5.1 (Acunetix Web Vulnerability Scanner - NORMAL)\r\nAcunetix-Scanning-agreement: Third Party Scanning PROHIBITED\r\nAcunetix-User-agreement: http://www.acunetix.com/wvs/disc.htm\r\n\r\n"
+        right_answer = '/dvwa/vulnerabilities/c99shell.php'
+        my_answer = self.pcap_parser.get_url_from_raw_data(test_input)
+        self.assertEqual(my_answer, right_answer)
+
     def test_get_raw_info(self):
         """
         测试是否能够正确从一个 packet 包中获取 raw 信息

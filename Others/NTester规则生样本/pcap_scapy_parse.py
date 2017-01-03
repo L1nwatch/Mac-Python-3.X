@@ -26,7 +26,7 @@ class PcapParser:
         :param data: b'GET /wordpress/wp-content/plugins/wpSS/ss_handler.php?display=0&edit=&ss_id=1%27%22 HTTP/1.1\r\nAccept: text/html, application/xhtml+xml, */*\r\nAccept-Language: zh-CN\r\nUser-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)\r\nAccept-Encoding: gzip, deflate\r\nHost: 192.168.41.68\r\nConnection: Keep-Alive\r\nCookie: acopendivids=swingset,phpbb2,redmine; acgroupswithpersist=nada; JSESSIONID=024D3D2EDA89A7BB595684F55788684A\r\n\r\n'
         :return: 'GET /wordpress/wp-content/plugins/wpSS/ss_handler.php?display=0&edit=&ss_id=1%27%22 HTTP/1.1'
         """
-        result = re.findall("[GETPOST]{3,4} (.*) HTTP/1\.1", str(data))
+        result = re.findall("[GETPOST]{3,4} (.*) HTTP/1\.[01]", str(data))
         if len(result) == 1:
             return result[0]
 
@@ -125,7 +125,7 @@ class PcapParser:
 
         for each_packet in parse_data:
             if self.is_http_packet(each_packet):
-                header = str(self.get_raw_info(each_packet))
+                header = str(self.get_raw_info(each_packet)).strip("b'")  # 去掉表示 byte 的符号
                 # 过滤一下
                 header = self.filter_header(header)
                 headers.append(header) if header else None  # 如果过滤完不为空就添加
