@@ -10,17 +10,20 @@ except ImportError:
     import json
 
 import requests
+import pymysql
 from pcap_scapy_parse import PcapParser
 
 __author__ = '__L1n__w@tch'
 
 
 class AutoTester:
-    def __init__(self, result_json_file_path):
+    def __init__(self, result_json_file_path, af_mysql_info):
         """
         :param result_json_file_path: 解析 pcap 包得到的 json 格式文件
+        :param af_mysql_info: 连接 af MySQL 所需的一切信息
         """
         self.test_json_file = result_json_file_path
+        self.af_mysql_info = af_mysql_info
 
     def get_http_headers_dict(self):
         """
@@ -127,15 +130,75 @@ class AutoTester:
                 else:
                     raise RuntimeError("遇到无法解析的 HTTP 头了")
 
+    def is_efficient_pcap(self, pcap_name):
+        """
+        判断是否为有效的 pcap 包
+        :param pcap_name: pcap 包的名字, 其实就是 sid
+        :return:
+        """
+        # 获取必要的信息, 暂时只需要 sid
+        sid = pcap_name
+        # 开始攻击之前 sid 不存于数据库中
+
+        # 开始攻击之后 sid 存在于数据库中
+        pass
+
     def run(self, target_ip):
         """
         完成自动化测试流程
         :param target_ip: 测试服务器的 IP 地址
         """
+        # 初始化 MySQL 连接实例
+        self.af_mysql_connect = AFMySQLQuery(*self.af_mysql_info)
+
         # 解析 HTTP 请求头, 按照 requests 库封装好并发送出去
         self.create_http_request(target_ip)
 
 
+class AFMySQLQuery:
+    def __init__(self, af_ip, mysql_user, mysql_pw, db_name):
+        self.af_ip = af_ip
+        self.mysql_user = mysql_user
+        self.mysql_pw = mysql_pw
+        self.db_name = db_name
+
+    def waf_log_query(self):
+        """
+        通过数据库查询 waf 日志
+        :return:
+        """
+        # 试一下上下文管理器
+        with pymysql.connect(self.af_ip, self.mysql_user, self.mysql_pw, self.db_name) as cursor:
+            # 执行 SQL 查询
+            cursor.execute("SELECT sid FROM X20170103 WHERE record_time > '00:00' AND record_time < '23:59'")
+            data = cursor.fetchall()
+        print(data)
+
+    def is_sid_in_waf_log(self, sid):
+        """
+        判断 sid 号是否存在于 waf 日志中
+        :param sid: str(), such as 13010007
+        :return: True or False
+        """
+
+        with pymysql.connect(self.af_ip, self.mysql_user, self.mysql_pw, self.db_name) as cursor:
+            # 执行 SQL 查询
+            cursor.execute("SELECT sid FROM X20170103 WHERE record_time > '00:00' AND record_time < '23:59'")
+            data = cursor.fetchall()
+        print(data)
+
+        # 判断 ID 号
+        for each_log in data:
+            log_sid = each_log[0]
+            print("开始判断 sid={} 与 log_sid={}".format(sid, log_sid))
+            if sid == log_sid:
+                return True
+        return False
+
+
 if __name__ == "__main__":
-    at = AutoTester("2th_headers_result.json")
-    at.run("192.168.116.2")
+    af_mysql_info = ("192.192.90.134", "root", "root", "FW_LOG_fwlog")
+    # at = AutoTester("2th_headers_result.json")
+    # at.run("192.168.116.2")
+    log = AFMySQLQuery(*af_mysql_info)
+    log.waf_log_query()
