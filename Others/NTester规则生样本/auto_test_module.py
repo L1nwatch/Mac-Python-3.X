@@ -10,10 +10,15 @@ except ImportError:
     import json
 
 import requests
+import time
 import pymysql
+import re
+import datetime
 from pcap_scapy_parse import PcapParser
 
 __author__ = '__L1n__w@tch'
+
+TIMEOUT = 5  # 等待一段时间再查日志
 
 
 class AutoTester:
@@ -24,6 +29,7 @@ class AutoTester:
         """
         self.test_json_file = result_json_file_path
         self.af_mysql_info = af_mysql_info
+        self.af_mysql_connect = None  # 用于 mysql 连接
 
     def get_http_headers_dict(self):
         """
@@ -96,7 +102,6 @@ class AutoTester:
         print("{sep}POST 数据: {0}".format(post_data, sep=" " * 8))
 
         response = requests.post(attack_url, headers=header, data=post_data)
-        input("决定好了就开始下一个")
 
     def send_get_request(self, http_header, ip):
         """
@@ -110,38 +115,61 @@ class AutoTester:
 
         response = requests.get(attack_url, headers=header)
 
-    def create_http_request(self, ip):
+    def get_pid_from_pcap_name(self, pcap_name):
         """
+        从 pcap_name 中获取 sid
+        :param pcap_name: str(), "waf/13010007.pcap"
+        :return: str(), "13010007.pcap"
+        """
+        sid = re.findall(".*/([0-9_]*).pcap", pcap_name)[0]
+        return sid
+
+    def verify_each_pcap(self, ip):
+        """
+        验证每一个 pcap 包, 如果是有效的则进入样本库
         :param ip: 目标 IP, 构造请求时使用
         """
         http_headers_dict = self.get_http_headers_dict()
+        efficient_pcap = dict()
 
-        # 提取每一个 HTTP 头
+        # 遍历每一个 HTTP 头
         for each_pcap, each_pcap_https in http_headers_dict.items():
             print("测试: {}".format(each_pcap))
+            sid = self.get_pid_from_pcap_name(each_pcap)
             for each_http in each_pcap_https:
-                # POST 请求
-                if PcapParser.is_http_post_request_header(each_http):
-                    self.send_post_request(each_http, ip)
-                # GET 请求
-                elif PcapParser.is_http_get_request_header(each_http):
-                    continue
-                    self.send_get_request(each_http, ip)
-                else:
-                    raise RuntimeError("遇到无法解析的 HTTP 头了")
+                if self.is_efficient_http_request(each_http, ip, sid):
+                    # 是有效请求, 记录相应信息
+                    efficient_pcap.setdefault(each_pcap, list())
+                    efficient_pcap[each_pcap].append(each_http)
+                    print("{sep} 规则 {0} 有效 {sep}".format(sid, sep="*" * 30))
+                    # print("规则 {} 生效, pcap 包为: {}, http 请求为: {}".format(sid, each_pcap, each_http))
 
-    def is_efficient_pcap(self, pcap_name):
-        """
-        判断是否为有效的 pcap 包
-        :param pcap_name: pcap 包的名字, 其实就是 sid
-        :return:
-        """
-        # 获取必要的信息, 暂时只需要 sid
-        sid = pcap_name
-        # 开始攻击之前 sid 不存于数据库中
+        with open("efficient_pcap.json", "w") as f:
+            json.dump(efficient_pcap, f)
 
-        # 开始攻击之后 sid 存在于数据库中
-        pass
+    def is_efficient_http_request(self, http_packet, ip, sid):
+        """
+        判断是否是一个有效的 pcap 包, 即发送该包能产生对应规则 ID
+        :param http_packet: http 包
+        :param ip: 测试用的目标 IP
+        :param sid: 期望匹配的规则 ID
+        :return: True or False, True 表示该包有效
+        """
+        if self.af_mysql_connect.is_sid_in_waf_log(sid) is False:
+            # POST 请求
+            if PcapParser.is_http_post_request_header(http_packet):
+                # 攻击之后判断 sid 存在于数据库中
+                self.send_post_request(http_packet, ip)
+            # GET 请求
+            elif PcapParser.is_http_get_request_header(http_packet):
+                self.send_get_request(http_packet, ip)
+            # 其他请求
+            else:
+                raise RuntimeError("遇到无法解析的 HTTP 头了")
+
+            time.sleep(TIMEOUT)
+            return self.af_mysql_connect.is_sid_in_waf_log(sid)
+        return False
 
     def run(self, target_ip):
         """
@@ -152,7 +180,7 @@ class AutoTester:
         self.af_mysql_connect = AFMySQLQuery(*self.af_mysql_info)
 
         # 解析 HTTP 请求头, 按照 requests 库封装好并发送出去
-        self.create_http_request(target_ip)
+        self.verify_each_pcap(target_ip)
 
 
 class AFMySQLQuery:
@@ -162,17 +190,17 @@ class AFMySQLQuery:
         self.mysql_pw = mysql_pw
         self.db_name = db_name
 
-    def waf_log_query(self):
+    @staticmethod
+    def is_table_exists(cursor, table_name):
         """
-        通过数据库查询 waf 日志
-        :return:
+        判断某一个表是否存在
+        :param cursor: 游标
+        :param table_name: 要判断的表
+        :return: True or False
         """
-        # 试一下上下文管理器
-        with pymysql.connect(self.af_ip, self.mysql_user, self.mysql_pw, self.db_name) as cursor:
-            # 执行 SQL 查询
-            cursor.execute("SELECT sid FROM X20170103 WHERE record_time > '00:00' AND record_time < '23:59'")
-            data = cursor.fetchall()
-        print(data)
+        cursor.execute("show tables like '%{}%'".format(table_name))
+        data = cursor.fetchall()
+        return len(data) > 0
 
     def is_sid_in_waf_log(self, sid):
         """
@@ -180,25 +208,33 @@ class AFMySQLQuery:
         :param sid: str(), such as 13010007
         :return: True or False
         """
+        today = self.get_today_date()
 
         with pymysql.connect(self.af_ip, self.mysql_user, self.mysql_pw, self.db_name) as cursor:
-            # 执行 SQL 查询
-            cursor.execute("SELECT sid FROM X20170103 WHERE record_time > '00:00' AND record_time < '23:59'")
-            data = cursor.fetchall()
-        print(data)
+            if self.is_table_exists(cursor, "X{}".format(today)):
+                # 执行 SQL 查询
+                cursor.execute(
+                    "SELECT sid FROM X{} WHERE record_time > '00:00' AND record_time < '23:59'".format(today)
+                )
+                data = cursor.fetchall()
+                # 判断 ID 号
+                for each_log in data:
+                    log_sid = each_log[0]
+                    if sid == str(log_sid):
+                        return True
+            return False
 
-        # 判断 ID 号
-        for each_log in data:
-            log_sid = each_log[0]
-            print("开始判断 sid={} 与 log_sid={}".format(sid, log_sid))
-            if sid == log_sid:
-                return True
-        return False
+    @staticmethod
+    def get_today_date():
+        """
+        获取当天日期
+        :return: str(), 20170104
+        """
+        today = datetime.datetime.now()
+        return "{}{}{}".format(str(today.year).zfill(4), str(today.month).zfill(2), str(today.day).zfill(2))
 
 
 if __name__ == "__main__":
-    af_mysql_info = ("192.192.90.134", "root", "root", "FW_LOG_fwlog")
-    # at = AutoTester("2th_headers_result.json")
-    # at.run("192.168.116.2")
-    log = AFMySQLQuery(*af_mysql_info)
-    log.waf_log_query()
+    af_mysql_info = ("192.192.89.134", "root", "root", "FW_LOG_fwlog")
+    at = AutoTester("2th_headers_result.json", af_mysql_info)
+    at.run("192.168.116.2")
