@@ -136,9 +136,10 @@ class PcapParser:
     def run(self, result_file_path):
         """
         完成从读取 pcap 包到提取结果写入 json 文件
-        :param result_file_path:
+        :param result_file_path: 目标 json 文件路径
         :return:
         """
+        # TODO: 这里还只能支持 waf 路径
         with open(result_file_path, "w") as f:
             data_dict = dict()
             for each_pcap in os.listdir("waf"):

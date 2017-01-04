@@ -14,7 +14,7 @@ from auto_test_module import AutoTester
 class TestAutoTester(unittest.TestCase):
     def setUp(self):
         self.test_json_file = "json_file_for_test.json"
-        self.auto_tester = AutoTester(self.test_json_file)
+        self.auto_tester = AutoTester(self.test_json_file, None)
 
     def test_get_http_headers_list(self):
         """

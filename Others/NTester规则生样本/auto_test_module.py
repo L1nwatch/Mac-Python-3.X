@@ -15,7 +15,7 @@ import pymysql
 import re
 import datetime
 from pcap_scapy_parse import PcapParser
-from requests.exceptions import ConnectTimeout,ReadTimeout
+from requests.exceptions import ConnectTimeout, ReadTimeout
 
 __author__ = '__L1n__w@tch'
 
@@ -119,7 +119,7 @@ class AutoTester:
 
         try:
             response = requests.get(attack_url, headers=header, timeout=3)
-        except (ConnectTimeout,ReadTimeout):
+        except (ConnectTimeout, ReadTimeout):
             pass
 
     @staticmethod
@@ -307,6 +307,6 @@ class AFMySQLQuery:
 
 
 if __name__ == "__main__":
-    af_mysql_info = ("192.192.89.134", "root", "root", "FW_LOG_fwlog")
-    at = AutoTester("2th_headers_result.json", af_mysql_info)
+    af_mysql_information = ("192.192.89.134", "root", "root", "FW_LOG_fwlog")
+    at = AutoTester("2th_headers_result.json", af_mysql_information)
     at.run("192.168.116.2")
