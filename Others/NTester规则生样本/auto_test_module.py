@@ -15,10 +15,11 @@ import pymysql
 import re
 import datetime
 from pcap_scapy_parse import PcapParser
+from requests.exceptions import ConnectTimeout,ReadTimeout
 
 __author__ = '__L1n__w@tch'
 
-TIMEOUT = 5  # 等待一段时间再查日志
+TIMEOUT = 15  # 等待一段时间再查日志
 
 
 class AutoTester:
@@ -99,9 +100,12 @@ class AutoTester:
         attack_url = "http://{}{}".format(ip, url)
 
         print("{sep}POST 攻击: {0}".format(attack_url, sep=" " * 4))
-        print("{sep}POST 数据: {0}".format(post_data, sep=" " * 8))
+        # print("{sep}POST 数据: {0}".format(post_data, sep=" " * 8))
 
-        response = requests.post(attack_url, headers=header, data=post_data)
+        try:
+            response = requests.post(attack_url, headers=header, data=post_data, timeout=3)
+        except (ConnectTimeout, ReadTimeout):
+            pass
 
     def send_get_request(self, http_header, ip):
         """
@@ -113,9 +117,13 @@ class AutoTester:
         attack_url = "http://{}{}".format(ip, url)
         print("    GET 攻击: {}".format(attack_url))
 
-        response = requests.get(attack_url, headers=header)
+        try:
+            response = requests.get(attack_url, headers=header, timeout=3)
+        except (ConnectTimeout,ReadTimeout):
+            pass
 
-    def get_pid_from_pcap_name(self, pcap_name):
+    @staticmethod
+    def get_sid_from_pcap_name(pcap_name):
         """
         从 pcap_name 中获取 sid
         :param pcap_name: str(), "waf/13010007.pcap"
@@ -124,9 +132,41 @@ class AutoTester:
         sid = re.findall(".*/([0-9_]*).pcap", pcap_name)[0]
         return sid
 
-    def verify_each_pcap(self, ip):
+    def verify_pcap_all_together(self, ip):
         """
-        验证每一个 pcap 包, 如果是有效的则进入样本库
+        一口气把所有的包都扔过去, 然后再验证哪些规则有效
+        :param ip: 目标 IP, 构造请求时使用
+        :return:
+        """
+        # 初始化
+        http_headers_dict = self.get_http_headers_dict()
+        efficient_pcap = dict()
+
+        # 扔包
+        for each_pcap, each_pcap_https in http_headers_dict.items():
+            for each_http in each_pcap_https:
+                self.send_request(each_http, ip)
+
+        print("[!] 丢包完成")
+        print("[!] 等待 {} s".format(TIMEOUT))
+        time.sleep(TIMEOUT)
+
+        # 一个一个验证
+        db_sid_list = self.af_mysql_connect.get_all_sid_in_waf_log()
+        for each_pcap, each_pcap_https in http_headers_dict.items():
+            sid = self.get_sid_from_pcap_name(each_pcap)
+            if sid in db_sid_list:
+                # 是有效请求, 记录相应信息
+                efficient_pcap.setdefault(each_pcap, list())
+                efficient_pcap[each_pcap].extend(each_pcap_https)
+
+        # 记录
+        with open("efficient_pcap.json", "w") as f:
+            json.dump(efficient_pcap, f)
+
+    def verify_pcap_each_by_each(self, ip):
+        """
+        验证每一个 pcap 包, 如果是有效的则进入样本库, 这种方式是一个一个验证的, 效率极低, 但是精确度会高一些(不保证100%, 原因是等待时间不确定)
         :param ip: 目标 IP, 构造请求时使用
         """
         http_headers_dict = self.get_http_headers_dict()
@@ -135,7 +175,7 @@ class AutoTester:
         # 遍历每一个 HTTP 头
         for each_pcap, each_pcap_https in http_headers_dict.items():
             print("测试: {}".format(each_pcap))
-            sid = self.get_pid_from_pcap_name(each_pcap)
+            sid = self.get_sid_from_pcap_name(each_pcap)
             for each_http in each_pcap_https:
                 if self.is_efficient_http_request(each_http, ip, sid):
                     # 是有效请求, 记录相应信息
@@ -147,6 +187,23 @@ class AutoTester:
         with open("efficient_pcap.json", "w") as f:
             json.dump(efficient_pcap, f)
 
+    def send_request(self, http_packet, ip):
+        """
+        发送请求, 自动识别是 POST 还是 GET 请求
+        :param http_packet: http 包
+        :param ip: 测试用的目标 IP
+        """
+        # POST 请求
+        if PcapParser.is_http_post_request_header(http_packet):
+            # 攻击之后判断 sid 存在于数据库中
+            self.send_post_request(http_packet, ip)
+        # GET 请求
+        elif PcapParser.is_http_get_request_header(http_packet):
+            self.send_get_request(http_packet, ip)
+        # 其他请求
+        else:
+            raise RuntimeError("遇到无法解析的 HTTP 头了")
+
     def is_efficient_http_request(self, http_packet, ip, sid):
         """
         判断是否是一个有效的 pcap 包, 即发送该包能产生对应规则 ID
@@ -156,17 +213,7 @@ class AutoTester:
         :return: True or False, True 表示该包有效
         """
         if self.af_mysql_connect.is_sid_in_waf_log(sid) is False:
-            # POST 请求
-            if PcapParser.is_http_post_request_header(http_packet):
-                # 攻击之后判断 sid 存在于数据库中
-                self.send_post_request(http_packet, ip)
-            # GET 请求
-            elif PcapParser.is_http_get_request_header(http_packet):
-                self.send_get_request(http_packet, ip)
-            # 其他请求
-            else:
-                raise RuntimeError("遇到无法解析的 HTTP 头了")
-
+            self.send_request(http_packet, ip)
             time.sleep(TIMEOUT)
             return self.af_mysql_connect.is_sid_in_waf_log(sid)
         return False
@@ -180,7 +227,8 @@ class AutoTester:
         self.af_mysql_connect = AFMySQLQuery(*self.af_mysql_info)
 
         # 解析 HTTP 请求头, 按照 requests 库封装好并发送出去
-        self.verify_each_pcap(target_ip)
+        self.verify_pcap_all_together(target_ip)  # 全部扔过去再一个一个验证
+        # self.verify_pcap_each_by_each(target_ip)  # 一个一个扔包后再验证
 
 
 class AFMySQLQuery:
@@ -201,6 +249,30 @@ class AFMySQLQuery:
         cursor.execute("show tables like '%{}%'".format(table_name))
         data = cursor.fetchall()
         return len(data) > 0
+
+    def get_all_sid_in_waf_log(self):
+        """
+        获取 waf 数据库中所有 sid 号
+        :return: list(), 保存所有 sid
+        """
+        today = self.get_today_date()
+        result_sid_list = list()
+
+        with pymysql.connect(self.af_ip, self.mysql_user, self.mysql_pw, self.db_name) as cursor:
+            if self.is_table_exists(cursor, "X{}".format(today)):
+                # 执行 SQL 查询
+                cursor.execute(
+                    "SELECT sid FROM X{} WHERE record_time > '00:00' AND record_time < '23:59'".format(today)
+                )
+                data = cursor.fetchall()
+
+                # 保存 ID 号
+                for each_log in data:
+                    if len(each_log) > 0:
+                        log_sid = each_log[0]
+                        result_sid_list.append(str(log_sid))
+
+        return result_sid_list
 
     def is_sid_in_waf_log(self, sid):
         """

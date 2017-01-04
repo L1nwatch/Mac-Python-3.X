@@ -44,7 +44,7 @@ class PcapParser:
         """
         判断是否为 http 包, 需要完善内部细节
         :param packet: scapy 格式的包
-        :return:
+        :return: True or False
         """
         if "TCP" in packet and "Raw" in packet["TCP"]:
             return True
