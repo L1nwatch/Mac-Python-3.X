@@ -118,5 +118,25 @@ class TestPcapParser(unittest.TestCase):
         # 非 GET 请求2
         self.assertFalse(self.pcap_parser.is_http_get_request_header("GETGET /favicon.ico HTTP/1.1"))
 
+    def test_is_pcap_file(self):
+        """
+        测试 pcap 包是否判断准确
+        """
+        # 只出现一次 pcap, 且为后缀
+        self.assertTrue(self.pcap_parser.is_pcap_file("waf/102323.pcap"))
+
+        # 一次 pcap, 非后缀
+        self.assertFalse(self.pcap_parser.is_pcap_file("pcap.pacps"))
+
+        # 多次 pcap, 后缀
+        self.assertTrue(self.pcap_parser.is_pcap_file("pcAp.pcaps.pcap"))
+
+        # 多次 pcap, 非后缀
+        self.assertFalse(self.pcap_parser.is_pcap_file("pcAp.pscpas.pcap.sss"))
+
+        # 大小写
+        self.assertTrue(self.pcap_parser.is_pcap_file("tet..pCap"))
+
+
 if __name__ == "__main__":
     pass

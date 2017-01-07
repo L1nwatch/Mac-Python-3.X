@@ -133,23 +133,44 @@ class PcapParser:
 
         return headers
 
-    def run(self, result_file_path):
+    @staticmethod
+    def is_pcap_file(file_path):
+        """
+        判断是不是 pcap 包, 目前只是通过简单的判断后缀名来确定
+        :param file_path: pcap 包路径
+        :return: True or False
+        """
+        return file_path.lower().endswith(".pcap")
+
+    def get_all_pcaps(self, pcaps_path):
+        """
+        递归遍历指定目录下所有文件, 读取 pcap 包路径出来
+        :param pcaps_path: pcaps 包根目录
+        :return: iterator, 包括了每一个 pcap 包路径
+        """
+        for root, dirs, files in os.walk(pcaps_path):
+            for each_file in files:
+                file_path = root + os.sep + each_file
+                if self.is_pcap_file(file_path):
+                    yield file_path
+
+    def run(self, result_file_path, pcaps_path):
         """
         完成从读取 pcap 包到提取结果写入 json 文件
         :param result_file_path: 目标 json 文件路径
-        :return:
+        :param pcaps_path: pcap 包的根目录
         """
-        # TODO: 这里还只能支持 waf 路径
         with open(result_file_path, "w") as f:
             data_dict = dict()
-            for each_pcap in os.listdir("waf"):
-                file_path = "waf/{}".format(each_pcap)
-                urls = self.get_http_headers(file_path)
-                data_dict[file_path] = urls
 
-            json.dump(data_dict, f)
+            all_pcap_file = self.get_all_pcaps(pcaps_path)
+            for each_pcap in all_pcap_file:
+                urls = self.get_http_headers(each_pcap)
+                data_dict[each_pcap] = urls
+
+        json.dump(data_dict, f)
 
 
 if __name__ == "__main__":
     parser = PcapParser()
-    parser.run("2th_headers_result.json")
+    parser.run("2th_headers_result.json", ".")

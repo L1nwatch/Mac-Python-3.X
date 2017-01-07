@@ -246,7 +246,8 @@ class AFMySQLQuery:
         :param table_name: 要判断的表
         :return: True or False
         """
-        cursor.execute("show tables like '%{}%'".format(table_name))
+        # TODO: 这里取消了 % 匹配符, 应该可以吧?
+        cursor.execute("show tables like '{}'".format(table_name))
         data = cursor.fetchall()
         return len(data) > 0
 
