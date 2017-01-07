@@ -62,17 +62,23 @@ class TestPcapParser(unittest.TestCase):
         """
         测试是否能过正确过滤包含指定资源的头部
         """
-        filter_list = ["favicon.ico"]
-        test_header = "b'GET /favicon.ico HTTP/1.1\r\nHost: www.sangfor.com\r\nConnection: keep-alive\r\nUser-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36\r\nAccept: */*\r\nReferer: http://www.sangfor.com/wp-admin/admin.php?page=booking%2Fwpdev-booking.phpwpdev-booking&wh_approved&wh_is_new=1&wh_booking_date=3&view_mode=vm_listing\r\nAccept-Encoding: gzip, deflate, sdch\r\nAccept-Language: zh-CN,zh;q=0.8\r\nCookie: Hm_lvt_a3edfd653736089ca7c875a3ea4ebe59=1476155748; _ga=GA1.2.19483797.1471240472\r\n\r\n'"
+        filter_list = ["ico", "jpg", "gif", "js", "css"]
+        test_headers = [
+            "GET /favicon.ico HTTP/1.1\r\n",
+            "GET /new/bg.jpg HTTP/1.1\r\n",
+            "GET /new/images/index_r3_c4.gif HTTP/1.1\r\n",
+            "get /new/js/search.js HTTP/1.1\r\n",
+            "GET /new/sty.css HTTP/1.1\r\n"]
 
         # 应该过滤为空
-        self.assertEqual(self.pcap_parser.filter_header(test_header, filter_list), None)
+        for each_header in test_headers:
+            self.assertEqual(self.pcap_parser.filter_header(each_header, filter_list), None)
 
     def test_has_point_info(self):
         """
         测试是否能够判断准确, 这里只判断 /favicon.ico 这一个资源, 然后判断 POST 和 GET 请求
         """
-        filter_list = ["favicon.ico"]
+        filter_list = ["ico"]
 
         # GET 包含这个资源
         self.assertTrue(self.pcap_parser.has_point_info("GET /favicon.ico HTTP/1.1", filter_list))
@@ -109,14 +115,18 @@ class TestPcapParser(unittest.TestCase):
         # GET 请求
         self.assertTrue(self.pcap_parser.is_http_get_request_header("GET /favicon.ico HTTP/1.1"))
 
-        # GET 请求2
+        # GET 请求 2
         self.assertTrue(self.pcap_parser.is_http_get_request_header("gET /favicon.ico HTTP/1.1"))
 
         # 非 GET 请求
         self.assertFalse(self.pcap_parser.is_http_get_request_header("GETS /favicon.ico HTTP/1.1"))
 
-        # 非 GET 请求2
+        # 非 GET 请求 2
         self.assertFalse(self.pcap_parser.is_http_get_request_header("GETGET /favicon.ico HTTP/1.1"))
+
+        # GET 请求 3
+        test_data = "GET /detail.php?id=1%20and%20'a'&'a' HTTP/1.1\r\nHost: www.shenxinfu.com\r\nConnection: keep-alive\r\nCache-Control: max-age=0\r\nUser-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/535.7 (KHTML, like Gecko) Chrome/16.0.912.63 Safari/535.7\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nAccept-Encoding: gzip,deflate,sdch\r\nAccept-Language: zh-CN,zh;q=0.8\r\nAccept-Charset: GBK,utf-8;q=0.7,*;q=0.3"
+        self.assertTrue(self.pcap_parser.is_http_get_request_header(test_data))
 
     def test_is_pcap_file(self):
         """

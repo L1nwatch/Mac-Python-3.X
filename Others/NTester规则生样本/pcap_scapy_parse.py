@@ -26,7 +26,7 @@ class PcapParser:
         :param data: b'GET /wordpress/wp-content/plugins/wpSS/ss_handler.php?display=0&edit=&ss_id=1%27%22 HTTP/1.1\r\nAccept: text/html, application/xhtml+xml, */*\r\nAccept-Language: zh-CN\r\nUser-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)\r\nAccept-Encoding: gzip, deflate\r\nHost: 192.168.41.68\r\nConnection: Keep-Alive\r\nCookie: acopendivids=swingset,phpbb2,redmine; acgroupswithpersist=nada; JSESSIONID=024D3D2EDA89A7BB595684F55788684A\r\n\r\n'
         :return: 'GET /wordpress/wp-content/plugins/wpSS/ss_handler.php?display=0&edit=&ss_id=1%27%22 HTTP/1.1'
         """
-        result = re.findall("[GETPOST]{3,4} (.*) HTTP/1\.[01]", str(data))
+        result = re.findall("[GETPOST]{3,4} (.*) HTTP/1\.[01]", str(data), flags=re.IGNORECASE)
         if len(result) == 1:
             return result[0]
 
@@ -91,9 +91,10 @@ class PcapParser:
         :param filter_list: list(), 指定资源列表
         :return: True or False, 表示包含时返回 True
         """
+        request_file = str(re.findall("[GETPOST]{3,4} (.*) HTTP/1\.[10]", header, flags=re.IGNORECASE)[0])
+
         for each_filter in filter_list:
-            result = re.findall("[GETPOST]{{3,4}}.*{}.*HTTP/1\.1".format(each_filter), header)
-            if len(result) > 0:
+            if request_file.endswith(each_filter):
                 return True
         return False
 
@@ -101,12 +102,12 @@ class PcapParser:
         """
         过滤掉没必要的头部, 比如说 GET /favicon.ico HTTP/1.1\r\n 这一类的
         :param http_header: 待过滤的头部列表
-        :param filter_list: 要过滤的类型, 比如 ["favicon.ico"]
+        :param filter_list: 要过滤的类型, 比如 ["ico"]
         :return: 过滤后的头部, 可能为 None, 也可能保持原状
         """
         result_header = None
         # 设置过滤的默认列表
-        filter_list = ["favicon.ico"] if not filter_list else filter_list
+        filter_list = ["ico", "jpg", "gif", "js", "css"] if not filter_list else filter_list
 
         if self.is_http_get_request_header(http_header) or self.is_http_post_request_header(http_header):
             if not self.has_point_info(http_header, filter_list):
@@ -125,13 +126,13 @@ class PcapParser:
 
         for each_packet in parse_data:
             if self.is_http_packet(each_packet):
-                header = str(self.get_raw_info(each_packet)).strip("b'")  # 去掉表示 byte 的符号
+                header = str(self.get_raw_info(each_packet)).strip("b'\"")  # 去掉表示 byte 的符号
                 header = header.replace(r"\r\n", "\r\n")  # 去掉多余转义符号
                 # 过滤一下
                 header = self.filter_header(header)
                 headers.append(header) if header else None  # 如果过滤完不为空就添加
 
-        return headers
+        return list(set(headers))  # 去掉重复的请求头
 
     @staticmethod
     def is_pcap_file(file_path):
@@ -168,7 +169,7 @@ class PcapParser:
                 urls = self.get_http_headers(each_pcap)
                 data_dict[each_pcap] = urls
 
-        json.dump(data_dict, f)
+            json.dump(data_dict, f)
 
 
 if __name__ == "__main__":
