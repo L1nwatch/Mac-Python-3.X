@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # version: Python3.X
 """
+2017.01.09 优化好了 pcap 包解析, 现在可以解析不止 waf 路径了, 但是还存在 bug
 2017.01.02 加入 json 模块, 用于封装中间数据
 2016.12.27 导师说不要获取 URL 了, 而是直接拿下整个 http 头
 2016.12.26 尝试使用 scapy 库解析 pcap 包
@@ -9,6 +10,7 @@
 import scapy.all
 import re
 import os
+from scapy.error import Scapy_Exception
 
 try:
     import simplejson as json
@@ -123,7 +125,7 @@ class PcapParser:
         """
         try:
             parse_data = scapy.all.utils.rdpcap(pcap_file_path)
-        except scapy.error.Scapy_Exception:
+        except Scapy_Exception:
             print("[!] 解析: {} 失败".format(pcap_file_path))
             return False
         headers = list()
