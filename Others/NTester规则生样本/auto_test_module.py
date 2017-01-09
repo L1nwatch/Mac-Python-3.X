@@ -32,12 +32,14 @@ class AutoTester:
         self.af_mysql_info = af_mysql_info
         self.af_mysql_connect = None  # 用于 mysql 连接
 
-    def get_http_headers_dict(self):
+    @staticmethod
+    def get_http_headers_dict(json_file_path):
         """
         从 json 文件中读取每一个 http 头放到字典中
+        :param json_file_path: json 文件路径
         :return: dict(), 每一个元素是一个 http 头及其 pcap 包
         """
-        with open(self.test_json_file, "r") as f:
+        with open(json_file_path, "r") as f:
             data_dict = json.load(f)
 
         return data_dict
@@ -139,7 +141,7 @@ class AutoTester:
         :return:
         """
         # 初始化
-        http_headers_dict = self.get_http_headers_dict()
+        http_headers_dict = self.get_http_headers_dict(self.test_json_file)
         efficient_pcap = dict()
 
         # 扔包
@@ -169,7 +171,7 @@ class AutoTester:
         验证每一个 pcap 包, 如果是有效的则进入样本库, 这种方式是一个一个验证的, 效率极低, 但是精确度会高一些(不保证100%, 原因是等待时间不确定)
         :param ip: 目标 IP, 构造请求时使用
         """
-        http_headers_dict = self.get_http_headers_dict()
+        http_headers_dict = self.get_http_headers_dict(self.test_json_file)
         efficient_pcap = dict()
 
         # 遍历每一个 HTTP 头

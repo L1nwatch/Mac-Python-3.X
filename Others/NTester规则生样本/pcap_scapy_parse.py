@@ -121,7 +121,11 @@ class PcapParser:
         :param pcap_file_path: pcap 包路径
         :return: list(), 保存所有 pcap 包及其 header 的映射结果
         """
-        parse_data = scapy.all.utils.rdpcap(pcap_file_path)
+        try:
+            parse_data = scapy.all.utils.rdpcap(pcap_file_path)
+        except scapy.error.Scapy_Exception:
+            print("[!] 解析: {} 失败".format(pcap_file_path))
+            return False
         headers = list()
 
         for each_packet in parse_data:
@@ -174,4 +178,4 @@ class PcapParser:
 
 if __name__ == "__main__":
     parser = PcapParser()
-    parser.run("2th_headers_result.json", ".")
+    parser.run("2th_headers_result.json", "./waf")
