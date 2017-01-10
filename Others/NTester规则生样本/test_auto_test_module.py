@@ -14,7 +14,7 @@ from auto_test_module import AutoTester
 class TestAutoTester(unittest.TestCase):
     def setUp(self):
         self.test_json_file = "json_file_for_test.json"
-        self.auto_tester = AutoTester(self.test_json_file, None)
+        self.auto_tester = AutoTester(self.test_json_file, None, None)
 
     def test_get_http_headers_list(self):
         """
@@ -75,6 +75,18 @@ class TestAutoTester(unittest.TestCase):
         right_answer = ""
         my_answer = self.auto_tester.get_post_data_from_http_header(test_data)
         self.assertEqual(right_answer, my_answer)
+
+    def test_get_sid_from_pcap_name(self):
+        """
+        测试获取 sid 号是否正确
+        """
+        test_data = "full_test/IPSv2.43_packet/web_activex/12000074_2.pcap"
+        right_sid = "12000074"
+        self.assertEqual(self.auto_tester.get_sid_from_pcap_name(test_data), right_sid)
+
+        test_data = "1234.pcap"
+        right_sid = "1234"
+        self.assertEqual(self.auto_tester.get_sid_from_pcap_name(test_data), right_sid)
 
 
 if __name__ == "__main__":

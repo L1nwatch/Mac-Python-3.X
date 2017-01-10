@@ -156,7 +156,9 @@ class AutoTester:
         :param pcap_name: str(), "waf/13010007.pcap"
         :return: str(), "13010007.pcap"
         """
-        sid = re.findall(".*/([0-9_]*).pcap", pcap_name)[0]
+        sid = re.findall(".*?/?([0-9_]*).pcap", pcap_name)[0]
+        if "_" in sid:
+            sid = sid.split("_")[0]
         return sid
 
     def verify_pcap_all_together(self, ip):
@@ -179,13 +181,18 @@ class AutoTester:
         time.sleep(TIMEOUT)
 
         # 一个一个验证
+        print("[*] 开始进行验证")
         db_sid_list = self.af_mysql_connect.get_all_sid_in_log_tables(["WAF", "IPS"])
         for each_pcap, each_pcap_https in http_headers_dict.items():
             sid = self.get_sid_from_pcap_name(each_pcap)
             if sid in db_sid_list:
+                print("[*] 验证 sid-{} 有对应的有效 pcap 包".format(sid))
+
                 # 是有效请求, 记录相应信息
                 efficient_pcap.setdefault(each_pcap, list())
                 efficient_pcap[each_pcap].extend(each_pcap_https)
+            else:
+                print("[!] 该 sid-{} 在数据库中查找不到".format(sid))
 
         # 记录
         with open("efficient_pcap.json", "w") as f:
