@@ -71,6 +71,11 @@ class TestAutoTester(unittest.TestCase):
         my_answer = self.auto_tester.get_post_data_from_http_header(test_data)
         self.assertEqual(right_answer, my_answer)
 
+        test_data = "POST /imc/webdm/mibbrowser/mibFileUpload HTTP/1.1\r\nHost: 192.200.42.215\r\nUser-Agent: Cricket-A310/1.0 UP.Browser/6.3.0.7 (GUI) MMP/2.0\r\nAccept: */*\r\nContent-Type: multipart/form-data; boundary=---------------------SXhpYSBGaWxlIFVwbG9hZA==\r\nCookie: 3C68AAAD9CD5836BEBD35AFF8DBDCEEA\r\nConnection: keep-alive\r\nContent-Length: 481\r\n"
+        right_answer = ""
+        my_answer = self.auto_tester.get_post_data_from_http_header(test_data)
+        self.assertEqual(right_answer, my_answer)
+
 
 if __name__ == "__main__":
     pass

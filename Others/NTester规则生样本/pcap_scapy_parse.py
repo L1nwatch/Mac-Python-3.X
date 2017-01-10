@@ -37,6 +37,9 @@ class PcapParser:
         result = re.findall("[GETPOST]{3,4} (.*) HTTP/1\.[01]", str(data), flags=re.IGNORECASE)
         if len(result) == 1:
             return result[0]
+        else:
+            print("[!] 提取 URL 失败: {}".format(data))
+            return ""
 
     @staticmethod
     def get_raw_info(packet):
@@ -207,6 +210,8 @@ class PcapParser:
 
             json.dump(data_dict, f)
 
+        print("[*] 提取完毕, 结果请见: {}".format(result_file_path))
+
     @staticmethod
     def print_message(message):
         """
@@ -261,4 +266,5 @@ class PcapParser:
 
 if __name__ == "__main__":
     parser = PcapParser()
-    parser.run("2th_headers_result.json", "full_test")
+    parser.run("2th_headers_result.json",
+               "full_test/IPSv2.43_packet")
