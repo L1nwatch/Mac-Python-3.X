@@ -10,6 +10,7 @@
 2016.12.26 尝试使用 scapy 库解析 pcap 包
 """
 # TODO: 不支持没有 HTTP 请求的 pcap 包, 比如 SMTP 协议, 纯 TCP 协议, 可以考虑写个方法把这些包复制出来, 方便以后研究
+# TODO: 添加 verbose 选项, 现在打印的消息有点多
 
 import gzip
 import tarfile
@@ -267,4 +268,4 @@ class PcapParser:
 if __name__ == "__main__":
     parser = PcapParser()
     parser.run("2th_headers_result.json",
-               "full_test/IPSv2.43_packet")
+               "full_test")

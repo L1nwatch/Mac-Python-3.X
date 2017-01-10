@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # version: Python3.X
 """
+2017.01.10 支持指定数据库名/表名了; 支持 catagory_id 及 module_id 字段的获取
 2017.01.09 完善整个生成样本库的流程, 包括解析 json 到生成数据库所需的全部字段, 生成数据库以及写入数据库
 2017.01.03 提供了一个可以生成十六进制流的方法了
 2017.01.03 这个模块负责与 NTester 交互生成所需的 lib 文件的
@@ -18,10 +19,16 @@ import re
 import sqlite3
 from Crypto.Cipher import DES
 from itertools import zip_longest
-from auto_test_module import AutoTester
+from auto_test_module import AutoTester, AFMySQLQuery
 from collections import namedtuple
 
 __author__ = '__L1n__w@tch'
+
+
+# TODO: 目前还不支持 APT 数据库字段的填充
+# TODO: 多个 HTTP 请求的现在先不处理
+# TODO: 还不支持 cve_id 的提取
+# TODO: 添加 verbose 选项, 现在打印的消息有点多, 另外需要加入 logger 负责打印信息的
 
 
 class LibCreator:
@@ -34,6 +41,10 @@ class LibCreator:
         self.key = key
         self.iv = iv
         self.test_json_file = result_json_file_path
+        self.mysql = None  # 连接 MySQL 的实体对象
+        self.sample_http_obj = namedtuple("sample_http_obj", ["Catagory_id", "Request", "Response",
+                                                              "Attack", "Isvalid", "From", "Module",
+                                                              "CveID", "Sid", "Port", "Protocol", "Action"])
 
     @staticmethod
     def padding(data, size=8):
@@ -121,33 +132,60 @@ class LibCreator:
 
         for each_pcap, each_http_request in http_pcap_dict.items():
             if len(each_http_request) > 1:  # 不止一个 HTTP 请求, 暂时不处理
-                print("[!] 忽略 {}".format(each_pcap))
+                print("[!] 忽略多于一个 HTTP 请求的包: {}".format(each_pcap))
             else:
                 result_dict[each_pcap] = self.create_hex_stream(each_http_request[0])
 
         return result_dict
 
-    def get_module_id(self, module_name):
+    @staticmethod
+    def get_module_id(module_name):
         """
         根据 module name 获取 module id
         :param module_name:  模块名字, 比如 WAF/IPS 等
-        :return:
         """
-        pass
+        module_dict = {"WAF": 3, "IPS": 2, "PVS": 4, "APT": 1}
+        return module_dict[str(module_name).upper()]
+
+    def get_catagory_id(self, sid, rule_type):
+        """
+        根据 sid 获取对应的 attack_type(即 catagory_id)
+        :param sid: str(), sid 规则号
+        :param rule_type: str(), 攻击类型, 决定了从哪个表格获取, 比如 WAF 是 X20170110, IPS 是 I20170110 等
+        :return: str(), catagory_id 号, 比如 10
+        """
+        cursor = self.mysql.connect()
+
+        if rule_type.upper() == "WAF":
+            catagory_id = self.mysql.get_attack_type_from_waf_log(cursor, sid)
+        elif rule_type.upper() == "IPS":
+            catagory_id = self.mysql.get_attack_type_from_ips_log(cursor, sid)
+        else:
+            raise RuntimeError("还不支持该类型 {}".format(rule_type))
+
+        return catagory_id
 
     def get_all_fields(self, pcap_path, http_request):
         """
         从 pcap_path 以及 http_request 提取出数据库字段对应的值
-        :param pcap_path: pcap_path, 形式如: "./waf/13020058.pcap", 可以提取出类型/规则
+        :param pcap_path: pcap_path, 形式如: "./IPSv2.43_packet/web/1000.pcap", 可以提取出类型/规则
         :param http_request: "33 44 55 66", 不太好提取了, 只能作为规则内容字段了
         :return: (catagory_id, request, response, attack, isvalid, from, module, cveid, sid, port, protocol, action), 即数据库所需的每个字段
         """
-        result = re.findall("[^/]*/([wafips]{3})/([0-9_]*).pcap", pcap_path, flags=re.IGNORECASE)[0]
+        result = re.findall(".*/([wafips]{3})v[0-9.]*_packet/([^/]*)/([0-9_]*).pcap", pcap_path, flags=re.IGNORECASE)[0]
+        rule_type = result[0]
+        sid = AutoTester.get_sid_from_pcap_name(pcap_path)
         encrypt_http_request = self.des_encrypt(http_request.encode("utf8"))
 
+        # module 字段的值: WAF-3, IPS-2, PVS-4, APT 分表 默认是1
+        module_id = self.get_module_id(rule_type)
+
+        # 获取 catagory_id, 通过读取数据库对应记录的 attack_type 实现
+        catagory_id = self.get_catagory_id(sid, rule_type)
+
         # isvalid 字段/action 字段默认为 1, Protocol 默认为 0
-        return "catagory_id", encrypt_http_request, "response", "attack", "1", "from", "module", "cveid", result[
-            1], "80", "0", "1"
+        return self.sample_http_obj(catagory_id, encrypt_http_request, "response", "attack",
+                                    "1", "from", module_id, "cveid", sid, "80", "0", "1")
 
     def get_all_data_db_need(self, result_dict):
         """
@@ -168,31 +206,48 @@ class LibCreator:
         :return: list(), 每个元素都是命名元组, 包括数据库所需的各个字段
         """
         result_list = list()
-        sample_http_obj = namedtuple("sample_http_obj", ["Catagory_id", "Request", "Response",
-                                                         "Attack", "Isvalid", "From", "Module",
-                                                         "CveID", "Sid", "Port", "Protocol", "Action"])
 
         for pcap_path, http_request in result_dict.items():
             all_fields = self.get_all_fields(pcap_path, http_request)
-            result_list.append(sample_http_obj(*all_fields))
+            result_list.append(self.sample_http_obj(*all_fields))
 
         return result_list
 
-    def create_sqlite_lib_file(self):
+    def run(self, db_path, table_name, af_mysql_info):
+        """
+        创建 lib 文件的整体流程
+        :param db_path: str(), 目标 db 的路径
+        :param af_mysql_info: 连接 af MySQL 所需的一切信息
+        :param table_name: str(), 目标表名
+        """
+        # 创建 MySQL 连接, 查询 category_id 时要用到
+        self.mysql = AFMySQLQuery(*af_mysql_info)
+
+        # 创建 lib 文件
+        self.create_sqlite_lib_file(db_path, table_name)
+
+        # 关闭 MySQL 实体
+        self.mysql.close_connect()
+
+    def create_sqlite_lib_file(self, db_path, table_name):
         """
         创建 lib 文件
+        :param db_path: str(), 目标 db 的路径
+        :param table_name: str(), 目标表名
         """
         # 读取 json 数据, 解析为字典形式, 字典的键为规则 ID, 值为 HTTP 请求的十六进制流
         result_dict = self.format_json_file_to_hex_stream()
 
         # 提取每一个字段, 目前实现的字段:
+        print("[*] 开始获取各个字段值以便写入数据库")
         all_data = self.get_all_data_db_need(result_dict)
 
-        # 写入数据库
-        with sqlite3.connect("test.lib") as cursor:
-            self.prepare_to_write_data_to_db(cursor, "temp")
+        print("[*] 开始创建数据库并写入数据")
+        with sqlite3.connect(db_path) as cursor:
+            self.prepare_to_write_data_to_db(cursor, table_name)
             for each_row in all_data:
-                self.insert_rule_to_db(cursor, "temp", each_row)
+                self.insert_rule_to_db(cursor, table_name, each_row)
+        print("[*] 数据库创建及写入完毕")
 
     @staticmethod
     def prepare_to_write_data_to_db(cursor, table_name):
@@ -239,11 +294,13 @@ class LibCreator:
         # 查看现有数据
         result = cursor.execute("SELECT * FROM {table_name}".format(table_name=table_name))
         result = result.fetchall()
-        assert len(result) > 0  # 检查是否插入成功
+        # 检查是否插入成功
+        assert (len(result) > 0)
 
 
 if __name__ == "__main__":
+    af_mysql_information = ("192.192.90.134", "root", "root", "FW_LOG_fwlog")
     des_key = b"sangfor!"
     des_cbc_iv = b"sangfor*"
     lc = LibCreator(des_key, des_cbc_iv, "efficient_pcap.json")
-    lc.create_sqlite_lib_file()
+    lc.run("test.lib", "aaa", af_mysql_information)

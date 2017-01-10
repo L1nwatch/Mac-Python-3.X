@@ -28,6 +28,8 @@ TIMEOUT = 15  # 等待一段时间再查日志
 
 # TODO: 提供 sockets 丢包的方法
 # TODO: 至少两处需要重构
+# TODO: 添加 verbose 选项, 现在打印的消息有点多
+# TODO: MySQL 连不上, 因为监听只在 127.0.0.1 上, 需要更改
 
 class AutoTester:
     def __init__(self, result_json_file_path, af_back_info, af_mysql_info):
@@ -280,7 +282,7 @@ class AutoTester:
         :param target_ip: 测试服务器的 IP 地址
         """
         # AF 后台准备工作
-        self.af_back_prepare(local_ip)
+        # self.af_back_prepare(local_ip)
 
         # 初始化 MySQL 连接实例
         self.af_mysql_connect = AFMySQLQuery(*self.af_mysql_info)
@@ -297,6 +299,7 @@ class AFMySQLQuery:
         self.mysql_user = mysql_user
         self.mysql_pw = mysql_pw
         self.db_name = db_name
+        self.client = None  # 连接 mysql 的实体对象
 
     @staticmethod
     def is_table_exists(cursor, table_name):
@@ -392,6 +395,47 @@ class AFMySQLQuery:
 
         return result_sid_list
 
+    def get_attack_type_from_waf_log(self, cursor, sid):
+        """
+        通过 sid 号获取 waf 日志中对应记录的 attack_type
+        :param cursor: 游标对象
+        :param sid: 规则 ID 号
+        :return: str(), catagory_id 号
+        """
+        # TODO: 需要重构, 跟 ips 的区别仅仅是表名以及字段名
+        today = self.get_today_date()
+
+        sql = "SELECT attack_type FROM X{} WHERE sid = {} AND record_time > '00:00' AND record_time < '23:59'" \
+            .format(today, sid)
+
+        cursor.execute(sql)
+
+        data = cursor.fetchone()
+
+        return data[0]
+
+    def get_attack_type_from_ips_log(self, cursor, sid):
+        """
+        通过 sid 号获取 ips 日志中对应记录的 attack_type
+        :param cursor: 游标对象
+        :param sid: 规则 ID 号
+        :return: str(), catagory_id 号
+        """
+        # TODO: 需要重构, 跟 ips 的区别仅仅是表名以及字段名
+        today = self.get_today_date()
+
+        sql = "SELECT attack_type FROM I{} WHERE hole_id = {} AND record_time > '00:00' AND record_time < '23:59'" \
+            .format(today, sid)
+
+        cursor.execute(sql)
+
+        data = cursor.fetchone()
+
+        # 查询不到的话, 检查是不是数据库日志被清空了?
+        assert len(data) > 0
+
+        return data[0]
+
     def is_sid_in_waf_log(self, sid):
         """
         判断 sid 号是否存在于 waf 日志中
@@ -422,6 +466,22 @@ class AFMySQLQuery:
         """
         today = datetime.datetime.now()
         return "{}{}{}".format(str(today.year).zfill(4), str(today.month).zfill(2), str(today.day).zfill(2))
+
+    def connect(self):
+        """
+        建立连接, 需要后续用户自行 close 掉
+        """
+        if self.client is None:
+            self.client = pymysql.connect(self.af_ip, self.mysql_user, self.mysql_pw, self.db_name)
+
+        return self.client.cursor()
+
+    def close_connect(self):
+        """
+        关闭 db 连接操作
+        """
+        if self.client:
+            self.client.close()
 
 
 class AFSSHConnector:
@@ -475,7 +535,7 @@ class AFSSHConnector:
 
 
 if __name__ == "__main__":
-    af_mysql_information = ("192.192.89.134", "root", "root", "FW_LOG_fwlog")
-    af_back_information = ("192.192.89.134", 22345, "admin", "1")
+    af_mysql_information = ("192.192.90.134", "root", "root", "FW_LOG_fwlog")
+    af_back_information = ("192.192.90.134", 22345, "admin", "1")
     at = AutoTester("2th_headers_result.json", af_back_information, af_mysql_information)
-    at.run(local_ip="192.192.89.135", target_ip="192.168.116.2")
+    at.run(local_ip="192.192.90.135", target_ip="192.168.116.2")
