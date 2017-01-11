@@ -267,5 +267,4 @@ class PcapParser:
 
 if __name__ == "__main__":
     parser = PcapParser()
-    parser.run("2th_headers_result.json",
-               "full_test")
+    parser.run("2th_headers_result.json", "full_test")

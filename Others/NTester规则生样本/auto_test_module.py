@@ -19,7 +19,7 @@ import pymysql
 import re
 import datetime
 from pcap_scapy_parse import PcapParser
-from requests.exceptions import ConnectTimeout, ReadTimeout
+from requests.exceptions import ConnectTimeout, ReadTimeout, ConnectionError
 
 __author__ = '__L1n__w@tch'
 
@@ -126,7 +126,7 @@ class AutoTester:
 
         try:
             response = requests.post(attack_url, headers=header, data=post_data, timeout=3)
-        except (ConnectTimeout, ReadTimeout, ValueError):
+        except (ConnectTimeout, ReadTimeout, ValueError, ConnectionError):
             print("[!] 发送 POST 请求失败: {}".format(attack_url))
 
     def send_get_request(self, http_header, ip):
@@ -148,7 +148,7 @@ class AutoTester:
 
         try:
             response = requests.get(attack_url, headers=header, timeout=3)
-        except (ConnectTimeout, ReadTimeout, ValueError):
+        except (ConnectTimeout, ReadTimeout, ValueError, ConnectionError):
             print("[!] 发送 GET 请求失败: {}".format(attack_url))
 
     @staticmethod
@@ -282,7 +282,7 @@ class AutoTester:
         :param target_ip: 测试服务器的 IP 地址
         """
         # AF 后台准备工作
-        # self.af_back_prepare(local_ip)
+        self.af_back_prepare(local_ip)
 
         # 初始化 MySQL 连接实例
         self.af_mysql_connect = AFMySQLQuery(*self.af_mysql_info)
