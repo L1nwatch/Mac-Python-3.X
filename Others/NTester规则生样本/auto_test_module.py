@@ -18,6 +18,9 @@ import time
 import pymysql
 import re
 import datetime
+import scapy.sendrecv
+from scapy.layers.inet import IP, UDP
+from scapy.layers.dns import DNS, DNSQR
 from pcap_scapy_parse import PcapParser
 from requests.exceptions import ConnectTimeout, ReadTimeout, ConnectionError
 
@@ -30,6 +33,8 @@ TIMEOUT = 15  # 等待一段时间再查日志
 # TODO: 至少两处需要重构
 # TODO: 添加 verbose 选项, 现在打印的消息有点多
 # TODO: MySQL 连不上, 因为监听只在 127.0.0.1 上, 需要更改
+# TODO: 不支持输出文件的文件名指定
+# TODO: 不支持 UTM 库的测试
 
 class AutoTester:
     def __init__(self, result_json_file_path, af_back_info, af_mysql_info):
@@ -293,6 +298,15 @@ class AutoTester:
         self.verify_pcap_all_together(target_ip)  # 全部扔过去再一个一个验证
         # self.verify_pcap_each_by_each(target_ip)  # 一个一个扔包后再验证
 
+    @staticmethod
+    def send_dns_query_packet(dns_server_ip, query_domain):
+        """
+        发送 DNS 咨询数据包, 不检查结果
+        :param dns_server_ip: DNS 服务器的 IP 地址
+        :param query_domain: 要询问的域名
+        """
+        scapy.sendrecv.send(IP(dst=dns_server_ip) / UDP() / DNS(rd=1, qd=DNSQR(qname=query_domain)))
+
 
 class AFMySQLQuery:
     def __init__(self, af_ip, mysql_user, mysql_pw, db_name):
@@ -539,4 +553,5 @@ if __name__ == "__main__":
     af_mysql_information = ("192.192.90.134", "root", "root", "FW_LOG_fwlog")
     af_back_information = ("192.192.90.134", 22345, "admin", "1")
     at = AutoTester("2th_headers_result.json", af_back_information, af_mysql_information)
-    at.run(local_ip="192.192.90.135", target_ip="192.168.116.2")
+    # at.run(local_ip="192.192.90.135", target_ip="192.168.116.2")
+    at.send_dns_query_packet("112.113.114.115", "www.baidu.com")
