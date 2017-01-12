@@ -87,7 +87,7 @@ class TestCreateLib(unittest.TestCase):
         test_path = "./IPSv2.43_packet/web/1000.pcap"
         test_http_request = "33 44 55"
         right_encrypt_data = self.encrypt(test_http_request, self.key)
-        my_answer = self.lc.get_all_fields(test_path, test_http_request)
+        my_answer = self.lc.get_all_waf_ips_fields(test_path, test_http_request)
         self.assertEqual(my_answer.Request, right_encrypt_data)
         self.assertEqual(my_answer.Sid, "1000")
 

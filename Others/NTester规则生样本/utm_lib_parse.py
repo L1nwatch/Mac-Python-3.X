@@ -15,6 +15,10 @@ import os
 __author__ = '__L1n__w@tch'
 
 
+# TODO: 三个 entry 文件拿下来
+# TODO: 解密三个 entry 文件
+# TODO: 解析解密后的文件
+
 class UTMParser:
     def __init__(self, svn_information):
         self.svn_url, self.svn_user, self.svn_passwd, self.checkout_path = svn_information
@@ -78,4 +82,4 @@ if __name__ == "__main__":
     svn_info = ("https://200.200.0.8/svn/test/测试部文件服务器/测试工程/AF版本/AF规则/UTM规则验证/",
                 "linfeng", "lf123456", "./utm_urls_lib")
     utm_parser = UTMParser(svn_info)
-    utm_parser.run("utm_url_result.txt")
+    utm_parser.run("utm_url_result.json")

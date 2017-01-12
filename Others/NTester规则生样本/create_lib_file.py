@@ -32,19 +32,24 @@ __author__ = '__L1n__w@tch'
 
 
 class LibCreator:
-    def __init__(self, key, iv, result_json_file_path):
+    def __init__(self, key, iv, waf_ips_json_path, utm_json_path):
         """
-        :param result_json_file_path: 解析 pcap 包得到的 json 格式文件
+        :param waf_ips_json_path: 解析 pcap 包得到的 json 格式文件
+        :param utm_json_path: utm 样本 json 格式文件
         :param key: des 密钥
         :param iv: des-CBC 模式使用的 iv
         """
         self.key = key
         self.iv = iv
-        self.test_json_file = result_json_file_path
+        self.waf_ips_json_file = waf_ips_json_path
+        self.utm_json_file = utm_json_path
         self.mysql = None  # 连接 MySQL 的实体对象
         self.sample_http_obj = namedtuple("sample_http_obj", ["Catagory_id", "Request", "Response",
                                                               "Attack", "Isvalid", "From", "Module",
                                                               "CveID", "Sid", "Port", "Protocol", "Action"])
+
+        self.sample_apt = namedtuple("sample_apt", ["Attack_type", "Log_type", "Sub_attack_type",
+                                                    "User_agent", "Referer", "Url", "Device_id", "Virus", "Sid"])
 
     @staticmethod
     def padding(data, size=8):
@@ -121,20 +126,32 @@ class LibCreator:
 
         return blocks
 
-    def format_json_file_to_hex_stream(self):
+    def format_pcap_json_file_to_hex_stream(self):
         """
         将有效样本 json 文件转换为十六进制流
         :return: dict(), 规则 ID 及其对应的 HTTP 请求十六进制流的字典, {"13060028":"47 45 54 20 2f 69 ...", ...}
         """
         # TODO: 多个 HTTP 请求的现在先不处理
         result_dict = dict()
-        http_pcap_dict = AutoTester.get_http_headers_dict(self.test_json_file)
+        http_pcap_dict = AutoTester.get_http_headers_dict(self.waf_ips_json_file)
 
         for each_pcap, each_http_request in http_pcap_dict.items():
             if len(each_http_request) > 1:  # 不止一个 HTTP 请求, 暂时不处理
                 print("[!] 忽略多于一个 HTTP 请求的包: {}".format(each_pcap))
             else:
                 result_dict[each_pcap] = self.create_hex_stream(each_http_request[0])
+
+        return result_dict
+
+    def format_utm_json_file(self):
+        """
+        格式化 utm json 文件, 方便下一步写入数据库
+        :return: dict(), 键为 sid, 值为 url
+        """
+        result_dict = dict()
+
+        with open(self.utm_json_file, "r") as f:
+            result_dict = json.load(f)
 
         return result_dict
 
@@ -165,7 +182,7 @@ class LibCreator:
 
         return catagory_id
 
-    def get_all_fields(self, pcap_path, http_request):
+    def get_all_waf_ips_fields(self, pcap_path, http_request):
         """
         从 pcap_path 以及 http_request 提取出数据库字段对应的值
         :param pcap_path: pcap_path, 形式如: "./IPSv2.43_packet/web/1000.pcap", 可以提取出类型/规则
@@ -187,7 +204,18 @@ class LibCreator:
         return self.sample_http_obj(catagory_id, encrypt_http_request, "response", "attack",
                                     "1", "from", module_id, "cveid", sid, "80", "0", "1")
 
-    def get_all_data_db_need(self, result_dict):
+    def get_all_utm_fields(self, sid, url):
+        """
+        形成命名元组 utm 样本, 然后返回
+        :param sid: sid 号
+        :param url: url 内容
+        :return: 命名元组一个, 详看 self.sample_apt
+        """
+        return self.sample_apt("", "", "",
+                               "User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)",
+                               "", url, "", "", sid)
+
+    def get_all_waf_ips_data_db_need(self, result_dict):
         """
         获取将要写入数据库的所有数据, 按照 wb 的要求:
         Catagory_id VARCHAR (10)
@@ -208,57 +236,115 @@ class LibCreator:
         result_list = list()
 
         for pcap_path, http_request in result_dict.items():
-            all_fields = self.get_all_fields(pcap_path, http_request)
+            all_fields = self.get_all_waf_ips_fields(pcap_path, http_request)
             result_list.append(self.sample_http_obj(*all_fields))
 
         return result_list
 
-    def run(self, db_path, table_name, af_mysql_info):
+    def get_all_utm_data_db_need(self, result_dict):
+        """
+        获取将要写入数据库的所有 utm 样本数据, 按照 wb 的要求:
+        "Id INTEGER PRIMARY KEY, "
+        "Attack_type VARCHAR (5), "
+        "Log_type VARCHAR (5), "
+        "Sub_attack_type VARCHAR (5), "
+        "User_agent TEXT (1024), "
+        "Referer VARCHAR (1024), "
+        "Url VARCHAR (1024), "
+        "Device_id VARCHAR (2), "
+        "Virus VARCHAR (50)"
+        "Sid VARCHAR (10)"
+        :param result_dict: 自动化测试模块得到的 dict 数据, 可以从里面提取出 sid/url 的信息
+        :return: list(), 每个元素都是命名元组, 包括数据库所需的各个字段
+        """
+        result_list = list()
+
+        for sid, url in result_dict.items():
+            all_fields = self.get_all_utm_fields(sid, url)
+            result_list.append(self.sample_apt(*all_fields))
+
+        return result_list
+
+    def run(self, db_path, waf_ips_table_name, utm_table_name, af_mysql_info):
         """
         创建 lib 文件的整体流程
         :param db_path: str(), 目标 db 的路径
         :param af_mysql_info: 连接 af MySQL 所需的一切信息
-        :param table_name: str(), 目标表名
+        :param waf_ips_table_name: 存放 waf/ips 样本的表名
+        :param utm_table_name: 存放 utm 样本的表名
         """
         # 创建 MySQL 连接, 查询 category_id 时要用到
         self.mysql = AFMySQLQuery(*af_mysql_info)
 
         # 创建 lib 文件
-        self.create_sqlite_lib_file(db_path, table_name)
+        self.create_sqlite_lib_file(db_path, waf_ips_table_name, utm_table_name)
 
         # 关闭 MySQL 实体
         self.mysql.close_connect()
 
-    def create_sqlite_lib_file(self, db_path, table_name):
+    def create_sqlite_lib_file(self, db_path, waf_ips_table_name, utm_table_name):
         """
         创建 lib 文件
         :param db_path: str(), 目标 db 的路径
-        :param table_name: str(), 目标表名
+        :param waf_ips_table_name: 存放 waf/ips 样本的表名
+        :param utm_table_name: 存放 utm 样本的表名
         """
-        # 读取 json 数据, 解析为字典形式, 字典的键为规则 ID, 值为 HTTP 请求的十六进制流
-        result_dict = self.format_json_file_to_hex_stream()
-
-        # 提取每一个字段, 目前实现的字段:
-        print("[*] 开始获取各个字段值以便写入数据库")
-        all_data = self.get_all_data_db_need(result_dict)
-
-        print("[*] 开始创建数据库并写入数据")
+        print("[*] 开始创建数据库")
         with sqlite3.connect(db_path) as cursor:
-            self.prepare_to_write_data_to_db(cursor, table_name)
-            for each_row in all_data:
-                self.insert_rule_to_db(cursor, table_name, each_row)
+            self.prepare_to_write_data_to_db(cursor, waf_ips_table_name, utm_table_name)
+
+            print("[*] 开始写入 waf/ips 样本")
+            # 读取 json 数据, 解析为字典形式, 字典的键为规则 ID, 值为 HTTP 请求的十六进制流
+            result_dict = self.format_pcap_json_file_to_hex_stream()
+            print("[*] 开始获取各个字段值以便写入数据库")
+            all_waf_ips_data = self.get_all_waf_ips_data_db_need(result_dict)
+            for each_row in all_waf_ips_data:
+                self.insert_waf_ips_sample_to_db(cursor, waf_ips_table_name, each_row)
+
+            print("[*] 开始写入 utm 样本")
+            result_dict = self.format_utm_json_file()
+            print("[*] 开始获取各个字段值以便写入数据库")
+            all_waf_ips_data = self.get_all_utm_data_db_need(result_dict)
+            for each_row in all_waf_ips_data:
+                self.insert_utm_sample_to_db(cursor, utm_table_name, each_row)
+
         print("[*] 数据库创建及写入完毕")
 
     @staticmethod
-    def prepare_to_write_data_to_db(cursor, table_name):
+    def insert_utm_sample_to_db(cursor, utm_table_name, each_row):
+        """
+        将 utm 样本插入数据库中
+        :param cursor: 连接数据库的实例对象, 由 sqlite3.connect 产生
+        :param utm_table_name: str(), 表格名字
+        :param each_row: 命名元组, 内含所需的各个字段
+        """
+        # 插入数据
+        insert_sql = ("INSERT INTO {table_name} "
+                      "(Attack_type,Log_type,Sub_attack_type,User_agent,Referer,Url,Device_id,Virus,Sid) "
+                      "VALUES (?,?,?,?,?,?,?,?,?)".format(table_name=utm_table_name))
+
+        result = cursor.execute(insert_sql, (
+            each_row.Attack_type, each_row.Log_type, each_row.Sub_attack_type, each_row.User_agent,
+            each_row.Referer, each_row.Url, each_row.Device_id, each_row.Virus, each_row.Sid))
+
+        # 查看现有数据
+        result = cursor.execute("SELECT * FROM {table_name} LIMIT 1".format(table_name=utm_table_name))
+        result = result.fetchone()
+        # 检查是否插入成功
+        assert (len(result) > 0)
+
+    @staticmethod
+    def prepare_to_write_data_to_db(cursor, waf_ips_table_name, utm_table_name):
         """
         准备好要写数据进数据库的环境搭建, 比如说创建数据库, 建表等
         :param cursor: 连接数据库的实例对象, 由 sqlite3.connect 产生
-        :param table_name: 要处理的表名
+        :param waf_ips_table_name: 存放 waf/ips 样本的表名
+        :param utm_table_name: 存放 utm 样本的表名
         :return:
         """
         # 删除原来的表
-        cursor.execute("DROP TABLE IF EXISTS {table_name}".format(table_name=table_name))
+        cursor.execute("DROP TABLE IF EXISTS {table_name}".format(table_name=waf_ips_table_name))
+        cursor.execute("DROP TABLE IF EXISTS {table_name}".format(table_name=utm_table_name))
 
         # 重新创建表
         cursor.execute('CREATE TABLE {table_name} ('
@@ -267,19 +353,35 @@ class LibCreator:
                        'Request TEXT, Response TEXT, Attack VARCHAR (1024), '
                        'Isvalid BOOLEAN, "From" VARCHAR (10), Module VARCHAR (8), '
                        'CveID VARCHAR (128), Sid VARCHAR (32), Port INTEGER DEFAULT (80), '
-                       'Protocol INTEGER DEFAULT (0), "Action" INTEGER DEFAULT (1));'.format(table_name=table_name))
+                       'Protocol INTEGER DEFAULT (0), "Action" INTEGER DEFAULT (1));'
+                       .format(table_name=waf_ips_table_name))
+
+        cursor.execute("CREATE TABLE {table_name} ("
+                       "Id INTEGER PRIMARY KEY, "
+                       "Attack_type VARCHAR (5), "
+                       "Log_type VARCHAR (5), "
+                       "Sub_attack_type VARCHAR (5), "
+                       "User_agent TEXT (1024), "
+                       "Referer VARCHAR (1024), "
+                       "Url VARCHAR (1024), "
+                       "Device_id VARCHAR (2), "
+                       "Virus VARCHAR (50), "
+                       "Sid VARCHAR (10));".format(table_name=utm_table_name))
 
         # 啥数据都没有
-        result = cursor.execute("SELECT * FROM {table_name}".format(table_name=table_name))
+        result = cursor.execute("SELECT * FROM {table_name}".format(table_name=waf_ips_table_name))
+        assert len(result.fetchall()) == 0
+
+        result = cursor.execute("SELECT * FROM {table_name}".format(table_name=utm_table_name))
         assert len(result.fetchall()) == 0
 
     @staticmethod
-    def insert_rule_to_db(cursor, table_name, each_rule):
+    def insert_waf_ips_sample_to_db(cursor, table_name, each_sample):
         """
-        将规则插入数据库中
+        将 waf/ips 样本插入数据库中
         :param cursor: 连接数据库的实例对象, 由 sqlite3.connect 产生
         :param table_name: str(), 表格名字
-        :param each_rule: 命名元组, 内含所需的各个字段
+        :param each_sample: 命名元组, 内含所需的各个字段
         """
         # 插入数据
         insert_sql = "INSERT INTO {table_name} " \
@@ -287,13 +389,14 @@ class LibCreator:
                      "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)".format(table_name=table_name)
 
         result = cursor.execute(insert_sql, (
-            each_rule.Catagory_id, each_rule.Request, each_rule.Response, each_rule.Attack,
-            each_rule.Isvalid, each_rule.From, each_rule.Module, each_rule.CveID, each_rule.Sid, each_rule.Port,
-            each_rule.Protocol, each_rule.Action))
+            each_sample.Catagory_id, each_sample.Request, each_sample.Response, each_sample.Attack,
+            each_sample.Isvalid, each_sample.From, each_sample.Module, each_sample.CveID, each_sample.Sid,
+            each_sample.Port,
+            each_sample.Protocol, each_sample.Action))
 
         # 查看现有数据
-        result = cursor.execute("SELECT * FROM {table_name}".format(table_name=table_name))
-        result = result.fetchall()
+        result = cursor.execute("SELECT * FROM {table_name} LIMIT 1".format(table_name=table_name))
+        result = result.fetchone()
         # 检查是否插入成功
         assert (len(result) > 0)
 
@@ -302,5 +405,5 @@ if __name__ == "__main__":
     af_mysql_information = ("192.192.90.134", "root", "root", "FW_LOG_fwlog")
     des_key = b"sangfor!"
     des_cbc_iv = b"sangfor*"
-    lc = LibCreator(des_key, des_cbc_iv, "efficient_pcap.json")
-    lc.run("test.lib", "aaa", af_mysql_information)
+    lc = LibCreator(des_key, des_cbc_iv, "efficient_pcap.json", "efficient_utm_urls.json")
+    lc.run("test.lib", "sample_waf_ips", "sample_utm", af_mysql_information)

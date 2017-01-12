@@ -88,6 +88,28 @@ class TestAutoTester(unittest.TestCase):
         right_sid = "1234"
         self.assertEqual(self.auto_tester.get_sid_from_pcap_name(test_data), right_sid)
 
+    def test_get_host_from_url(self):
+        """
+        测试分离 host 和 path 是否正确
+        """
+        test_url = "cxmdektgnpdhbers.xyz/"
+        right_host, right_path = "cxmdektgnpdhbers.xyz", ""
+        my_host, my_path = self.auto_tester.get_host_from_url(test_url)
+        self.assertEqual(my_host, right_host)
+        self.assertEqual(my_path, right_path)
+
+        test_url = "cdn2.downloadjelly.com/9ee1efd2-b9b2-403f-8f9a-5fc856fa00a3/cancel1.gif"
+        right_host, right_path = "cdn2.downloadjelly.com", "9ee1efd2-b9b2-403f-8f9a-5fc856fa00a3/cancel1.gif"
+        my_host, my_path = self.auto_tester.get_host_from_url(test_url)
+        self.assertEqual(my_host, right_host)
+        self.assertEqual(my_path, right_path)
+
+        test_url = "legionarios.servecounterstrike.com"
+        right_host, right_path = "legionarios.servecounterstrike.com", ""
+        my_host, my_path = self.auto_tester.get_host_from_url(test_url)
+        self.assertEqual(my_host, right_host)
+        self.assertEqual(my_path, right_path)
+
 
 if __name__ == "__main__":
     pass

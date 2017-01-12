@@ -32,10 +32,10 @@ TIMEOUT = 15  # 等待一段时间再查日志
 
 # TODO: 提供 sockets 丢包的方法
 # TODO: 至少两处需要重构
-# TODO: 添加 verbose 选项, 现在打印的消息有点多
+# TODO: 重构 + 添加 verbose 选项
 # TODO: MySQL 连不上, 因为监听只在 127.0.0.1 上, 需要更改
 # TODO: 不支持输出文件的文件名指定
-# TODO: 不支持 UTM 库的测试
+# TODO: target_ip 需要重构
 
 class AutoTester:
     def __init__(self, result_json_file_path, af_back_info, af_mysql_info):
@@ -112,7 +112,7 @@ class AutoTester:
         else:
             return ""
 
-    def send_post_request(self, http_header, ip):
+    def send_post_request(self, http_header, ip, verbose=False):
         """
         发送 POST 请求
         :param http_header: 要发送的 post 请求头
@@ -133,9 +133,10 @@ class AutoTester:
         try:
             response = requests.post(attack_url, headers=header, data=post_data, timeout=3)
         except (ConnectTimeout, ReadTimeout, ValueError, ConnectionError):
-            print("[!] 发送 POST 请求失败: {}".format(attack_url))
+            if verbose:
+                print("[!] 发送 POST 请求失败: {}".format(attack_url))
 
-    def send_get_request(self, http_header, ip):
+    def send_get_request(self, http_header, ip, verbose=False):
         """
         发送 GET 请求
         :param http_header: 要发送的 get 请求头
@@ -155,7 +156,8 @@ class AutoTester:
         try:
             response = requests.get(attack_url, headers=header, timeout=3)
         except (ConnectTimeout, ReadTimeout, ValueError, ConnectionError):
-            print("[!] 发送 GET 请求失败: {}".format(attack_url))
+            if verbose:
+                print("[!] 发送 GET 请求失败: {}".format(attack_url))
 
     @staticmethod
     def get_sid_from_pcap_name(pcap_name):
@@ -169,17 +171,46 @@ class AutoTester:
             sid = sid.split("_")[0]
         return sid
 
-    def verify_pcap_all_together(self, ip):
+    def verify_waf_ips_packet(self, verbose=False):
         """
-        一口气把所有的包都扔过去, 然后再验证哪些规则有效
-        :param ip: 目标 IP, 构造请求时使用
-        :return:
+        验证 waf 和 ips 包和日志是否对应上
         """
         # 初始化
         http_headers_dict = self.get_http_headers_dict(self.test_json_file)
         efficient_pcap = dict()
 
+        # 一个一个验证
+        print("[*] 开始进行验证")
+        db_sid_list = self.af_mysql_connect.get_all_sid_in_log_tables(["WAF", "IPS"])
+        for each_pcap, each_pcap_https in http_headers_dict.items():
+            sid = self.get_sid_from_pcap_name(each_pcap)
+            if sid in db_sid_list:
+                print("[*] 验证 sid-{} 有对应的有效 pcap 包".format(sid))
+
+                # 是有效请求, 记录相应信息
+                efficient_pcap.setdefault(each_pcap, list())
+                efficient_pcap[each_pcap].extend(each_pcap_https)
+            elif verbose:
+                print("[!] 该 sid-{} 在数据库中查找不到".format(sid))
+
+        # 记录
+        # TODO: 文件名怎么写死了
+        with open("efficient_pcap.json", "w") as f:
+            json.dump(efficient_pcap, f)
+
+    def verify_pcap_all_together(self, ip, verbose=False):
+        """
+        一口气把所有的包都扔过去, 然后再验证哪些规则有效
+        :param ip: 目标 IP, 构造请求时使用
+        :return:
+        """
+        # TODO: 需要重构, 已经新编了一个丢包和验证的子方法了
+        # 初始化
+        http_headers_dict = self.get_http_headers_dict(self.test_json_file)
+        efficient_pcap = dict()
+
         # 扔包
+        print("[*] 开始丢包")
         for each_pcap, each_pcap_https in http_headers_dict.items():
             for each_http in each_pcap_https:
                 self.send_request(each_http, ip)
@@ -199,7 +230,7 @@ class AutoTester:
                 # 是有效请求, 记录相应信息
                 efficient_pcap.setdefault(each_pcap, list())
                 efficient_pcap[each_pcap].extend(each_pcap_https)
-            else:
+            elif verbose:
                 print("[!] 该 sid-{} 在数据库中查找不到".format(sid))
 
         # 记录
@@ -282,9 +313,56 @@ class AutoTester:
 
         af_ssh_connect.connect_then_execute_many_commands(prepare_commands)
 
+    def send_waf_ips_utm_packet(self, target_ip):
+        """
+        进行 waf/ips/utm 的丢包操作
+        :param target_ip: 测试主机的 IP
+        :return:
+        """
+        print("[*] 开始丢 waf/ips 包")
+        http_headers_dict = self.get_http_headers_dict(self.test_json_file)
+
+        for each_pcap, each_pcap_https in http_headers_dict.items():
+            for each_http in each_pcap_https:
+                self.send_request(each_http, target_ip)
+
+        print("[*] 开始丢 utm 包")
+        # 获取所有 urls
+        all_urls_list = self.get_all_utm_urls("utm_url_result.json")
+
+        # 把所有 urls 丢过去
+        for each_utm_url in all_urls_list:
+            self.send_request_with_host(each_utm_url, target_ip)
+
     def run(self, local_ip, target_ip):
         """
-        完成自动化测试流程
+        完成自动化测试流程, 这个方法先把所有类型的包丢出去, 然后再依次进行验证
+        :param local_ip: 本地 IP 地址
+        :param target_ip: 测试服务器的 IP 地址
+        """
+        print("[*] 进行验证阶段必要的初始化工作")
+        # AF 后台准备工作
+        self.af_back_prepare(local_ip)
+
+        # 初始化 MySQL 连接实例
+        self.af_mysql_connect = AFMySQLQuery(*self.af_mysql_info)
+
+        print("[*] 开始进行丢包操作")
+        self.send_waf_ips_utm_packet(target_ip)
+
+        # 验证 IPS/WAF
+        print("[*] 开始验证 waf/ips")
+        self.verify_waf_ips_packet()
+
+        # 验证 UTM
+        print("[*] 开始验证 utm")
+        self.verify_utm_packet()
+
+        print("[*] 自动化验证阶段结束")
+
+    def run2(self, local_ip, target_ip):
+        """
+        完成自动化测试流程, 这个方法区别于 run, 这个方法先验证 waf/ips, 之后才验证 utm
         :param local_ip: 本地 IP 地址
         :param target_ip: 测试服务器的 IP 地址
         """
@@ -295,9 +373,85 @@ class AutoTester:
         self.af_mysql_connect = AFMySQLQuery(*self.af_mysql_info)
 
         # 解析 HTTP 请求头, 按照 requests 库封装好并发送出去
+        # 验证 IPS/WAF
         # TODO: 加个可选项, 选择一口气全部扔过去还是一个一个扔
+        print("[*] 开始验证 waf/ips")
         self.verify_pcap_all_together(target_ip)  # 全部扔过去再一个一个验证
         # self.verify_pcap_each_by_each(target_ip)  # 一个一个扔包后再验证
+
+        # 验证 UTM
+        print("[*] 开始验证 utm")
+        self.verify_utm_urls_all_together(target_ip)
+
+    @staticmethod
+    def is_efficient_utm_url(url, utm_log_data):
+        """
+        判断 url 是否有效
+        :param url: 要查询的 url
+        :param utm_log_data: 从 utm 表中获取到的 sid 及其 result
+        :return: str() or False, False 表示没有查到 sid 号, str() 表示 sid 号本身
+        """
+        for sid, result in utm_log_data:
+            if url in result:
+                return sid
+        return False
+
+    def get_efficient_urls_sids_dict(self, urls):
+        """
+        根据 url 查询 utm 日志, 如果存在于日志中, 说明 url 有效, 同时提取出 sid 号
+        :param urls:
+        :return: dict(), 键为 sid 号, 值为对应的 url
+        """
+        result_dict = dict()
+
+        # 获取数据库中所有数据
+        print("[*] 开始获取数据库 utm 表中所有记录")
+        all_utm_log = self.af_mysql_connect.get_all_sid_and_result_in_utm_table()
+
+        print("[*] 开始判断 utm url 是否有效")
+        # 依次判断每一条 url 是否有效
+        for each_utm_url in urls:
+            sid = self.is_efficient_utm_url(each_utm_url, all_utm_log)
+            if sid is not False:
+                result_dict[sid] = each_utm_url
+
+        return result_dict
+
+    def verify_utm_packet(self):
+        """
+        验证 utm 包和日志是否对应上
+        :return:
+        """
+        # 获取所有 urls
+        all_urls_list = self.get_all_utm_urls("utm_url_result.json")
+
+        # 查询日志, 提取出有效的 url 及 sid 信息
+        valid_url_dict = self.get_efficient_urls_sids_dict(all_urls_list)
+
+        # 把有效的 urls 保存下来
+        with open("efficient_utm_urls.json", "w") as f:
+            json.dump(valid_url_dict, f)
+
+    def verify_utm_urls_all_together(self, target_ip):
+        """
+        验证所有 utm urls 是否有效
+        :param target_ip: 测试用的目标 IP
+        :return:
+        """
+        # TODO: 需要重构, 已经有一个丢包和验证的子方法了
+        # 获取所有 urls
+        all_urls_list = self.get_all_utm_urls("utm_url_result.json")
+
+        # 把所有 urls 丢过去
+        for each_utm_url in all_urls_list:
+            self.send_request_with_host(each_utm_url, target_ip)
+
+        # 查询日志, 提取出有效的 url 及 sid 信息
+        valid_url_dict = self.get_efficient_urls_sids_dict(all_urls_list)
+
+        # 把有效的 urls 保存下来
+        with open("efficient_utm_urls.json", "w") as f:
+            json.dump(valid_url_dict, f)
 
     @staticmethod
     def send_dns_query_packet(dns_server_ip, query_domain):
@@ -307,6 +461,59 @@ class AutoTester:
         :param query_domain: 要询问的域名
         """
         scapy.sendrecv.send(IP(dst=dns_server_ip) / UDP() / DNS(rd=1, qd=DNSQR(qname=query_domain)))
+
+    @staticmethod
+    def get_host_from_url(url, verbose=False):
+        """
+        从 URL 中提取域名
+        :param url: str(), 要提取的 url
+        :param verbose: 是否打印详细信息
+        :return: str(), url 中的 host
+        """
+        if verbose is True:
+            print("[*] 尝试解析 url {}".format(url))
+
+        url = str(url)
+        if "/" in url:
+            host, path = url.split("/", maxsplit=1)
+        else:
+            host, path = url, ""
+        return host, "{}".format(path)
+
+    def send_request_with_host(self, url, target_ip, verbose=False):
+        """
+        发送一个 GET 请求, 带 HOST 字段的, 主要是用来测试 UTM 的
+        :param url: 要发送的 URL, 会自动提取 host 字段
+        :param target_ip: 往哪个 IP 丢包
+        :param verbose: True or False, 表示是否打印详细信息
+        :return:
+        """
+        domain, path = self.get_host_from_url(url)
+
+        url = "http://{}/{}".format(target_ip, path)
+        headers = {
+            "Host": "{}".format(domain),
+            "User-Agent": "User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)"
+        }
+
+        print("[*] 访问 {}, 域名为 {}".format(url, domain))
+
+        try:
+            response = requests.get(url, headers=headers, timeout=3)
+        except (ConnectTimeout, ReadTimeout, ValueError, ConnectionError):
+            if verbose:
+                print("[!] 发送 GET 请求失败: {}".format(url))
+
+    @staticmethod
+    def get_all_utm_urls(json_file_path):
+        """
+        从 json 文件中获取所有 urls 放在一个列表里
+        :param json_file_path: str(), json 文件路径
+        :return: list(), 每一个元素是一个 utm url
+        """
+        with open(json_file_path, "r") as f:
+            data = json.load(f)
+        return data
 
 
 class AFMySQLQuery:
@@ -499,6 +706,44 @@ class AFMySQLQuery:
         if self.client:
             self.client.close()
 
+    def get_all_sid_and_result_in_utm_table(self):
+        """
+        从 utm 表格中获取所有数据, 仅获取 sid 字段及 result 字段
+        :return: list(), [(sid1, result1), (sid2, result2), ...]
+        """
+        today = self.get_today_date()
+        result_list = list()
+
+        with pymysql.connect(self.af_ip, self.mysql_user, self.mysql_pw, self.db_name) as cursor:
+            if self.is_table_exists(cursor, "T{}".format(today)):
+                # 执行 SQL 查询
+                cursor.execute(
+                    "SELECT sid, result FROM T{} WHERE record_time > '00:00' AND record_time < '23:59'".format(today)
+                )
+                data = cursor.fetchall()
+
+                return list(data)
+
+        return result_list
+
+    def is_url_in_utm_result(self, url, cursor):
+        """
+        查询 utm 表, 判断 url 是否存在于 utm 数据库中 result 字段中
+        :param url: str(), 要判断的 url
+        :param cursor: 游标对象
+        :return: str() or False, False 表示不存在, str() 表示 sid 号
+        """
+        today = self.get_today_date()
+
+        sql = "SELECT sid,result FROM T{} WHERE result REGEXP \"{}\"".format(today, url)
+
+        cursor.execute(sql)
+        data = cursor.fetchone()
+        if len(data) > 0:
+            return data[0]  # 返回 sid
+
+        assert False  # 这个方法还没写完, 只是留了个模型
+
 
 class AFSSHConnector:
     def __init__(self, host_name, port, user_name, password):
@@ -534,7 +779,7 @@ class AFSSHConnector:
 
         return command_result
 
-    def connect_then_execute_many_commands(self, commands):
+    def connect_then_execute_many_commands(self, commands, verbose=False):
         """
         执行许多命令, 不检查执行结果
         :param commands: list(), 每一个元素是一条命令
@@ -547,12 +792,12 @@ class AFSSHConnector:
                 print("[*] 执行命令: {}".format(each_command))
                 stand_in, stand_out, stand_error = client.exec_command(each_command)
                 for output in stand_out.readlines():
-                    print("[*] 执行结果: {}".format(output), end="")
+                    if verbose:
+                        print("[*] 执行结果: {}".format(output), end="")
 
 
 if __name__ == "__main__":
     af_mysql_information = ("192.192.90.134", "root", "root", "FW_LOG_fwlog")
     af_back_information = ("192.192.90.134", 22345, "admin", "1")
     at = AutoTester("2th_headers_result.json", af_back_information, af_mysql_information)
-    # at.run(local_ip="192.192.90.135", target_ip="192.168.116.2")
-    at.send_dns_query_packet("112.113.114.115", "www.baidu.com")
+    at.run(local_ip="192.192.90.135", target_ip="192.168.116.2")

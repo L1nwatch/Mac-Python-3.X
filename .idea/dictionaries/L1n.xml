@@ -10,6 +10,7 @@
       <w>pcaps</w>
       <w>privoxy</w>
       <w>shadowsocks</w>
+      <w>sqlite</w>
       <w>wsgi</w>
     </words>
   </dictionary>
