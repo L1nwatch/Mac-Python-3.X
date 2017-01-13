@@ -350,6 +350,9 @@ class AutoTester:
         print("[*] 开始进行丢包操作")
         self.send_waf_ips_utm_packet(target_ip)
 
+        print("[*] 丢包完成, 等待 {}s 后开始验证".format(TIMEOUT))
+        time.sleep(TIMEOUT)
+
         # 验证 IPS/WAF
         print("[*] 开始验证 waf/ips")
         self.verify_waf_ips_packet()

@@ -18,7 +18,7 @@ class TestCreateLib(unittest.TestCase):
     def setUp(self):
         self.key = b"sangfor!"
         self.iv = b"sangfor*"
-        self.lc = LibCreator(self.key, self.iv, "aaa")
+        self.lc = LibCreator(self.key, self.iv, "aaa", "bbb")
 
     def encrypt(self, data, password):
         if len(password) > 8:
@@ -80,16 +80,23 @@ class TestCreateLib(unittest.TestCase):
         self.assertEqual(right_plain_text, my_answer)
         self.assertEqual(my_answer, wb_answer)
 
-    def test_get_all_fields(self):
+    def test_padding(self):
         """
-        测试获取字段是否正确
+        测试填充
         """
-        test_path = "./IPSv2.43_packet/web/1000.pcap"
-        test_http_request = "33 44 55"
-        right_encrypt_data = self.encrypt(test_http_request, self.key)
-        my_answer = self.lc.get_all_waf_ips_fields(test_path, test_http_request)
-        self.assertEqual(my_answer.Request, right_encrypt_data)
-        self.assertEqual(my_answer.Sid, "1000")
+        test_data = b"a" * 8
+        right_answer = b"a" * 8 + b"\x08" * 8
+        my_answer = self.lc.padding(test_data, 16)
+        self.assertEqual(right_answer, my_answer)
+
+    def test_un_padding(self):
+        """
+        测试解填充
+        """
+        test_data = b"a" * 8 + b"\x08" * 8
+        right_answer = b"a" * 8
+        my_answer = self.lc.un_padding(test_data, 16)
+        self.assertEqual(right_answer, my_answer)
 
 
 if __name__ == "__main__":
