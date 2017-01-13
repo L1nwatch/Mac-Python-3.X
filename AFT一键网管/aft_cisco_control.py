@@ -7,19 +7,21 @@
 """
 import telnetlib
 import re
+import os
+import subprocess
 from collections import namedtuple
 
 __author__ = '__L1n__w@tch'
 
 
 class AFTCiscoControl:
-    def __init__(self, ip):
+    def __init__(self, ip_address):
         """
         初始化
-        :param ip: 目标 telnet 服务端的 IP
+        :param ip_address: 目标 telnet 服务端的 IP
         """
         # 连接Telnet服务器
-        self.tn = telnetlib.Telnet(ip)  # 连接设备的实例
+        self.tn = telnetlib.Telnet(ip_address)  # 连接设备的实例
         self.in_out = namedtuple("in_out", ["In", "Out"])
 
     @staticmethod
@@ -31,7 +33,7 @@ class AFTCiscoControl:
 
         data = tn.read_some()
         while len(data) > 0:
-            print(data.decode("gb2312"), end="")
+            print(data.decode("gbk"), end="")
             data = tn.read_some()
 
     @staticmethod
@@ -41,6 +43,7 @@ class AFTCiscoControl:
         :param tn: 获取 telnet 服务端的操作系统类型
         :return: str(), 比如 "Darwin"(mac)
         """
+        # TODO: 这个方法还没有实现
         return "Others"
 
     def send_data_to_telnet_server(self, message):
@@ -70,13 +73,12 @@ class AFTCiscoControl:
         self.send_data_to_telnet_server(tn, password)
 
         # 登录完毕后，执行ls命令
-        tn.read_until(finish_flag.encode("utf8"))
+        tn.read_until("{}>".format(user_name).encode("utf8"))
 
-    def connect_core_switch_device(self, password, finish):
+    def connect_core_switch_device(self, password):
         """
         telnet 进核心交换机
         :param password: str(), 密码, 如 "watch"
-        :param finish: str(), 命令提示符（标识着上一条命令已执行完毕）, 如 "watch>"
         """
         # 登录认证
         print("[*] 尝试进行登陆操作")
@@ -85,7 +87,7 @@ class AFTCiscoControl:
 
         # 进入特权模式
         print("[*] 尝试进入特权模式")
-        self.tn.read_until(finish.encode("utf8"))
+        self.tn.read_until(b"AF>")
         self.send_data_to_telnet_server("enable")
         self.tn.read_until(b"Password")
         self.send_data_to_telnet_server(password)
@@ -131,19 +133,28 @@ class AFTCiscoControl:
         print(result.decode("utf8"))
         return result
 
-    def get_all_in_out_stream_information(self):
+    def get_all_in_out_stream_information(self, ignore_zero=False):
         """
         获取所有接口的进出流量信息
-        :return:
+        :param ignore_zero: True or False, 决定是否忽略 0 流量口的信息
+        :return: dict(), {1: (21, 256), 2: (800, 1201), 3: (0, 0), 4: (0, 0), ... }
         """
-        print("[*] 开始读取所有接口的进出流量信息")
+        result_dict = dict()
+
+        print("[*] 开始读取所有接口的进出流量信息，是否选择忽略 0 流量口信息：{}".format(ignore_zero))
         for i in range(1, 25):
             # 发送指令，获取 i 口情况
             self.send_data_to_telnet_server("show interfaces fastEthernet 0/{}".format(i))
 
             # 获取进出流量
             result = self.get_pointed_fast_in_out_packet_number()
-            print("[*] 读取 {} 口流量信息，In = {}，Out = {}".format(i, result.In.decode("utf8"), result.Out.decode("utf8")))
+            if not ignore_zero or int(result.In) != 0 or int(result.Out) != 0:
+                print("[*] 读取 {} 口流量信息，In = {}，Out = {}".format(i, result.In.decode("utf8"), result.Out.decode("utf8")))
+
+            # 保存结果到字典中
+            result_dict[i] = (int(result.In), int(result.Out))
+
+        return result_dict
 
     @staticmethod
     def extract_inout_information(data):
@@ -185,15 +196,30 @@ class AFTCiscoControl:
         print("[*] 退出 config、config-t 模式")
 
 
+def execute_ping_command(target_ip):
+    """
+    执行 ping 命令
+    :param target_ip: str(), 目标 IP 地址
+    :return: byte(), 命令执行结果
+    """
+    with subprocess.Popen("ping {} -n 5".format(target_ip), stdout=subprocess.PIPE, shell=True) as proc:
+        res = proc.stdout.read()
+    print(res)
+    print(res.decode("gbk"))
+    return res
+
+
 if __name__ == "__main__":
+    # execute_ping_command("200.200.0.33")
+    # exit(0)
+
     # 配置选项
     ip = '155.155.155.25'  # Telnet服务器IP
     telnet_password = 'sangfor'  # 登录密码
-    finish_flag = 'AF>'  # 登录结束标志
 
     tc = AFTCiscoControl(ip)
-    tc.connect_core_switch_device(telnet_password, finish_flag)
-    # tc.get_all_in_out_stream_information()
+    tc.connect_core_switch_device(telnet_password)
+    result = tc.get_all_in_out_stream_information(ignore_zero=True)
     # tc.get_show_interfaces_counters_result()
-    tc.config_t_interfaces(16, "shutdown")
+    # tc.config_t_interfaces(16, "shutdown")
     tc.close_connect()
