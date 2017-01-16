@@ -317,8 +317,11 @@ class AutoTester:
                              "GRANT ALL ON *.* to root@'{}' IDENTIFIED BY 'root'; "
                              "FLUSH PRIVILEGES;\"".format(local_ip_address)),
                             "touch /var/often_write/quick_load.flag"]
-
-        af_ssh_connect.connect_then_execute_many_commands(prepare_commands)
+        try:
+            af_ssh_connect.connect_then_execute_many_commands(prepare_commands)
+        except TimeoutError:
+            print("[!] 连接超时, 请确定配置信息正确")
+            raise RuntimeError("连接超时")
 
     def send_waf_ips_utm_packet(self, target_ip):
         """
