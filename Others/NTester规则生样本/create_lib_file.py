@@ -25,7 +25,6 @@ from collections import namedtuple
 __author__ = '__L1n__w@tch'
 
 
-# TODO: 目前还不支持 APT 数据库字段的填充
 # TODO: 多个 HTTP 请求的现在先不处理
 # TODO: 还不支持 cve_id 的提取
 # TODO: 添加 verbose 选项, 现在打印的消息有点多, 另外需要加入 logger 负责打印信息的

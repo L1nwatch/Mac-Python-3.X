@@ -298,10 +298,17 @@ class AutoTester:
             return self.af_mysql_connect.is_sid_in_waf_log(sid)
         return False
 
-    def af_back_prepare(self, local_ip_address):
+    def af_back_prepare(self, local_ip_address, target_ip):
         """
         进行一些 af 后台的预备操作, 比如清除数据库日志/加快日志创建速度等
+        :param local_ip_address: 本地 IP 地址
+        :param target_ip: 测试服务器的 IP 地址
         """
+        # 打印配置信息
+        print("[*] 设置本地 IP 为: {}, 测试 IP 为: {}".format(local_ip_address, target_ip))
+        print("[*] AF 的后台连接信息: {}".format(self.af_back_information))
+        print("[*] AF 的 MySQL 数据库连接信息: {}".format(self.af_mysql_info))
+
         af_ssh_connect = AFSSHConnector(*self.af_back_information)
 
         # 依次是: 清除数据库/提权/生成日志加速
@@ -342,7 +349,7 @@ class AutoTester:
         """
         print("[*] 进行验证阶段必要的初始化工作")
         # AF 后台准备工作
-        self.af_back_prepare(local_ip)
+        self.af_back_prepare(local_ip, target_ip)
 
         # 初始化 MySQL 连接实例
         self.af_mysql_connect = AFMySQLQuery(*self.af_mysql_info)

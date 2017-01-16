@@ -8,7 +8,7 @@
 * 发现好久没整理这个库的 readme 了, 公司放假之后稍微总结一下吧
 
 ## 作品清单(2017-01-11)
-* 【AFT 一键网管】(未完成)，主要涉及 telnet 连接, cisco 命令, qt 开发 UI 界面
+* 【AFT 一键网管】(已迁移到其他库)，主要涉及 telnet 连接, cisco 命令, qt 开发 UI 界面
 * 【ATM 编码转换工具】，涉及 tkinter UI 开发, re 库, `unicode_escape` 编码
 * 【ATM 案例爬虫】，涉及 MySQL 数据库操作, 命令行交互 argparse 库, requests HTTP 库, re 匹配, 自定义 const 常量类
 * 【ATM 结果提取工具】，涉及 requests HTTP 库, PyQt5 UI 开发
