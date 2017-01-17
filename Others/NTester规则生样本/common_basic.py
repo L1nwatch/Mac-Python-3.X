@@ -2,12 +2,34 @@
 # -*- coding: utf-8 -*-
 # version: Python3.X
 """
+2017.01.17 还是作为 common basic 类好了, 不只是读取配置文件
 2017.01.17 一开始写的版本是每个函数都传入路径, 后来发现太累赘, 还是重构成声明类的时候指定配置文件
 2017.01.17 每个文件都有读取配置信息的操作, 每次一换环境修改信息太麻烦, 还是专门用一个读取配置文件的类来搞定吧
 """
 import configparser
 
 __author__ = '__L1n__w@tch'
+
+
+class BasicDeal:
+    def __init__(self, verbose):
+        self.verbose = verbose
+
+    def print_message(self, message, style=1):
+        """
+        格式化打印信息
+        :param message: 要打印的信息
+        :param style: 按照指定格式进行打印
+        """
+        if self.verbose:
+            if style == 1:
+                print("[*] {sep} {message} {sep}".format(sep="=" * 30, message=message))
+            elif style == 2:
+                print("[*] {message}".format(message=message))
+            elif style == 3:
+                print("[!] {message}".format(message=message))
+            else:
+                raise RuntimeError("[!] 函数使用错误")
 
 
 class ConfigReader:

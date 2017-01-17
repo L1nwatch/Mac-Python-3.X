@@ -25,14 +25,14 @@ try:
 except ImportError:
     import json
 
-from read_config import ConfigReader
+from common_basic import ConfigReader, BasicDeal
 
 __author__ = '__L1n__w@tch'
 
 
-class PcapParser:
+class PcapParser(BasicDeal):
     def __init__(self, verbose=True):
-        self.verbose = verbose  # 是否打印详细信息, 默认 True, 表示要打印
+        super().__init__(verbose)
 
     @staticmethod
     def get_url_from_raw_data(data):

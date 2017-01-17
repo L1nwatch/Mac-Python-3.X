@@ -25,7 +25,7 @@ from scapy.layers.inet import IP, UDP
 from scapy.layers.dns import DNS, DNSQR
 from pcap_scapy_parse import PcapParser
 from requests.exceptions import ConnectTimeout, ReadTimeout, ConnectionError, TooManyRedirects
-from read_config import ConfigReader
+from common_basic import ConfigReader, BasicDeal
 
 __author__ = '__L1n__w@tch'
 
@@ -37,7 +37,7 @@ TIMEOUT = 15  # 等待一段时间再查日志
 # TODO: 不支持输出文件的文件名指定
 # TODO: target_ip 需要重构
 
-class AutoTester:
+class AutoTester(BasicDeal):
     def __init__(self, waf_ips_test_json, waf_ips_result_json, af_back_info, af_mysql_info, utm_url_test_json,
                  utm_result_json, verbose=True):
         """
@@ -49,31 +49,15 @@ class AutoTester:
         :param verbose: 是否打印详细信息, 默认为 True, 即要打印
         :param utm_url_test_json: utm url 解析后的 json 文件
         """
+        super().__init__(verbose)
         self.waf_ips_test_json = waf_ips_test_json
         self.waf_ips_result_json = waf_ips_result_json
         self.utm_url_test_json = utm_url_test_json
         self.utm_result_json = utm_result_json
         self.af_mysql_info = af_mysql_info
         self.af_back_information = af_back_info
-        self.verbose = verbose
         self.af_mysql_connect = None  # 用于 mysql 连接
         self.af_back_connect = None  # 用于 af 后台连接
-
-    def print_message(self, message, style=1):
-        """
-        格式化打印信息
-        :param message: 要打印的信息
-        :param style: 按照指定格式进行打印
-        """
-        if self.verbose:
-            if style == 1:
-                print("[*] {sep} {message} {sep}".format(sep="=" * 30, message=message))
-            elif style == 2:
-                print("[*] {message}".format(message=message))
-            elif style == 3:
-                print("[!] {message}".format(message=message))
-            else:
-                raise RuntimeError("[!] 函数使用错误")
 
     @staticmethod
     def get_http_headers_dict(json_file_path):
@@ -721,8 +705,9 @@ class AFMySQLQuery:
         assert False  # 这个方法还没写完, 只是留了个模型
 
 
-class AFSSHConnector:
-    def __init__(self, host_name, port, user_name, password):
+class AFSSHConnector(BasicDeal):
+    def __init__(self, host_name, port, user_name, password, verbose=True):
+        super().__init__(verbose)
         self.host_name = host_name
         self.port = port
         self.user_name = user_name
@@ -755,7 +740,7 @@ class AFSSHConnector:
 
         return command_result
 
-    def connect_then_execute_many_commands(self, commands, verbose=False):
+    def connect_then_execute_many_commands(self, commands):
         """
         执行许多命令, 不检查执行结果
         :param commands: list(), 每一个元素是一条命令
@@ -768,8 +753,7 @@ class AFSSHConnector:
                 print("[*] 执行命令: {}".format(each_command))
                 stand_in, stand_out, stand_error = client.exec_command(each_command)
                 for output in stand_out.readlines():
-                    if verbose:
-                        print("[*] 执行结果: {}".format(output), end="")
+                    self.print_message("执行结果: {}".format(output), 2)
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@
 2017.01.17 作为读取配置文件的测试文件
 """
 import unittest
-from read_config import ConfigReader
+from common_basic import ConfigReader
 
 __author__ = '__L1n__w@tch'
 
