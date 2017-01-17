@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # version: Python3.X
 """
+2017.01.17 重构了一下, 主要是配置文件的读取, 以及增加了 verbose 打印逻辑
 2017.01.10 加入了解压 gz/tar 文件的方法, 优化了各种交互信息
 2017.01.10 加入了提取 HTTP 请求失败时的情况处理
 2017.01.09 优化好了 pcap 包解析, 现在可以解析不止 waf 路径了, 但是还存在 bug
@@ -10,7 +11,7 @@
 2016.12.26 尝试使用 scapy 库解析 pcap 包
 """
 # TODO: 不支持没有 HTTP 请求的 pcap 包, 比如 SMTP 协议, 纯 TCP 协议, 可以考虑写个方法把这些包复制出来, 方便以后研究
-# TODO: 添加 verbose 选项, 现在打印的消息有点多
+# TODO: 打印信息得用 log 打印
 
 import gzip
 import tarfile
@@ -24,10 +25,15 @@ try:
 except ImportError:
     import json
 
+from read_config import ConfigReader
+
 __author__ = '__L1n__w@tch'
 
 
 class PcapParser:
+    def __init__(self, verbose=True):
+        self.verbose = verbose  # 是否打印详细信息, 默认 True, 表示要打印
+
     @staticmethod
     def get_url_from_raw_data(data):
         """
@@ -193,11 +199,12 @@ class PcapParser:
         :param result_file_path: str(), 目标 json 文件路径
         :param pcaps_root_path: str(), pcap 包压缩文件所在的根目录, 假设压缩格式为 gz
         """
+        print("[*] 开始解压流程")
         # 解压所有 gz/tar 格式的压缩文件, TODO: 注意只解压一级目录
         self.decompress_all_files(pcaps_root_path)
 
         # 开始解析所有 pcap 包
-        self.print_message("开始提取目录 {} 下所有 pcap 包的 HTTP 请求".format(pcaps_root_path))
+        print("[*] 开始提取目录 {} 下所有 pcap 包的 HTTP 请求".format(pcaps_root_path))
         with open(result_file_path, "w") as f:
             data_dict = dict()
 
@@ -205,42 +212,49 @@ class PcapParser:
             for each_pcap in all_pcap_file:
                 urls = self.get_http_headers(each_pcap)
                 if urls is False or len(urls) == 0:
-                    print("[!] 提取 {} HTTP 请求失败".format(each_pcap))
+                    self.print_message("提取 {} HTTP 请求失败".format(each_pcap), 3)
                 else:
                     data_dict[each_pcap] = urls
+                    self.print_message("提取 {} HTTP 请求成功".format(each_pcap), 2)
 
             json.dump(data_dict, f)
 
         print("[*] 提取完毕, 结果请见: {}".format(result_file_path))
 
-    @staticmethod
-    def print_message(message):
+    def print_message(self, message, style=1):
         """
         格式化打印信息
         :param message: 要打印的信息
+        :param style: 按照指定格式进行打印
         """
-        print("[*] {sep} {message} {sep}".format(sep="=" * 30, message=message))
+        if self.verbose:
+            if style == 1:
+                print("[*] {sep} {message} {sep}".format(sep="=" * 30, message=message))
+            elif style == 2:
+                print("[*] {message}".format(message=message))
+            elif style == 3:
+                print("[!] {message}".format(message=message))
+            else:
+                raise RuntimeError("[!] 函数使用错误")
 
-    @staticmethod
-    def un_gz(file_path):
+    def un_gz(self, file_path):
         """
         解压 gz 文件, 假设 gz 文件里面只有一个 tar 文件
         :param file_path: str(), gz 文件路径
         :return: str(), 从 gz 提取出来的那个文件的文件路径
         """
-        PcapParser.print_message("开始解压 gz 文件: {}".format(file_path))
+        self.print_message("开始解压 gz 文件: {}".format(file_path))
 
         g_file = gzip.GzipFile(file_path)
         un_gz_file_path = os.path.splitext(file_path)[0]
         with open(un_gz_file_path, "wb") as f:
             f.write(g_file.read())
 
-        PcapParser.print_message("解压完毕")
+        self.print_message("解压完毕")
 
         return un_gz_file_path
 
-    @staticmethod
-    def un_tar(file_path):
+    def un_tar(self, file_path):
         """
         解压 tar 文件, 假设 tar 文件里有多个文件
         :param file_path: tar 文件路径
@@ -258,7 +272,7 @@ class PcapParser:
             for each_file in file_names:
                 each_file_path = os.path.join(dir_path, each_file)
                 if os.path.exists(each_file_path):
-                    print("[!] 解压文件 {} 已存在".format(each_file_path))
+                    self.print_message("解压文件 {} 已存在".format(each_file_path), 3)
                 else:
                     tar.extract(each_file, dir_path + os.sep)
 
@@ -266,5 +280,14 @@ class PcapParser:
 
 
 if __name__ == "__main__":
-    parser = PcapParser()
-    parser.run("2th_headers_result.json", "full_test")
+    # 读取配置
+    cr = ConfigReader()
+    cr.cp.read("config_file_for_test.conf")
+
+    result_json_file_path = cr.cp.get("json_file_name", "waf_ips_pcap_parse_result_json_file")
+    test_root_path = cr.cp.get("Others", "pcaps_root_path")
+    need_verbose = cr.cp.getboolean("Others", "verbose")
+
+    # 开始解析
+    parser = PcapParser(need_verbose)
+    parser.run(result_json_file_path, test_root_path)
