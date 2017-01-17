@@ -39,9 +39,9 @@ class PcapParser(BasicDeal):
         """
         从 data 中提取 url
         :param data: b'GET /wordpress/wp-content/plugins/wpSS/ss_handler.php?display=0&edit=&ss_id=1%27%22 HTTP/1.1\r\nAccept: text/html, application/xhtml+xml, */*\r\nAccept-Language: zh-CN\r\nUser-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)\r\nAccept-Encoding: gzip, deflate\r\nHost: 192.168.41.68\r\nConnection: Keep-Alive\r\nCookie: acopendivids=swingset,phpbb2,redmine; acgroupswithpersist=nada; JSESSIONID=024D3D2EDA89A7BB595684F55788684A\r\n\r\n'
-        :return: 'GET /wordpress/wp-content/plugins/wpSS/ss_handler.php?display=0&edit=&ss_id=1%27%22 HTTP/1.1'
+        :return: b'GET /wordpress/wp-content/plugins/wpSS/ss_handler.php?display=0&edit=&ss_id=1%27%22 HTTP/1.1'
         """
-        result = re.findall("[GETPOST]{3,4} (.*) HTTP/1\.[01]", str(data), flags=re.IGNORECASE)
+        result = re.findall(b"[GETPOST]{3,4} (.*) HTTP/1\.[01]", data, flags=re.IGNORECASE)
         if len(result) == 1:
             return result[0]
         else:
@@ -87,29 +87,31 @@ class PcapParser(BasicDeal):
     def is_http_get_request_header(data):
         """
         判断是不是 GET 请求的 http 头
+        :param data: b'GET FTP://ufhpcvrrbz;type=D'
         :return: True or False
         """
-        result = re.findall("^GET .*HTTP/1\.[01]", str(data), flags=re.IGNORECASE)
+        result = re.findall(b"^GET .*HTTP/1\.[01]", data, flags=re.IGNORECASE)
         return len(result) == 1
 
     @staticmethod
     def is_http_post_request_header(data):
         """
         判断是不是 POST 请求的 http 头
+        :param data: b'GET FTP://ufhpcvrrbz;type=D'
         :return: True or False
         """
-        result = re.findall("^POST .*HTTP/1\.[01]", str(data), flags=re.IGNORECASE)
+        result = re.findall(b"^POST .*HTTP/1\.[01]", data, flags=re.IGNORECASE)
         return len(result) == 1
 
     @staticmethod
     def has_point_info(header, filter_list):
         """
         判断一个包里是否请求了指定的资源, 比如说请求了 favico.ico 资源
-        :param header: str(), 包头
+        :param header: byte(), 包头, b'GET /favico.ico HTTP/1.1'
         :param filter_list: list(), 指定资源列表
         :return: True or False, 表示包含时返回 True
         """
-        request_file = str(re.findall("[GETPOST]{3,4} (.*) HTTP/1\.[10]", header, flags=re.IGNORECASE)[0])
+        request_file = re.findall(b"[GETPOST]{3,4} (.*) HTTP/1\.[10]", header, flags=re.IGNORECASE)[0].decode("utf8")
 
         for each_filter in filter_list:
             if request_file.endswith(each_filter):
@@ -145,9 +147,11 @@ class PcapParser(BasicDeal):
             parse_data = scapy.all.utils.rdpcap(pcap_file_path)
             for each_packet in parse_data:
                 if self.is_http_packet(each_packet):
-                    header = str(self.get_raw_info(each_packet)).strip("b'\"")  # 去掉表示 byte 的符号
-                    header = header.replace(r"\r\n", "\r\n")  # 去掉多余转义符号
+                    header = self.get_raw_info(each_packet).load
                     # 过滤一下
+                    if br"\x" in header:
+                        print("[*] 正在测试 {}".format(header))
+
                     header = self.filter_header(header)
                     headers.append(header) if header else None  # 如果过滤完不为空就添加
         except Scapy_Exception:
@@ -217,7 +221,9 @@ class PcapParser(BasicDeal):
                     data_dict[each_pcap] = urls
                     self.print_message("提取 {} HTTP 请求成功".format(each_pcap), 2)
 
-            json.dump(data_dict, f)
+            for each in data_dict:
+                print("[*] 尝试写入 {} 的 {}".format(each, data_dict[each]))
+                json.dump(data_dict[each], f)
 
         print("[*] 提取完毕, 结果请见: {}".format(result_file_path))
 
