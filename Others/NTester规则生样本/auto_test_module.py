@@ -23,7 +23,7 @@ import scapy.sendrecv
 from scapy.layers.inet import IP, UDP
 from scapy.layers.dns import DNS, DNSQR
 from pcap_scapy_parse import PcapParser
-from requests.exceptions import ConnectTimeout, ReadTimeout, ConnectionError
+from requests.exceptions import ConnectTimeout, ReadTimeout, ConnectionError, TooManyRedirects
 
 __author__ = '__L1n__w@tch'
 
@@ -132,7 +132,7 @@ class AutoTester:
 
         try:
             response = requests.post(attack_url, headers=header, data=post_data, timeout=3)
-        except (ConnectTimeout, ReadTimeout, ValueError, ConnectionError):
+        except (ConnectTimeout, ReadTimeout, ValueError, ConnectionError, TooManyRedirects):
             if verbose:
                 print("[!] 发送 POST 请求失败: {}".format(attack_url))
 
@@ -155,7 +155,7 @@ class AutoTester:
 
         try:
             response = requests.get(attack_url, headers=header, timeout=3)
-        except (ConnectTimeout, ReadTimeout, ValueError, ConnectionError):
+        except (ConnectTimeout, ReadTimeout, ValueError, ConnectionError, TooManyRedirects):
             if verbose:
                 print("[!] 发送 GET 请求失败: {}".format(attack_url))
 
@@ -513,7 +513,7 @@ class AutoTester:
 
         try:
             response = requests.get(url, headers=headers, timeout=3)
-        except (ConnectTimeout, ReadTimeout, ValueError, ConnectionError):
+        except (ConnectTimeout, ReadTimeout, ValueError, ConnectionError, TooManyRedirects):
             if verbose:
                 print("[!] 发送 GET 请求失败: {}".format(url))
 
