@@ -147,6 +147,7 @@ class PcapParser(BasicDeal):
             parse_data = scapy.all.utils.rdpcap(pcap_file_path)
             for each_packet in parse_data:
                 if self.is_http_packet(each_packet):
+                    # TODO: 测试 full_test/WAFv2.33_packet/webshell/13080123.pcap 出现解码错误
                     header = self.get_raw_info(each_packet).load
                     # 过滤一下
                     if br"\x" in header:
