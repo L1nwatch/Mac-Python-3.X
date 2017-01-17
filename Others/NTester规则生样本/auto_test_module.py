@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # version: Python3.X
 """
+2017.01.17 重构整个自动化测试模块, 主要是配置文件读取, verbose 打印, sockets 丢包
 2017.01.11 开始添加 UTM 的支持, 比如说发送 DNS 数据包的功能
 2017.01.10 支持 SSH 连接执行命令了, 支持阻塞, 目前每次发包前都有些准备工作, 比如 清除日志/提权/加速日志 等操作
 2017.01.10 优化交互信息, 修复特殊 HTTP 请求会导致报错的 BUG, 支持 IPS 了
@@ -24,6 +25,7 @@ from scapy.layers.inet import IP, UDP
 from scapy.layers.dns import DNS, DNSQR
 from pcap_scapy_parse import PcapParser
 from requests.exceptions import ConnectTimeout, ReadTimeout, ConnectionError, TooManyRedirects
+from read_config import ConfigReader
 
 __author__ = '__L1n__w@tch'
 
@@ -31,24 +33,47 @@ TIMEOUT = 15  # 等待一段时间再查日志
 
 
 # TODO: 提供 sockets 丢包的方法
-# TODO: 至少两处需要重构
-# TODO: 重构 + 添加 verbose 选项
 # TODO: MySQL 连不上, 因为监听只在 127.0.0.1 上, 需要更改
 # TODO: 不支持输出文件的文件名指定
 # TODO: target_ip 需要重构
 
 class AutoTester:
-    def __init__(self, result_json_file_path, af_back_info, af_mysql_info):
+    def __init__(self, waf_ips_test_json, waf_ips_result_json, af_back_info, af_mysql_info, utm_url_test_json,
+                 utm_result_json, verbose=True):
         """
+        :param waf_ips_test_json: 解析 pcap 包得到的 json 格式文件
+        :param waf_ips_result_json: 验证之后的 waf/ips 结果 json
         :param af_back_info: 连接 af 后台所需的一切信息
-        :param result_json_file_path: 解析 pcap 包得到的 json 格式文件
         :param af_mysql_info: 连接 af MySQL 所需的一切信息
+        :param utm_result_json: 验证之后的 utm 结果 json 格式文件
+        :param verbose: 是否打印详细信息, 默认为 True, 即要打印
+        :param utm_url_test_json: utm url 解析后的 json 文件
         """
-        self.test_json_file = result_json_file_path
+        self.waf_ips_test_json = waf_ips_test_json
+        self.waf_ips_result_json = waf_ips_result_json
+        self.utm_url_test_json = utm_url_test_json
+        self.utm_result_json = utm_result_json
         self.af_mysql_info = af_mysql_info
         self.af_back_information = af_back_info
+        self.verbose = verbose
         self.af_mysql_connect = None  # 用于 mysql 连接
         self.af_back_connect = None  # 用于 af 后台连接
+
+    def print_message(self, message, style=1):
+        """
+        格式化打印信息
+        :param message: 要打印的信息
+        :param style: 按照指定格式进行打印
+        """
+        if self.verbose:
+            if style == 1:
+                print("[*] {sep} {message} {sep}".format(sep="=" * 30, message=message))
+            elif style == 2:
+                print("[*] {message}".format(message=message))
+            elif style == 3:
+                print("[!] {message}".format(message=message))
+            else:
+                raise RuntimeError("[!] 函数使用错误")
 
     @staticmethod
     def get_http_headers_dict(json_file_path):
@@ -67,7 +92,7 @@ class AutoTester:
         从 json 文件中读取每一个 http 头放到列表中
         :return: list(), 每一个元素是一个 http 头
         """
-        with open(self.test_json_file, "r") as f:
+        with open(self.waf_ips_test_json, "r") as f:
             data_dict = json.load(f)
 
         result_list = list()
@@ -103,8 +128,8 @@ class AutoTester:
     def get_post_data_from_http_header(http_header):
         """
         从 http 头获取 post 数据
-        :param http_header: str(), "POST /simple.php HTTP/1.1\r\nHost: 10.0.1.70\r\nConnection: keep-alive\r\nContent-Length: 113\r\nCache-Control: max-age=0\r\nOrigin: http://10.0.1.70\r\nUser-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.79 Safari/537.4\r\nContent-Type: application/x-www-form-urlencoded\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nReferer: http://10.0.1.70/simple.php\r\nAccept-Encoding: gzip,deflate,sdch\r\nAccept-Language: zh-CN,zh;q=0.8\r\nAccept-Charset: GBK,utf-8;q=0.7,*;q=0.3\r\n\r\ninput=%3CSTYLE%3E%40%5C0069mport+%27http%3A%2F%2Fevil.com%2Fevil.css%27%3C%2FSTYLE%3E++&%CC%E1%BD%BB=%CC%E1%BD%BB"
-        :return: str(), input=%3CSTYLE%3E%40%5C0069mport+%27http%3A%2F%2Fevil.com%2Fevil.css%27%3C%2FSTYLE%3E++&%CC%E1%BD%BB=%CC%E1%BD%BB
+        :param http_header: str(), "POST /simple.php HTT...Accept-Charset: ...\r\n\r\ninput=%3CSTYLE%3E%40%5C0069mport+"
+        :return: str(), input=%3CSTYLE%3E%40%5C0069mport+
         """
         post_data = http_header.split("\r\n\r\n", 1)
         if len(post_data) > 1:
@@ -112,52 +137,26 @@ class AutoTester:
         else:
             return ""
 
-    def send_post_request(self, http_header, ip, verbose=False):
-        """
-        发送 POST 请求
-        :param http_header: 要发送的 post 请求头
-        :param ip: 目标 IP
-        """
-        # TODO: 需要跟 GET 请求进行重构
+    def send_http_request_using_requests_lib(self, http_header, ip, method="GET"):
         url, header = self.parse_http_header(http_header)
-        post_data = self.get_post_data_from_http_header(http_header)
-
         # 有些请求是 POST test.pl HTTP/1.0 这种的, 提取出来没有根路径导致报错
         if url.startswith("/"):
             attack_url = "http://{}{}".format(ip, url)
         else:
             attack_url = "http://{}/{}".format(ip, url)
 
-        print("[*] 发送 POST 请求: {}".format(attack_url))
-
         try:
-            response = requests.post(attack_url, headers=header, data=post_data, timeout=3)
+            # 扔 GET 请求
+            if method == "GET":
+                self.print_message("发送 GET 请求: {}".format(attack_url), 2)
+                response = requests.get(attack_url, headers=header, timeout=3)
+            # 扔 POST 请求
+            elif method == "POST":
+                self.print_message("发送 POST 请求: {}".format(attack_url), 2)
+                post_data = self.get_post_data_from_http_header(http_header)
+                response = requests.post(attack_url, headers=header, data=post_data, timeout=3)
         except (ConnectTimeout, ReadTimeout, ValueError, ConnectionError, TooManyRedirects):
-            if verbose:
-                print("[!] 发送 POST 请求失败: {}".format(attack_url))
-
-    def send_get_request(self, http_header, ip, verbose=False):
-        """
-        发送 GET 请求
-        :param http_header: 要发送的 get 请求头
-        :param ip: 目标 IP
-        """
-        # TODO: 需要跟 POST 请求进行重构
-        url, header = self.parse_http_header(http_header)
-
-        # 有些请求是 GET test.pl HTTP/1.0 这种的, 提取出来没有根路径导致报错
-        if url.startswith("/"):
-            attack_url = "http://{}{}".format(ip, url)
-        else:
-            attack_url = "http://{}/{}".format(ip, url)
-
-        print("[*] 发送 GET 请求: {}".format(attack_url))
-
-        try:
-            response = requests.get(attack_url, headers=header, timeout=3)
-        except (ConnectTimeout, ReadTimeout, ValueError, ConnectionError, TooManyRedirects):
-            if verbose:
-                print("[!] 发送 GET 请求失败: {}".format(attack_url))
+            self.print_message("发送 {} 请求失败: {}".format(method, attack_url), 3)
 
     @staticmethod
     def get_sid_from_pcap_name(pcap_name):
@@ -171,12 +170,12 @@ class AutoTester:
             sid = sid.split("_")[0]
         return sid
 
-    def verify_waf_ips_packet(self, verbose=False):
+    def verify_waf_ips_packet(self):
         """
         验证 waf 和 ips 包和日志是否对应上
         """
         # 初始化
-        http_headers_dict = self.get_http_headers_dict(self.test_json_file)
+        http_headers_dict = self.get_http_headers_dict(self.waf_ips_test_json)
         efficient_pcap = dict()
 
         # 一个一个验证
@@ -185,66 +184,65 @@ class AutoTester:
         for each_pcap, each_pcap_https in http_headers_dict.items():
             sid = self.get_sid_from_pcap_name(each_pcap)
             if sid in db_sid_list:
-                print("[*] 验证 sid-{} 有对应的有效 pcap 包".format(sid))
+                self.print_message("验证 sid-{} 有对应的有效 pcap 包".format(sid), 2)
 
                 # 是有效请求, 记录相应信息
                 efficient_pcap.setdefault(each_pcap, list())
                 efficient_pcap[each_pcap].extend(each_pcap_https)
-            elif verbose:
-                print("[!] 该 sid-{} 在数据库中查找不到".format(sid))
+            else:
+                self.print_message("该 sid-{} 在数据库中查找不到".format(sid), 3)
 
         # 记录
-        # TODO: 文件名怎么写死了
-        with open("efficient_pcap.json", "w") as f:
+        with open(self.waf_ips_result_json, "w") as f:
             json.dump(efficient_pcap, f)
 
-    def verify_pcap_all_together(self, ip, verbose=False):
+    def send_waf_ips_packets(self, target_ip_address):
+        """
+        丢 waf/ips 的包
+        :param target_ip_address: 丢包丢给谁?
+        """
+        print("[*] 开始丢 waf/ips 包")
+        http_headers_dict = self.get_http_headers_dict(self.waf_ips_test_json)
+
+        for each_pcap, each_pcap_https in http_headers_dict.items():
+            for each_http in each_pcap_https:
+                self.send_request(each_http, target_ip_address)
+
+    def send_utm_packets(self, target_ip_address):
+        """
+        丢 utm 包
+        :param target_ip_address: 测试服务器的 IP 地址
+        """
+        print("[*] 开始丢 utm 包")
+        # 获取所有 urls
+        all_urls_list = self.get_all_utm_urls(self.utm_url_test_json)
+
+        # 把所有 urls 丢过去
+        for each_utm_url in all_urls_list:
+            self.send_request_with_host(each_utm_url, target_ip_address)
+
+    def verify_waf_ips_pcaps_all_together(self, ip):
         """
         一口气把所有的包都扔过去, 然后再验证哪些规则有效
         :param ip: 目标 IP, 构造请求时使用
         :return:
         """
-        # TODO: 需要重构, 已经新编了一个丢包和验证的子方法了
         # 初始化
-        http_headers_dict = self.get_http_headers_dict(self.test_json_file)
-        efficient_pcap = dict()
-
-        # 扔包
-        print("[*] 开始丢包")
-        for each_pcap, each_pcap_https in http_headers_dict.items():
-            for each_http in each_pcap_https:
-                self.send_request(each_http, ip)
+        self.send_waf_ips_packets(ip)
 
         print("[*] 丢包完成")
         print("[*] 等待 {} s".format(TIMEOUT))
         time.sleep(TIMEOUT)
 
-        # 一个一个验证
-        print("[*] 开始进行验证")
-        db_sid_list = self.af_mysql_connect.get_all_sid_in_log_tables(["WAF", "IPS"])
-        for each_pcap, each_pcap_https in http_headers_dict.items():
-            sid = self.get_sid_from_pcap_name(each_pcap)
-            if sid in db_sid_list:
-                print("[*] 验证 sid-{} 有对应的有效 pcap 包".format(sid))
+        self.verify_waf_ips_packet()
 
-                # 是有效请求, 记录相应信息
-                efficient_pcap.setdefault(each_pcap, list())
-                efficient_pcap[each_pcap].extend(each_pcap_https)
-            elif verbose:
-                print("[!] 该 sid-{} 在数据库中查找不到".format(sid))
-
-        # 记录
-        # TODO: 文件名怎么写死了
-        with open("efficient_pcap.json", "w") as f:
-            json.dump(efficient_pcap, f)
-
-    def verify_pcap_each_by_each(self, ip, result_to_file=True):
+    def verify_waf_ips_pcaps_each_by_each(self, ip, result_to_file=True):
         """
         验证每一个 pcap 包, 如果是有效的则进入样本库, 这种方式是一个一个验证的, 效率极低, 但是精确度会高一些(不保证100%, 原因是等待时间不确定)
         :param ip: 目标 IP, 构造请求时使用
         :param result_to_file: True or False, 标记是否把输出结果打印到文件中, 方便排查, True 表示写到调试文件中
         """
-        http_headers_dict = self.get_http_headers_dict(self.test_json_file)
+        http_headers_dict = self.get_http_headers_dict(self.waf_ips_test_json)
         efficient_pcap = dict()
 
         # TODO: 调试文件名是写死的
@@ -276,10 +274,10 @@ class AutoTester:
         # POST 请求
         if PcapParser.is_http_post_request_header(http_packet):
             # 攻击之后判断 sid 存在于数据库中
-            self.send_post_request(http_packet, ip)
+            self.send_http_request_using_requests_lib(http_packet, ip, "POST")
         # GET 请求
         elif PcapParser.is_http_get_request_header(http_packet):
-            self.send_get_request(http_packet, ip)
+            self.send_http_request_using_requests_lib(http_packet, ip, "GET")
         # 其他请求
         else:
             raise RuntimeError("遇到无法解析的 HTTP 头了")
@@ -298,14 +296,14 @@ class AutoTester:
             return self.af_mysql_connect.is_sid_in_waf_log(sid)
         return False
 
-    def af_back_prepare(self, local_ip_address, target_ip):
+    def af_back_prepare(self, local_ip_address, target_ip_address):
         """
         进行一些 af 后台的预备操作, 比如清除数据库日志/加快日志创建速度等
         :param local_ip_address: 本地 IP 地址
-        :param target_ip: 测试服务器的 IP 地址
+        :param target_ip_address: 测试服务器的 IP 地址
         """
         # 打印配置信息
-        print("[*] 设置本地 IP 为: {}, 测试 IP 为: {}".format(local_ip_address, target_ip))
+        print("[*] 本地 IP 为: {}, 测试 IP 为: {}".format(local_ip_address, target_ip_address))
         print("[*] AF 的后台连接信息: {}".format(self.af_back_information))
         print("[*] AF 的 MySQL 数据库连接信息: {}".format(self.af_mysql_info))
 
@@ -320,45 +318,34 @@ class AutoTester:
         try:
             af_ssh_connect.connect_then_execute_many_commands(prepare_commands)
         except TimeoutError:
-            print("[!] 连接超时, 请确定配置信息正确")
+            self.print_message("连接超时, 请确定配置信息正确", 3)
             raise RuntimeError("连接超时")
 
-    def send_waf_ips_utm_packet(self, target_ip):
+    def send_waf_ips_utm_packet(self, target_ip_address):
         """
         进行 waf/ips/utm 的丢包操作
-        :param target_ip: 测试主机的 IP
+        :param target_ip_address: 测试主机的 IP
         :return:
         """
-        print("[*] 开始丢 waf/ips 包")
-        http_headers_dict = self.get_http_headers_dict(self.test_json_file)
+        self.send_waf_ips_packets(target_ip_address)
 
-        for each_pcap, each_pcap_https in http_headers_dict.items():
-            for each_http in each_pcap_https:
-                self.send_request(each_http, target_ip)
+        self.send_utm_packets(target_ip_address)
 
-        print("[*] 开始丢 utm 包")
-        # 获取所有 urls
-        all_urls_list = self.get_all_utm_urls("utm_url_result.json")
-
-        # 把所有 urls 丢过去
-        for each_utm_url in all_urls_list:
-            self.send_request_with_host(each_utm_url, target_ip)
-
-    def run(self, local_ip, target_ip):
+    def run(self, local_ip_address, target_ip_address):
         """
         完成自动化测试流程, 这个方法先把所有类型的包丢出去, 然后再依次进行验证
-        :param local_ip: 本地 IP 地址
-        :param target_ip: 测试服务器的 IP 地址
+        :param local_ip_address: 本地 IP 地址
+        :param target_ip_address: 测试服务器的 IP 地址
         """
         print("[*] 进行验证阶段必要的初始化工作")
         # AF 后台准备工作
-        self.af_back_prepare(local_ip, target_ip)
+        self.af_back_prepare(local_ip_address, target_ip_address)
 
         # 初始化 MySQL 连接实例
         self.af_mysql_connect = AFMySQLQuery(*self.af_mysql_info)
 
         print("[*] 开始进行丢包操作")
-        self.send_waf_ips_utm_packet(target_ip)
+        self.send_waf_ips_utm_packet(target_ip_address)
 
         print("[*] 丢包完成, 等待 {}s 后开始验证".format(TIMEOUT))
         time.sleep(TIMEOUT)
@@ -373,28 +360,27 @@ class AutoTester:
 
         print("[*] 自动化验证阶段结束")
 
-    def run2(self, local_ip, target_ip):
+    def run2(self, local_ip_address, target_ip_address):
         """
         完成自动化测试流程, 这个方法区别于 run, 这个方法先验证 waf/ips, 之后才验证 utm
-        :param local_ip: 本地 IP 地址
-        :param target_ip: 测试服务器的 IP 地址
+        :param local_ip_address: 本地 IP 地址
+        :param target_ip_address: 测试服务器的 IP 地址
         """
         # AF 后台准备工作
-        self.af_back_prepare(local_ip)
+        self.af_back_prepare(local_ip_address)
 
         # 初始化 MySQL 连接实例
         self.af_mysql_connect = AFMySQLQuery(*self.af_mysql_info)
 
         # 解析 HTTP 请求头, 按照 requests 库封装好并发送出去
         # 验证 IPS/WAF
-        # TODO: 加个可选项, 选择一口气全部扔过去还是一个一个扔
         print("[*] 开始验证 waf/ips")
-        self.verify_pcap_all_together(target_ip)  # 全部扔过去再一个一个验证
+        self.verify_waf_ips_pcaps_all_together(target_ip_address)  # 全部扔过去再一个一个验证
         # self.verify_pcap_each_by_each(target_ip)  # 一个一个扔包后再验证
 
         # 验证 UTM
         print("[*] 开始验证 utm")
-        self.verify_utm_urls_all_together(target_ip)
+        self.verify_utm_urls_all_together(target_ip_address)
 
     @staticmethod
     def is_efficient_utm_url(url, utm_log_data):
@@ -436,35 +422,23 @@ class AutoTester:
         :return:
         """
         # 获取所有 urls
-        all_urls_list = self.get_all_utm_urls("utm_url_result.json")
+        all_urls_list = self.get_all_utm_urls(self.utm_url_test_json)
 
         # 查询日志, 提取出有效的 url 及 sid 信息
         valid_url_dict = self.get_efficient_urls_sids_dict(all_urls_list)
 
         # 把有效的 urls 保存下来
-        with open("efficient_utm_urls.json", "w") as f:
+        with open(self.utm_result_json, "w") as f:
             json.dump(valid_url_dict, f)
 
-    def verify_utm_urls_all_together(self, target_ip):
+    def verify_utm_urls_all_together(self, target_ip_address):
         """
         验证所有 utm urls 是否有效
-        :param target_ip: 测试用的目标 IP
+        :param target_ip_address: 测试用的目标 IP
         :return:
         """
-        # TODO: 需要重构, 已经有一个丢包和验证的子方法了
-        # 获取所有 urls
-        all_urls_list = self.get_all_utm_urls("utm_url_result.json")
-
-        # 把所有 urls 丢过去
-        for each_utm_url in all_urls_list:
-            self.send_request_with_host(each_utm_url, target_ip)
-
-        # 查询日志, 提取出有效的 url 及 sid 信息
-        valid_url_dict = self.get_efficient_urls_sids_dict(all_urls_list)
-
-        # 把有效的 urls 保存下来
-        with open("efficient_utm_urls.json", "w") as f:
-            json.dump(valid_url_dict, f)
+        self.send_utm_packets(target_ip_address)
+        self.verify_utm_packet()
 
     @staticmethod
     def send_dns_query_packet(dns_server_ip, query_domain):
@@ -493,17 +467,16 @@ class AutoTester:
             host, path = url, ""
         return host, "{}".format(path)
 
-    def send_request_with_host(self, url, target_ip, verbose=False):
+    def send_request_with_host(self, url, target_ip_address):
         """
         发送一个 GET 请求, 带 HOST 字段的, 主要是用来测试 UTM 的
         :param url: 要发送的 URL, 会自动提取 host 字段
-        :param target_ip: 往哪个 IP 丢包
-        :param verbose: True or False, 表示是否打印详细信息
+        :param target_ip_address: 往哪个 IP 丢包
         :return:
         """
         domain, path = self.get_host_from_url(url)
 
-        url = "http://{}/{}".format(target_ip, path)
+        url = "http://{}/{}".format(target_ip_address, path)
         headers = {
             "Host": "{}".format(domain),
             "User-Agent": "User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)"
@@ -514,8 +487,7 @@ class AutoTester:
         try:
             response = requests.get(url, headers=headers, timeout=3)
         except (ConnectTimeout, ReadTimeout, ValueError, ConnectionError, TooManyRedirects):
-            if verbose:
-                print("[!] 发送 GET 请求失败: {}".format(url))
+            self.print_message("发送 GET 请求失败: {}".format(url), 3)
 
     @staticmethod
     def get_all_utm_urls(json_file_path):
@@ -558,6 +530,7 @@ class AFMySQLQuery:
         table_name_list = list()
 
         # WAF 库
+        # TODO: 表名是否要提取出来进配置文件
         table_name_list.append("X{}".format(today))
 
         # IPS 库
@@ -577,24 +550,25 @@ class AFMySQLQuery:
         result_sid_list.extend(self.get_all_sid_in_waf_log())
 
         # 获取 IPS 的所有 sid
-        result_sid_list.extend(self.get_all_sid_in_ips_log())
+        result_sid_list.extend(self.get_all_hole_id_in_ips_log())
 
         return result_sid_list
 
-    def get_all_sid_in_ips_log(self):
+    def get_one_field_from_log_table(self, field_name, table_name):
         """
-        获取 waf 数据库中所有 sid 号
-        :return: list(), 保存所有 sid
+        从指定表获取指定字段
+        :param field_name: 字段名
+        :param table_name: 表名
+        :return: list(), 获取该字段的所有结果
         """
-        # TODO: 需要重构, 跟 waf 的区别仅仅是表名以及字段名
-        today = self.get_today_date()
-        result_sid_list = list()
+        result_list = list()
 
         with pymysql.connect(self.af_ip, self.mysql_user, self.mysql_pw, self.db_name) as cursor:
-            if self.is_table_exists(cursor, "I{}".format(today)):
+            if self.is_table_exists(cursor, "{}".format(table_name)):
                 # 执行 SQL 查询
                 cursor.execute(
-                    "SELECT hole_id FROM I{} WHERE record_time > '00:00' AND record_time < '23:59'".format(today)
+                    "SELECT {}} FROM {} WHERE record_time > '00:00' AND record_time < '23:59'".format(field_name,
+                                                                                                      table_name)
                 )
                 data = cursor.fetchall()
 
@@ -602,75 +576,64 @@ class AFMySQLQuery:
                 for each_log in data:
                     if len(each_log) > 0:
                         log_sid = each_log[0]
-                        result_sid_list.append(str(log_sid))
+                        result_list.append(str(log_sid))
 
-        return result_sid_list
+        return result_list
+
+    def get_all_hole_id_in_ips_log(self):
+        """
+        获取 waf 数据库中所有 sid 号
+        :return: list(), 保存所有 sid
+        """
+        today = self.get_today_date()
+        return self.get_one_field_from_log_table("hole_id", "I{}".format(today))
 
     def get_all_sid_in_waf_log(self):
         """
         获取 waf 数据库中所有 sid 号
         :return: list(), 保存所有 sid
         """
-        # TODO: 需要重构, 跟 ips 的区别仅仅是表名以及字段名
         today = self.get_today_date()
-        result_sid_list = list()
+        return self.get_one_field_from_log_table("sid", "X{}".format(today))
 
-        with pymysql.connect(self.af_ip, self.mysql_user, self.mysql_pw, self.db_name) as cursor:
-            if self.is_table_exists(cursor, "X{}".format(today)):
-                # 执行 SQL 查询
-                cursor.execute(
-                    "SELECT sid FROM X{} WHERE record_time > '00:00' AND record_time < '23:59'".format(today)
-                )
-                data = cursor.fetchall()
-
-                # 保存 ID 号
-                for each_log in data:
-                    if len(each_log) > 0:
-                        log_sid = each_log[0]
-                        result_sid_list.append(str(log_sid))
-
-        return result_sid_list
-
-    def get_attack_type_from_waf_log(self, cursor, sid):
+    @staticmethod
+    def get_attack_type_from_log_table(cursor, rule_id, table_name, field_name):
         """
-        通过 sid 号获取 waf 日志中对应记录的 attack_type
+        通过 sid/hole_id 号获取 waf/ips 日志中对应记录的 attack_type
         :param cursor: 游标对象
-        :param sid: 规则 ID 号
+        :param rule_id: 规则 ID 号
+        :param table_name: 表名, ips 和 waf 表名不一样
+        :param field_name: 字段名, ips 和 waf 规则 ID 的字段名不一样
         :return: str(), catagory_id 号
         """
-        # TODO: 需要重构, 跟 ips 的区别仅仅是表名以及字段名
-        today = self.get_today_date()
-
-        sql = "SELECT attack_type FROM X{} WHERE sid = {} AND record_time > '00:00' AND record_time < '23:59'" \
-            .format(today, sid)
+        sql = "SELECT attack_type FROM {} WHERE {} = {} AND record_time > '00:00' AND record_time < '23:59'".format(
+            table_name, field_name, rule_id)
 
         cursor.execute(sql)
 
         data = cursor.fetchone()
-
-        return data[0]
-
-    def get_attack_type_from_ips_log(self, cursor, sid):
-        """
-        通过 sid 号获取 ips 日志中对应记录的 attack_type
-        :param cursor: 游标对象
-        :param sid: 规则 ID 号
-        :return: str(), catagory_id 号
-        """
-        # TODO: 需要重构, 跟 ips 的区别仅仅是表名以及字段名
-        today = self.get_today_date()
-
-        sql = "SELECT attack_type FROM I{} WHERE hole_id = {} AND record_time > '00:00' AND record_time < '23:59'" \
-            .format(today, sid)
-
-        cursor.execute(sql)
-
-        data = cursor.fetchone()
-
         # 查询不到的话, 检查是不是数据库日志被清空了?
         assert len(data) > 0
 
         return data[0]
+
+    def get_attack_type_from_waf_log(self, cursor, sid):
+        """
+        通过 sid/hole_id 号获取 waf/ips 日志中对应记录的 attack_type
+        :return: str(), catagory_id 号
+        """
+        today = self.get_today_date()
+        return self.get_attack_type_from_log_table(cursor, sid, "X{}".format(today), "sid")
+
+    def get_attack_type_from_ips_log(self, cursor, hole_id):
+        """
+        通过 sid 号获取 ips 日志中对应记录的 attack_type
+        :param cursor: 游标对象
+        :param hole_id: 规则 ID 号
+        :return: str(), catagory_id 号
+        """
+        today = self.get_today_date()
+        return self.get_attack_type_from_log_table(cursor, hole_id, "I{}".format(today), "hole_id")
 
     def is_sid_in_waf_log(self, sid):
         """
@@ -810,7 +773,19 @@ class AFSSHConnector:
 
 
 if __name__ == "__main__":
-    af_mysql_information = ("192.192.90.134", "root", "root", "FW_LOG_fwlog")
-    af_back_information = ("192.192.90.134", 22345, "admin", "1")
-    at = AutoTester("2th_headers_result.json", af_back_information, af_mysql_information)
-    at.run(local_ip="192.192.90.135", target_ip="192.168.116.2")
+    # 读取配置
+    cr = ConfigReader("config_file_for_test.conf")
+
+    waf_ips_test_json_file = cr.cp.get("json_file_name", "waf_ips_pcap_parse_result_json_file")
+    waf_ips_pcap_after_test_json_file = cr.cp.get("json_file_name", "waf_ips_pcap_after_test_json_file")
+    utm_url_test_json_file = cr.cp.get("json_file_name", "utm_parse_result_json_file")
+    utm_after_test_json_file = cr.cp.get("json_file_name", "utm_after_test_json_file")
+    af_mysql_information = cr.read_mysql_info()
+    af_back_information = cr.read_af_back_info()
+    local_ip, target_ip = cr.read_ip_info()
+    need_verbose = cr.cp.getboolean("Others", "verbose")
+
+    # 开始测试
+    at = AutoTester(waf_ips_test_json_file, waf_ips_pcap_after_test_json_file, af_back_information,
+                    af_mysql_information, utm_url_test_json_file, utm_url_test_json_file, need_verbose)
+    at.run(local_ip, target_ip)
