@@ -79,6 +79,7 @@ class UTMParser:
 
 
 if __name__ == "__main__":
+    # TODO: 改为配置文件读取
     svn_info = ("https://200.200.0.8/svn/test/测试部文件服务器/测试工程/AF版本/AF规则/UTM规则验证/",
                 "linfeng", "lf123456", "./utm_urls_lib")
     utm_parser = UTMParser(svn_info)
