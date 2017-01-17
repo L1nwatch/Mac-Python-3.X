@@ -281,8 +281,7 @@ class PcapParser:
 
 if __name__ == "__main__":
     # 读取配置
-    cr = ConfigReader()
-    cr.cp.read("config_file_for_test.conf")
+    cr = ConfigReader("config_file_for_test.conf")
 
     result_json_file_path = cr.cp.get("json_file_name", "waf_ips_pcap_parse_result_json_file")
     test_root_path = cr.cp.get("Others", "pcaps_root_path")
