@@ -792,4 +792,3 @@ if __name__ == "__main__":
     at = AutoTester(waf_ips_test_json_file, waf_ips_pcap_after_test_json_file, af_back_information,
                     af_mysql_information, utm_url_test_json_file, utm_url_test_json_file, need_verbose)
     at.run(local_ip, target_ip)
-    at.send
