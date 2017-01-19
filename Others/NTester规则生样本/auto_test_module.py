@@ -194,6 +194,7 @@ class AutoTester(BasicDeal):
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock_connect:
                     sock_connect.connect((target_ip_address, 80))
                     sock_connect.sendall(http_header.encode("utf8"))
+                break
             except ConnectionRefusedError:
                 times -= 1
                 time.sleep(1)
@@ -791,3 +792,4 @@ if __name__ == "__main__":
     at = AutoTester(waf_ips_test_json_file, waf_ips_pcap_after_test_json_file, af_back_information,
                     af_mysql_information, utm_url_test_json_file, utm_url_test_json_file, need_verbose)
     at.run(local_ip, target_ip)
+    at.send
