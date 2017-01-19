@@ -59,7 +59,6 @@ class AutoTester(BasicDeal):
         self.af_back_information = af_back_info
         self.af_mysql_connect = None  # 用于 mysql 连接
         self.af_back_connect = None  # 用于 af 后台连接
-        self.sock_connect = None  # 连接 server 的 sock, 丢包用的
 
     @staticmethod
     def get_http_headers_dict(json_file_path):
@@ -182,34 +181,35 @@ class AutoTester(BasicDeal):
         with open(self.waf_ips_result_json, "w") as f:
             json.dump(efficient_pcap, f)
 
-    def send_packet_using_sock(self, http_header, target_ip_address):
+    @staticmethod
+    def send_packet_using_sock(http_header, target_ip_address):
         """
         用 sock 方式丢包
         :param http_header: str(), 整个 http 头, 比如 "POST /simple.php HTTP/1.1\r\nHost: www.shenxinfu.com..."
-        :return:
+        :param target_ip_address: 丢包丢给谁?
         """
-        if self.sock_connect is None:
-            self.sock_connect = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.sock_connect.connect((target_ip_address, 80))
-        try:
-            self.sock_connect.send(http_header.encode("utf8"))
-        except Exception:
-            print("[!] 丢这个包的时候出错了: {}".format(http_header.encode("utf8")))
-            self.sock_connect.close()
-            exit(0)
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock_connect:
+            sock_connect.connect((target_ip_address, 80))
+            sock_connect.sendall(http_header.encode("utf8"))
 
-    def send_waf_ips_packets(self, target_ip_address):
+    def send_waf_ips_packets(self, target_ip_address, choice="socket"):
         """
         丢 waf/ips 的包
         :param target_ip_address: 丢包丢给谁?
+        :param choice: "socket" or "requests", 选择用哪种方式丢包
         """
-        print("[*] 开始丢 waf/ips 包")
+        print("[*] 开始丢 waf/ips 包, 采用 {} 方式".format(choice))
         http_headers_dict = self.get_http_headers_dict(self.waf_ips_test_json)
 
         for each_pcap, each_pcap_https in http_headers_dict.items():
+            self.print_message("开始丢 {} 中的 packet".format(each_pcap), 2)
             for each_http in each_pcap_https:
-                self.send_packet_using_sock(each_http, target_ip_address)
-                # self.send_request(each_http, target_ip_address)
+                if choice.lower() == "socket":
+                    self.send_packet_using_sock(each_http, target_ip_address)
+                elif choice.lower() == "requests":
+                    self.send_request(each_http, target_ip_address)
+                else:
+                    raise RuntimeError("函数使用错误")
 
     def send_utm_packets(self, target_ip_address):
         """
@@ -324,22 +324,13 @@ class AutoTester(BasicDeal):
             self.print_message("连接超时, 请确定配置信息正确", 3)
             raise RuntimeError("连接超时")
 
-    def send_waf_ips_utm_packet(self, target_ip_address):
-        """
-        进行 waf/ips/utm 的丢包操作
-        :param target_ip_address: 测试主机的 IP
-        :return:
-        """
-        self.send_waf_ips_packets(target_ip_address)
-
-        self.send_utm_packets(target_ip_address)
-
-    def run(self, local_ip_address, target_ip_address):
+    def run(self, local_ip_address, target_ip_address, choice="socket"):
         """
         完成自动化测试流程, 这个方法先把所有类型的包丢出去, 然后再依次进行验证
         丢包时, waf 和 ips 采用 sockets 方式丢, utm 采用 requests 丢
         :param local_ip_address: 本地 IP 地址
         :param target_ip_address: 测试服务器的 IP 地址
+        :param choice: "socket" or "requests", 选择用哪种方式丢包
         """
         print("[*] 进行验证阶段必要的初始化工作")
         # AF 后台准备工作
@@ -349,7 +340,8 @@ class AutoTester(BasicDeal):
         self.af_mysql_connect = AFMySQLQuery(*self.af_mysql_info)
 
         print("[*] 开始进行丢包操作")
-        self.send_waf_ips_utm_packet(target_ip_address)
+        self.send_waf_ips_packets(target_ip_address, choice)
+        self.send_utm_packets(target_ip_address)
 
         print("[*] 丢包完成, 等待 {}s 后开始验证".format(TIMEOUT))
         time.sleep(TIMEOUT)
@@ -365,35 +357,6 @@ class AutoTester(BasicDeal):
         print("[*] 自动化验证阶段结束")
 
     def run2(self, local_ip_address, target_ip_address):
-        """
-        完成自动化测试流程, 这个方法先把所有类型的包丢出去, 然后再依次进行验证
-        :param local_ip_address: 本地 IP 地址
-        :param target_ip_address: 测试服务器的 IP 地址
-        """
-        print("[*] 进行验证阶段必要的初始化工作")
-        # AF 后台准备工作
-        self.af_back_prepare(local_ip_address, target_ip_address)
-
-        # 初始化 MySQL 连接实例
-        self.af_mysql_connect = AFMySQLQuery(*self.af_mysql_info)
-
-        print("[*] 开始进行丢包操作")
-        self.send_waf_ips_utm_packet(target_ip_address)
-
-        print("[*] 丢包完成, 等待 {}s 后开始验证".format(TIMEOUT))
-        time.sleep(TIMEOUT)
-
-        # 验证 IPS/WAF
-        print("[*] 开始验证 waf/ips")
-        self.verify_waf_ips_packet()
-
-        # 验证 UTM
-        print("[*] 开始验证 utm")
-        self.verify_utm_packet()
-
-        print("[*] 自动化验证阶段结束")
-
-    def run3(self, local_ip_address, target_ip_address):
         """
         完成自动化测试流程, 这个方法区别于 run, 这个方法先验证 waf/ips, 之后才验证 utm
         :param local_ip_address: 本地 IP 地址
@@ -600,8 +563,8 @@ class AFMySQLQuery:
             if self.is_table_exists(cursor, "{}".format(table_name)):
                 # 执行 SQL 查询
                 cursor.execute(
-                    "SELECT {}} FROM {} WHERE record_time > '00:00' AND record_time < '23:59'".format(field_name,
-                                                                                                      table_name)
+                    "SELECT {} FROM {} WHERE record_time > '00:00' AND record_time < '23:59'".format(field_name,
+                                                                                                     table_name)
                 )
                 data = cursor.fetchall()
 
@@ -821,5 +784,4 @@ if __name__ == "__main__":
     # 开始测试
     at = AutoTester(waf_ips_test_json_file, waf_ips_pcap_after_test_json_file, af_back_information,
                     af_mysql_information, utm_url_test_json_file, utm_url_test_json_file, need_verbose)
-    # at.run(local_ip, target_ip)
-    at.send_waf_ips_packets(target_ip)
+    at.run(local_ip, target_ip)

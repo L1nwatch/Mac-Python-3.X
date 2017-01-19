@@ -83,11 +83,12 @@ class ConfigReader:
     def read_des_info(self):
         """
         读取 DES 相关信息
-        :return: list(), 比如 ["sangfor!", "sangfor*"]
+        :return: list(), 比如 [b"sangfor!", b"sangfor*"]
         """
         section_name = "Others"
         fields = ["des_key", "des_iv"]
-        return self.read_section_fields(section_name, fields)
+        des_key, des_iv = self.read_section_fields(section_name, fields)
+        return des_key.encode("utf8"), des_iv.encode("utf8")
 
     def read_lib_info(self):
         """
@@ -96,6 +97,15 @@ class ConfigReader:
         """
         section_name = "Others"
         fields = ["result_lib_name", "result_waf_ips_table_name", "result_utm_table_name"]
+        return self.read_section_fields(section_name, fields)
+
+    def read_svn_info(self):
+        """
+        读取 svn 相关信息
+        :return: list(), 比如 ["https://200.200.0.8/", "linfeng", "lf123456"]
+        """
+        section_name = "svn"
+        fields = ["svn_address", "svn_user", "svn_passwd"]
         return self.read_section_fields(section_name, fields)
 
 

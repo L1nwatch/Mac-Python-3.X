@@ -21,6 +21,7 @@ from Crypto.Cipher import DES
 from itertools import zip_longest
 from auto_test_module import AutoTester, AFMySQLQuery
 from collections import namedtuple
+from common_basic import ConfigReader, BasicDeal
 
 __author__ = '__L1n__w@tch'
 
@@ -30,14 +31,15 @@ __author__ = '__L1n__w@tch'
 # TODO: 添加 verbose 选项, 现在打印的消息有点多, 另外需要加入 logger 负责打印信息的
 
 
-class LibCreator:
-    def __init__(self, key, iv, waf_ips_json_path, utm_json_path):
+class LibCreator(BasicDeal):
+    def __init__(self, key, iv, waf_ips_json_path, utm_json_path, verbose=True):
         """
         :param waf_ips_json_path: 解析 pcap 包得到的 json 格式文件
         :param utm_json_path: utm 样本 json 格式文件
         :param key: des 密钥
         :param iv: des-CBC 模式使用的 iv
         """
+        super().__init__(verbose)
         self.key = key
         self.iv = iv
         self.waf_ips_json_file = waf_ips_json_path
@@ -401,8 +403,16 @@ class LibCreator:
 
 
 if __name__ == "__main__":
-    af_mysql_information = ("192.192.90.134", "root", "root", "FW_LOG_fwlog")
-    des_key = b"sangfor!"
-    des_cbc_iv = b"sangfor*"
-    lc = LibCreator(des_key, des_cbc_iv, "efficient_pcap.json", "efficient_utm_urls.json")
-    lc.run("test.lib", "sample_waf_ips", "sample_utm", af_mysql_information)
+    # 读取配置
+    cr = ConfigReader("config_file_for_test.conf")
+
+    waf_ips_pcap_after_test_json_file = cr.cp.get("json_file_name", "waf_ips_pcap_after_test_json_file")
+    utm_after_test_json_file = cr.cp.get("json_file_name", "utm_after_test_json_file")
+    af_mysql_information = cr.read_mysql_info()
+    des_key, des_cbc_iv = cr.read_des_info()
+    lib_name, waf_ips_table_name, utm_table_name = cr.read_lib_info()
+    need_verbose = cr.cp.getboolean("Others", "verbose")
+
+    # 开始生成样本库
+    lc = LibCreator(des_key, des_cbc_iv, waf_ips_pcap_after_test_json_file, utm_after_test_json_file, need_verbose)
+    lc.run(lib_name, waf_ips_table_name, utm_table_name, af_mysql_information)

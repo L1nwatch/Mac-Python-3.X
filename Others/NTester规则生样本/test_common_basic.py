@@ -48,8 +48,8 @@ class TestConfigReader(unittest.TestCase):
         测试读取 des 相关信息
         """
         des_key, des_iv = self.test_cr.read_des_info()
-        self.assertEqual(des_key, "sangfor!")
-        self.assertEqual(des_iv, "sangfor*")
+        self.assertEqual(des_key, b"sangfor!")
+        self.assertEqual(des_iv, b"sangfor*")
 
     def test_read_lib_info(self):
         """
@@ -60,6 +60,14 @@ class TestConfigReader(unittest.TestCase):
         self.assertEqual(waf_ips, "sample_waf_ips")
         self.assertEqual(utm, "sample_utm")
 
+    def test_read_svn_info(self):
+        """
+        测试读取 svn 信息
+        """
+        svn_address,svn_user,svn_passwd = self.test_cr.read_svn_info()
+        self.assertEqual(svn_address, "https://200.200.0.8/svn/test/测试部文件服务器/测试工程/AF版本/AF规则/UTM规则验证/")
+        self.assertEqual(svn_user, "linfeng")
+        self.assertEqual(svn_passwd, "lf123456")
 
 if __name__ == "__main__":
     pass

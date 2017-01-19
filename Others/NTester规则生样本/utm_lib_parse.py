@@ -11,6 +11,7 @@ except ImportError:
 
 import svn.remote
 import os
+from common_basic import ConfigReader, BasicDeal
 
 __author__ = '__L1n__w@tch'
 
@@ -19,9 +20,11 @@ __author__ = '__L1n__w@tch'
 # TODO: 解密三个 entry 文件
 # TODO: 解析解密后的文件
 
-class UTMParser:
-    def __init__(self, svn_information):
-        self.svn_url, self.svn_user, self.svn_passwd, self.checkout_path = svn_information
+class UTMParser(BasicDeal):
+    def __init__(self, svn_information, checkout_path, verbose=True):
+        super().__init__(verbose)
+        self.svn_url, self.svn_user, self.svn_passwd, = svn_information
+        self.checkout_path = checkout_path
 
     def get_latest_utm_urls(self, target_path):
         """
@@ -79,8 +82,14 @@ class UTMParser:
 
 
 if __name__ == "__main__":
-    # TODO: 改为配置文件读取
-    svn_info = ("https://200.200.0.8/svn/test/测试部文件服务器/测试工程/AF版本/AF规则/UTM规则验证/",
-                "linfeng", "lf123456", "./utm_urls_lib")
-    utm_parser = UTMParser(svn_info)
-    utm_parser.run("utm_url_result.json")
+    # 读取配置
+    cr = ConfigReader("config_file_for_test.conf")
+
+    svn_info = cr.read_svn_info()
+    checkout_path = cr.cp.get("Others", "utm_checkout_path")
+    utm_url_result_json = cr.cp.get("json_file_name", "utm_parse_result_json_file")
+    need_verbose = cr.cp.getboolean("Others", "verbose")
+
+    # 开始解析
+    utm_parser = UTMParser(svn_info, checkout_path, need_verbose)
+    utm_parser.run(utm_url_result_json)
