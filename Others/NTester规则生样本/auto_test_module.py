@@ -68,7 +68,7 @@ class AutoTester(BasicDeal):
         :return: dict(), 每一个元素是一个 http 头及其 pcap 包
         """
         with shelve.open(json_file_path) as f:
-        # with open(json_file_path, "r") as f:
+            # with open(json_file_path, "r") as f:
             data_dict = f["data"]
 
         return data_dict
@@ -175,7 +175,7 @@ class AutoTester(BasicDeal):
 
                 # 是有效请求, 记录相应信息
                 efficient_pcap.setdefault(each_pcap, list())
-                efficient_pcap[each_pcap].extend(each_pcap_https)
+                efficient_pcap[each_pcap].extend(each_pcap_https.decode("utf8", errors="backslashreplace"))
             else:
                 self.print_message("该 sid-{} 在数据库中查找不到".format(sid), 3)
 
