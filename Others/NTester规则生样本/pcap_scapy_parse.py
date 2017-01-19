@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # version: Python3.X
 """
+2017.01.19 重构了输出格式, 添加了编码判断, 因为写成 json 的时候不一定能够写入(有些包里面含不可解码字符)
 2017.01.17 重构了一下, 主要是配置文件的读取, 以及增加了 verbose 打印逻辑
 2017.01.10 加入了解压 gz/tar 文件的方法, 优化了各种交互信息
 2017.01.10 加入了提取 HTTP 请求失败时的情况处理
@@ -18,6 +19,7 @@ import tarfile
 import scapy.all
 import re
 import os
+import shelve
 from scapy.error import Scapy_Exception
 
 try:
@@ -130,7 +132,7 @@ class PcapParser(BasicDeal):
     def filter_header(self, http_header, filter_list=None):
         """
         过滤掉没必要的头部, 比如说 GET /favicon.ico HTTP/1.1\r\n 这一类的
-        :param http_header: 待过滤的头部列表
+        :param http_header: 待过滤的头部列表, bytes() 类型
         :param filter_list: 要过滤的类型, 比如 ["ico"]
         :return: 过滤后的头部, 可能为 None, 也可能保持原状
         """
@@ -139,18 +141,19 @@ class PcapParser(BasicDeal):
         filter_list = ["ico", "jpg", "gif", "js", "css", "png"] if not filter_list else filter_list
 
         if self.is_http_get_request_header(http_header) or self.is_http_post_request_header(http_header):
-            if not self.has_point_info(http_header, filter_list) and self.encoding_right(http_header):
+            if not self.has_point_info(http_header, filter_list):
                 result_header = http_header
 
         return result_header
 
-    def encoding_right(self, data):
+    @staticmethod
+    def encoding_right(data):
         """
         检查编码是否正确
-        :return:
+        :param data: bytes(), b"POST /phpwind/phpwebshell/upload_file.php HTTP/1.1\r\nHost: www.shenxinfu.com\r\nConnection: keep-alive\r\nContent-Length: 709\r\nCache-Control: max-age=0\r\nOrigin: http://www.shenxinfu.com\r\nUser-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.56 Safari/536.5\r\nContent-Type: multipart/form-data; boundary=----WebKitFormBoundary7AdArEXY9ZETSIEB\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nReferer: http://www.shenxinfu.com/phpwind/phpwebshell/up.html\r\nAccept-Encoding: gzip,deflate,sdch\r\nAccept-Language: zh-CN,zh;q=0.8\r\nAccept-Charset: GBK,utf-8;q=0.7,*;q=0.3\r\nCookie: Hm_lvt_c1a7dd239858bb744ef008b8277ae531=1341383358055; Hm_lpvt_c1a7dd239858bb744ef008b8277ae531=1341383358055\r\n\r\n', b'POST /phpwind/phpwebshell/upload_file.php HTTP/1.1\r\nHost: www.shenxinfu.com\r\nConnection: keep-alive\r\nContent-Length: 709\r\nCache-Control: max-age=0\r\nOrigin: http://www.shenxinfu.com\r\nUser-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.56 Safari/536.5\r\nContent-Type: multipart/form-data; boundary=----WebKitFormBoundary7AdArEXY9ZETSIEB\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nReferer: http://www.shenxinfu.com/phpwind/phpwebshell/up.html\r\nAccept-Encoding: gzip,deflate,sdch\r\nAccept-Language: zh-CN,zh;q=0.8\r\nAccept-Charset: GBK,utf-8;q=0.7,*;q=0.3\r\nCookie: Hm_lvt_c1a7dd239858bb744ef008b8277ae531=1341383358055; Hm_lpvt_c1a7dd239858bb744ef008b8277ae531=1341383358055\r\n\r\n------WebKitFormBoundary7AdArEXY9ZETSIEB\r\nContent-Disposition: form-data; name="file"; filename="readdir.php"\r\nContent-Type: application/php\r\n\r\n<?php\r\n// \xd7\xa2\xd2\xe2\xd4\xda 4.0.0-RC2 \xd6\xae\xc7\xb0\xb2\xbb\xb4\xe6\xd4\xda !== \xd4\xcb\xcb\xe3\xb7\xfb\r\n\r\nif ($handle = opendir(\'/path/to/files\')) {\r\n    echo "Directory handle: $handle\\n";\r\n    echo "Files:\\n";\r\n\r\n    /* \xd5\xe2\xca\xc7\xd5\xfd\xc8\xb7\xb5\xd8\xb1\xe9\xc0\xfa\xc4\xbf\xc2\xbc\xb7\xbd\xb7\xa8 */\r\n    while (false !== ($file = readdir($handle))) {\r\n        echo "$file\\n";\r\n    }\r\n\r\n    /* \xd5\xe2\xca\xc7\xb4\xed\xce\xf3\xb5\xd8\xb1\xe9\xc0\xfa\xc4\xbf\xc2\xbc\xb5\xc4\xb7\xbd\xb7\xa8 */\r\n    while ($file = readdir($handle)) {\r\n        echo "$file\\n";\r\n    }\r\n\r\n    closedir($handle);\r\n}\r\n?>\r\n------WebKitFormBoundary7AdArEXY9ZETSIEB\r\nContent-Disposition: form-data; name="submit"\r\n\r\nsubmit\r\n------WebKitFormBoundary7AdArEXY9ZETSIEB--\r\n"
+        :return: True or False
         """
         # 不正确的例子
-        # POST /phpwind/phpwebshell/upload_file.php HTTP/1.1\r\nHost: www.shenxinfu.com\r\nConnection: keep-alive\r\nContent-Length: 709\r\nCache-Control: max-age=0\r\nOrigin: http://www.shenxinfu.com\r\nUser-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.56 Safari/536.5\r\nContent-Type: multipart/form-data; boundary=----WebKitFormBoundary7AdArEXY9ZETSIEB\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nReferer: http://www.shenxinfu.com/phpwind/phpwebshell/up.html\r\nAccept-Encoding: gzip,deflate,sdch\r\nAccept-Language: zh-CN,zh;q=0.8\r\nAccept-Charset: GBK,utf-8;q=0.7,*;q=0.3\r\nCookie: Hm_lvt_c1a7dd239858bb744ef008b8277ae531=1341383358055; Hm_lpvt_c1a7dd239858bb744ef008b8277ae531=1341383358055\r\n\r\n', b'POST /phpwind/phpwebshell/upload_file.php HTTP/1.1\r\nHost: www.shenxinfu.com\r\nConnection: keep-alive\r\nContent-Length: 709\r\nCache-Control: max-age=0\r\nOrigin: http://www.shenxinfu.com\r\nUser-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.56 Safari/536.5\r\nContent-Type: multipart/form-data; boundary=----WebKitFormBoundary7AdArEXY9ZETSIEB\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nReferer: http://www.shenxinfu.com/phpwind/phpwebshell/up.html\r\nAccept-Encoding: gzip,deflate,sdch\r\nAccept-Language: zh-CN,zh;q=0.8\r\nAccept-Charset: GBK,utf-8;q=0.7,*;q=0.3\r\nCookie: Hm_lvt_c1a7dd239858bb744ef008b8277ae531=1341383358055; Hm_lpvt_c1a7dd239858bb744ef008b8277ae531=1341383358055\r\n\r\n------WebKitFormBoundary7AdArEXY9ZETSIEB\r\nContent-Disposition: form-data; name="file"; filename="readdir.php"\r\nContent-Type: application/php\r\n\r\n<?php\r\n// \xd7\xa2\xd2\xe2\xd4\xda 4.0.0-RC2 \xd6\xae\xc7\xb0\xb2\xbb\xb4\xe6\xd4\xda !== \xd4\xcb\xcb\xe3\xb7\xfb\r\n\r\nif ($handle = opendir(\'/path/to/files\')) {\r\n    echo "Directory handle: $handle\\n";\r\n    echo "Files:\\n";\r\n\r\n    /* \xd5\xe2\xca\xc7\xd5\xfd\xc8\xb7\xb5\xd8\xb1\xe9\xc0\xfa\xc4\xbf\xc2\xbc\xb7\xbd\xb7\xa8 */\r\n    while (false !== ($file = readdir($handle))) {\r\n        echo "$file\\n";\r\n    }\r\n\r\n    /* \xd5\xe2\xca\xc7\xb4\xed\xce\xf3\xb5\xd8\xb1\xe9\xc0\xfa\xc4\xbf\xc2\xbc\xb5\xc4\xb7\xbd\xb7\xa8 */\r\n    while ($file = readdir($handle)) {\r\n        echo "$file\\n";\r\n    }\r\n\r\n    closedir($handle);\r\n}\r\n?>\r\n------WebKitFormBoundary7AdArEXY9ZETSIEB\r\nContent-Disposition: form-data; name="submit"\r\n\r\nsubmit\r\n------WebKitFormBoundary7AdArEXY9ZETSIEB--\r\n
         try:
             data.decode("utf8", errors="strict")
             return True
@@ -228,7 +231,9 @@ class PcapParser(BasicDeal):
 
         # 开始解析所有 pcap 包
         print("[*] 开始提取目录 {} 下所有 pcap 包的 HTTP 请求".format(pcaps_root_path))
-        with open(result_file_path, "w") as f:
+
+        with shelve.open(result_file_path) as f:
+            # with open(result_file_path, "w") as f:
             data_dict = dict()
 
             all_pcap_file = self.get_all_pcaps(pcaps_root_path)
@@ -240,7 +245,8 @@ class PcapParser(BasicDeal):
                     data_dict[each_pcap] = urls
                     self.print_message("提取 {} HTTP 请求成功".format(each_pcap), 2)
 
-            json.dump(data_dict, f)
+            f["data"] = data_dict
+        # json.dump(data_dict, f)
 
         print("[*] 提取完毕, 结果请见: {}".format(result_file_path))
 

@@ -22,6 +22,7 @@ import re
 import datetime
 import socket
 import scapy.sendrecv
+import shelve
 from scapy.layers.inet import IP, UDP
 from scapy.layers.dns import DNS, DNSQR
 from pcap_scapy_parse import PcapParser
@@ -66,8 +67,9 @@ class AutoTester(BasicDeal):
         :param json_file_path: json 文件路径
         :return: dict(), 每一个元素是一个 http 头及其 pcap 包
         """
-        with open(json_file_path, "r") as f:
-            data_dict = json.load(f)
+        with shelve.open(json_file_path) as f:
+        # with open(json_file_path, "r") as f:
+            data_dict = f["data"]
 
         return data_dict
 
@@ -91,9 +93,10 @@ class AutoTester(BasicDeal):
     def parse_http_header(http_header):
         """
         解析 http 头, 拿到 url 以及 http 头其他参数
+        :param http_header: str(), http 头
         :return: (url, http_header), 提供给 requests 作为封装使用
         """
-        url = PcapParser.get_url_from_raw_data(http_header)
+        url = PcapParser.get_url_from_raw_data(http_header.encode("utf8"))
         http_parameter = dict()
 
         for each_parameter in str(http_header).split("\r\n"):
@@ -193,7 +196,7 @@ class AutoTester(BasicDeal):
             try:
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock_connect:
                     sock_connect.connect((target_ip_address, 80))
-                    sock_connect.sendall(http_header.encode("utf8"))
+                    sock_connect.sendall(http_header)
                 break
             except ConnectionRefusedError:
                 times -= 1

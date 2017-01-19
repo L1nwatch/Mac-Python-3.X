@@ -5,8 +5,6 @@
 2017.01.03 作为自动化测试模块的单元测试文件
 """
 import unittest
-import socket
-import simplejson
 
 __author__ = '__L1n__w@tch'
 
@@ -16,7 +14,7 @@ from auto_test_module import AutoTester
 class TestAutoTester(unittest.TestCase):
     def setUp(self):
         self.test_json_file = "json_file_for_test.json"
-        self.auto_tester = AutoTester(self.test_json_file, None, None)
+        self.auto_tester = AutoTester(self.test_json_file, None, None, None, None, None)
 
     def test_get_http_headers_list(self):
         """
@@ -41,7 +39,7 @@ class TestAutoTester(unittest.TestCase):
         测试解析 http 头的函数是否返回正确结果
         """
         test_http = "POST /phpwind/phpwebshell/upload_file.php HTTP/1.1\r\nHost: www.shenxinfu.com\r\nConnection: keep-alive\r\nContent-Length: 339\r\nCache-Control: max-age=0\r\nOrigin: http://www.shenxinfu.com\r\nUser-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.47 Safari/536.11\r\nContent-Type: multipart/form-data; boundary=----WebKitFormBoundaryXhie0pCyiDoMIDVZ\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nReferer: http://www.shenxinfu.com/phpwind/phpwebshell/up.html\r\nAccept-Encoding: gzip,deflate,sdch\r\nAccept-Language: zh-CN,zh;q=0.8\r\nAccept-Charset: GBK,utf-8;q=0.7,*;q=0.3\r\nCookie: Hm_lvt_c1a7dd239858bb744ef008b8277ae531=1341383358055\r\n\r\n"
-        right_url = "/phpwind/phpwebshell/upload_file.php"
+        right_url = b"/phpwind/phpwebshell/upload_file.php"
         right_header = {
             "Host": "www.shenxinfu.com",
             "Connection": "keep-alive",
