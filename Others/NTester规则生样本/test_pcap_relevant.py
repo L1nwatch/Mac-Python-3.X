@@ -22,13 +22,13 @@ class TestPcapParser(unittest.TestCase):
         给定 raw_data 看是否能够正确获取 url 对应的那一条信息
         :return:
         """
-        test_input = 'GET /wordpress/wp-content/plugins/wpSS/ss_handler.php?display=0&edit=&ss_id=1%27%22 HTTP/1.1\r\nAccept: text/html, application/xhtml+xml, */*\r\nAccept-Language: zh-CN\r\nUser-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)\r\nAccept-Encoding: gzip, deflate\r\nHost: 192.168.41.68\r\nConnection: Keep-Alive\r\nCookie: acopendivids=swingset,phpbb2,redmine; acgroupswithpersist=nada; JSESSIONID=024D3D2EDA89A7BB595684F55788684A\r\n\r\n'
-        right_answer = '/wordpress/wp-content/plugins/wpSS/ss_handler.php?display=0&edit=&ss_id=1%27%22'
+        test_input = b'GET /wordpress/wp-content/plugins/wpSS/ss_handler.php?display=0&edit=&ss_id=1%27%22 HTTP/1.1\r\nAccept: text/html, application/xhtml+xml, */*\r\nAccept-Language: zh-CN\r\nUser-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)\r\nAccept-Encoding: gzip, deflate\r\nHost: 192.168.41.68\r\nConnection: Keep-Alive\r\nCookie: acopendivids=swingset,phpbb2,redmine; acgroupswithpersist=nada; JSESSIONID=024D3D2EDA89A7BB595684F55788684A\r\n\r\n'
+        right_answer = b'/wordpress/wp-content/plugins/wpSS/ss_handler.php?display=0&edit=&ss_id=1%27%22'
         my_answer = self.pcap_parser.get_url_from_raw_data(test_input)
         self.assertEqual(my_answer, right_answer)
 
-        test_input = "GET /dvwa/vulnerabilities/c99shell.php HTTP/1.0\r\nAccept: */*\r\nUser-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0; .NET CLR 1.1.4322)\r\nHost: 192.168.41.68\r\nCookie: PHPSESSID=812tfnicu1dt2lu9u5btnkjm92;security=low\r\nConnection: Close\r\nPragma: no-cache\r\nAcunetix-Product: WVS/5.1 (Acunetix Web Vulnerability Scanner - NORMAL)\r\nAcunetix-Scanning-agreement: Third Party Scanning PROHIBITED\r\nAcunetix-User-agreement: http://www.acunetix.com/wvs/disc.htm\r\n\r\n"
-        right_answer = '/dvwa/vulnerabilities/c99shell.php'
+        test_input = b"GET /dvwa/vulnerabilities/c99shell.php HTTP/1.0\r\nAccept: */*\r\nUser-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0; .NET CLR 1.1.4322)\r\nHost: 192.168.41.68\r\nCookie: PHPSESSID=812tfnicu1dt2lu9u5btnkjm92;security=low\r\nConnection: Close\r\nPragma: no-cache\r\nAcunetix-Product: WVS/5.1 (Acunetix Web Vulnerability Scanner - NORMAL)\r\nAcunetix-Scanning-agreement: Third Party Scanning PROHIBITED\r\nAcunetix-User-agreement: http://www.acunetix.com/wvs/disc.htm\r\n\r\n"
+        right_answer = b'/dvwa/vulnerabilities/c99shell.php'
         my_answer = self.pcap_parser.get_url_from_raw_data(test_input)
         self.assertEqual(my_answer, right_answer)
 
@@ -65,18 +65,18 @@ class TestPcapParser(unittest.TestCase):
         """
         filter_list = ["ico", "jpg", "gif", "js", "css"]
         test_headers = [
-            "GET /favicon.ico HTTP/1.1\r\n",
-            "GET /new/bg.jpg HTTP/1.1\r\n",
-            "GET /new/images/index_r3_c4.gif HTTP/1.1\r\n",
-            "get /new/js/search.js HTTP/1.1\r\n",
-            "GET /new/sty.css HTTP/1.1\r\n"]
+            b"GET /favicon.ico HTTP/1.1\r\n",
+            b"GET /new/bg.jpg HTTP/1.1\r\n",
+            b"GET /new/images/index_r3_c4.gif HTTP/1.1\r\n",
+            b"get /new/js/search.js HTTP/1.1\r\n",
+            b"GET /new/sty.css HTTP/1.1\r\n"]
 
         # 应该过滤为空
         for each_header in test_headers:
             self.assertEqual(self.pcap_parser.filter_header(each_header, filter_list), None)
 
-        test_header = "GET / HTTP/1.1\r\n"
-        self.assertEqual(self.pcap_parser.filter_header(test_header, filter_list), "GET / HTTP/1.1\r\n")
+        test_header = b"GET / HTTP/1.1\r\n"
+        self.assertEqual(self.pcap_parser.filter_header(test_header, filter_list), b"GET / HTTP/1.1\r\n")
 
     def test_has_point_info(self):
         """
@@ -85,51 +85,51 @@ class TestPcapParser(unittest.TestCase):
         filter_list = ["ico"]
 
         # GET 包含这个资源
-        self.assertTrue(self.pcap_parser.has_point_info("GET /favicon.ico HTTP/1.1", filter_list))
+        self.assertTrue(self.pcap_parser.has_point_info(b"GET /favicon.ico HTTP/1.1", filter_list))
 
         # GET 不包含这个资源
-        self.assertFalse(self.pcap_parser.has_point_info("GET /favicon.ic HTTP/1.1", filter_list))
+        self.assertFalse(self.pcap_parser.has_point_info(b"GET /favicon.ic HTTP/1.1", filter_list))
 
         # POST 包含这个资源
-        self.assertTrue(self.pcap_parser.has_point_info("POST /favicon.ico HTTP/1.1", filter_list))
+        self.assertTrue(self.pcap_parser.has_point_info(b"POST /favicon.ico HTTP/1.1", filter_list))
 
         # POST 不包含这个资源
-        self.assertFalse(self.pcap_parser.has_point_info("POST /favicon.io HTTP/1.1", filter_list))
+        self.assertFalse(self.pcap_parser.has_point_info(b"POST /favicon.io HTTP/1.1", filter_list))
 
     def test_is_http_post_request_header(self):
         """
         测试判断 POST 请求头是否正确
         """
         # POST 请求
-        self.assertTrue(self.pcap_parser.is_http_post_request_header("POST /favicon.ico HTTP/1.1"))
+        self.assertTrue(self.pcap_parser.is_http_post_request_header(b"POST /favicon.ico HTTP/1.1"))
 
         # POST 请求2
-        self.assertTrue(self.pcap_parser.is_http_post_request_header("PoST /favicon.ico HTTP/1.1"))
+        self.assertTrue(self.pcap_parser.is_http_post_request_header(b"PoST /favicon.ico HTTP/1.1"))
 
         # 非 POST 请求
-        self.assertFalse(self.pcap_parser.is_http_post_request_header("POS /favicon.ico HTTP/1.1"))
+        self.assertFalse(self.pcap_parser.is_http_post_request_header(b"POS /favicon.ico HTTP/1.1"))
 
         # 非 POST 请求2
-        self.assertFalse(self.pcap_parser.is_http_post_request_header("POSTPOST /favicon.ico HTTP/1.1"))
+        self.assertFalse(self.pcap_parser.is_http_post_request_header(b"POSTPOST /favicon.ico HTTP/1.1"))
 
     def test_is_http_get_request_header(self):
         """
         测试判断 GET 请求头是否正确
         """
         # GET 请求
-        self.assertTrue(self.pcap_parser.is_http_get_request_header("GET /favicon.ico HTTP/1.1"))
+        self.assertTrue(self.pcap_parser.is_http_get_request_header(b"GET /favicon.ico HTTP/1.1"))
 
         # GET 请求 2
-        self.assertTrue(self.pcap_parser.is_http_get_request_header("gET /favicon.ico HTTP/1.1"))
+        self.assertTrue(self.pcap_parser.is_http_get_request_header(b"gET /favicon.ico HTTP/1.1"))
 
         # 非 GET 请求
-        self.assertFalse(self.pcap_parser.is_http_get_request_header("GETS /favicon.ico HTTP/1.1"))
+        self.assertFalse(self.pcap_parser.is_http_get_request_header(b"GETS /favicon.ico HTTP/1.1"))
 
         # 非 GET 请求 2
-        self.assertFalse(self.pcap_parser.is_http_get_request_header("GETGET /favicon.ico HTTP/1.1"))
+        self.assertFalse(self.pcap_parser.is_http_get_request_header(b"GETGET /favicon.ico HTTP/1.1"))
 
         # GET 请求 3
-        test_data = "GET /detail.php?id=1%20and%20'a'&'a' HTTP/1.1\r\nHost: www.shenxinfu.com\r\nConnection: keep-alive\r\nCache-Control: max-age=0\r\nUser-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/535.7 (KHTML, like Gecko) Chrome/16.0.912.63 Safari/535.7\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nAccept-Encoding: gzip,deflate,sdch\r\nAccept-Language: zh-CN,zh;q=0.8\r\nAccept-Charset: GBK,utf-8;q=0.7,*;q=0.3"
+        test_data = b"GET /detail.php?id=1%20and%20'a'&'a' HTTP/1.1\r\nHost: www.shenxinfu.com\r\nConnection: keep-alive\r\nCache-Control: max-age=0\r\nUser-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/535.7 (KHTML, like Gecko) Chrome/16.0.912.63 Safari/535.7\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nAccept-Encoding: gzip,deflate,sdch\r\nAccept-Language: zh-CN,zh;q=0.8\r\nAccept-Charset: GBK,utf-8;q=0.7,*;q=0.3"
         self.assertTrue(self.pcap_parser.is_http_get_request_header(test_data))
 
     def test_is_pcap_file(self):

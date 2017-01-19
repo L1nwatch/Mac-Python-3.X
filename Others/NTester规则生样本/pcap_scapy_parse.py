@@ -38,17 +38,17 @@ class PcapParser(BasicDeal):
     def get_url_from_raw_data(data):
         """
         从 data 中提取 url
-        :param data: 'GET /wordpress/wp-content/plugins/wpSS/ss_handler.php?display=0&edit=&ss_id=1%27%22 HTTP/1.1\r\nAccept: text/html, application/xhtml+xml, */*\r\nAccept-Language: zh-CN\r\nUser-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)\r\nAccept-Encoding: gzip, deflate\r\nHost: 192.168.41.68\r\nConnection: Keep-Alive\r\nCookie: acopendivids=swingset,phpbb2,redmine; acgroupswithpersist=nada; JSESSIONID=024D3D2EDA89A7BB595684F55788684A\r\n\r\n'
-        :return: 'GET /wordpress/wp-content/plugins/wpSS/ss_handler.php?display=0&edit=&ss_id=1%27%22 HTTP/1.1'
+        :param data: b'GET /wordpress/wp-content/plugins/wpSS/ss_handler.php?display=0&edit=&ss_id=1%27%22 HTTP/1.1\r\nAccept: text/html, application/xhtml+xml, */*\r\nAccept-Language: zh-CN\r\nUser-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)\r\nAccept-Encoding: gzip, deflate\r\nHost: 192.168.41.68\r\nConnection: Keep-Alive\r\nCookie: acopendivids=swingset,phpbb2,redmine; acgroupswithpersist=nada; JSESSIONID=024D3D2EDA89A7BB595684F55788684A\r\n\r\n'
+        :return: b'GET /wordpress/wp-content/plugins/wpSS/ss_handler.php?display=0&edit=&ss_id=1%27%22 HTTP/1.1'
         """
-        assert type(data) == str
+        assert type(data) == bytes
 
-        result = re.findall("[GETPOST]{3,4} (.*) HTTP/1\.[01]", data, flags=re.IGNORECASE)
+        result = re.findall(b"[GETPOST]{3,4} (.*) HTTP/1\.[01]", data, flags=re.IGNORECASE)
         if len(result) == 1:
             return result[0]
         else:
             print("[!] 提取 URL 失败: {}".format(data))
-            return ""
+            return b""
 
     @staticmethod
     def get_raw_info(packet):
@@ -89,37 +89,38 @@ class PcapParser(BasicDeal):
     def is_http_get_request_header(data):
         """
         判断是不是 GET 请求的 http 头
-        :param data: 'GET FTP://ufhpcvrrbz;type=D'
+        :param data: b'GET FTP://ufhpcvrrbz;type=D'
         :return: True or False
         """
-        assert type(data) == str
+        assert type(data) == bytes
 
-        result = re.findall("^GET .*HTTP/1\.[01]", data, flags=re.IGNORECASE)
+        result = re.findall(b"^GET .*HTTP/1\.[01]", data, flags=re.IGNORECASE)
         return len(result) == 1
 
     @staticmethod
     def is_http_post_request_header(data):
         """
         判断是不是 POST 请求的 http 头
-        :param data: 'GET FTP://ufhpcvrrbz;type=D'
+        :param data: b'GET FTP://ufhpcvrrbz;type=D'
         :return: True or False
         """
-        assert type(data) == str
+        assert type(data) == bytes
 
-        result = re.findall("^POST .*HTTP/1\.[01]", data, flags=re.IGNORECASE)
+        result = re.findall(b"^POST .*HTTP/1\.[01]", data, flags=re.IGNORECASE)
         return len(result) == 1
 
     @staticmethod
     def has_point_info(header, filter_list):
         """
         判断一个包里是否请求了指定的资源, 比如说请求了 favico.ico 资源
-        :param header: byte(), 包头, 'GET /favico.ico HTTP/1.1'
+        :param header: byte(), 包头, b'GET /favico.ico HTTP/1.1'
         :param filter_list: list(), 指定资源列表
         :return: True or False, 表示包含时返回 True
         """
-        assert type(header) == str
+        assert type(header) == bytes
 
-        request_file = re.findall("[GETPOST]{3,4} (.*) HTTP/1\.[10]", header, flags=re.IGNORECASE)[0]
+        request_file = re.findall(b"[GETPOST]{3,4} (.*) HTTP/1\.[10]", header, flags=re.IGNORECASE)[0]
+        request_file = request_file.decode("utf8", errors="ignore")
 
         for each_filter in filter_list:
             if request_file.endswith(each_filter):
@@ -138,10 +139,23 @@ class PcapParser(BasicDeal):
         filter_list = ["ico", "jpg", "gif", "js", "css", "png"] if not filter_list else filter_list
 
         if self.is_http_get_request_header(http_header) or self.is_http_post_request_header(http_header):
-            if not self.has_point_info(http_header, filter_list):
+            if not self.has_point_info(http_header, filter_list) and self.encoding_right(http_header):
                 result_header = http_header
 
         return result_header
+
+    def encoding_right(self, data):
+        """
+        检查编码是否正确
+        :return:
+        """
+        # 不正确的例子
+        # POST /phpwind/phpwebshell/upload_file.php HTTP/1.1\r\nHost: www.shenxinfu.com\r\nConnection: keep-alive\r\nContent-Length: 709\r\nCache-Control: max-age=0\r\nOrigin: http://www.shenxinfu.com\r\nUser-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.56 Safari/536.5\r\nContent-Type: multipart/form-data; boundary=----WebKitFormBoundary7AdArEXY9ZETSIEB\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nReferer: http://www.shenxinfu.com/phpwind/phpwebshell/up.html\r\nAccept-Encoding: gzip,deflate,sdch\r\nAccept-Language: zh-CN,zh;q=0.8\r\nAccept-Charset: GBK,utf-8;q=0.7,*;q=0.3\r\nCookie: Hm_lvt_c1a7dd239858bb744ef008b8277ae531=1341383358055; Hm_lpvt_c1a7dd239858bb744ef008b8277ae531=1341383358055\r\n\r\n', b'POST /phpwind/phpwebshell/upload_file.php HTTP/1.1\r\nHost: www.shenxinfu.com\r\nConnection: keep-alive\r\nContent-Length: 709\r\nCache-Control: max-age=0\r\nOrigin: http://www.shenxinfu.com\r\nUser-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.56 Safari/536.5\r\nContent-Type: multipart/form-data; boundary=----WebKitFormBoundary7AdArEXY9ZETSIEB\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nReferer: http://www.shenxinfu.com/phpwind/phpwebshell/up.html\r\nAccept-Encoding: gzip,deflate,sdch\r\nAccept-Language: zh-CN,zh;q=0.8\r\nAccept-Charset: GBK,utf-8;q=0.7,*;q=0.3\r\nCookie: Hm_lvt_c1a7dd239858bb744ef008b8277ae531=1341383358055; Hm_lpvt_c1a7dd239858bb744ef008b8277ae531=1341383358055\r\n\r\n------WebKitFormBoundary7AdArEXY9ZETSIEB\r\nContent-Disposition: form-data; name="file"; filename="readdir.php"\r\nContent-Type: application/php\r\n\r\n<?php\r\n// \xd7\xa2\xd2\xe2\xd4\xda 4.0.0-RC2 \xd6\xae\xc7\xb0\xb2\xbb\xb4\xe6\xd4\xda !== \xd4\xcb\xcb\xe3\xb7\xfb\r\n\r\nif ($handle = opendir(\'/path/to/files\')) {\r\n    echo "Directory handle: $handle\\n";\r\n    echo "Files:\\n";\r\n\r\n    /* \xd5\xe2\xca\xc7\xd5\xfd\xc8\xb7\xb5\xd8\xb1\xe9\xc0\xfa\xc4\xbf\xc2\xbc\xb7\xbd\xb7\xa8 */\r\n    while (false !== ($file = readdir($handle))) {\r\n        echo "$file\\n";\r\n    }\r\n\r\n    /* \xd5\xe2\xca\xc7\xb4\xed\xce\xf3\xb5\xd8\xb1\xe9\xc0\xfa\xc4\xbf\xc2\xbc\xb5\xc4\xb7\xbd\xb7\xa8 */\r\n    while ($file = readdir($handle)) {\r\n        echo "$file\\n";\r\n    }\r\n\r\n    closedir($handle);\r\n}\r\n?>\r\n------WebKitFormBoundary7AdArEXY9ZETSIEB\r\nContent-Disposition: form-data; name="submit"\r\n\r\nsubmit\r\n------WebKitFormBoundary7AdArEXY9ZETSIEB--\r\n
+        try:
+            data.decode("utf8", errors="strict")
+            return True
+        except UnicodeDecodeError:
+            return False
 
     def get_http_headers(self, pcap_file_path):
         """
@@ -156,11 +170,10 @@ class PcapParser(BasicDeal):
             for each_packet in parse_data:
                 if self.is_http_packet(each_packet):
                     header = self.get_raw_info(each_packet).load
-                    header = header.decode("utf8", errors="backslashreplace")
                     # 过滤一下
                     header = self.filter_header(header)
                     headers.append(header) if header else None  # 如果过滤完不为空就添加
-        except Scapy_Exception:
+        except Scapy_Exception:  # TODO: 这里其实就是 exception
             print("[!] 解析: {} 失败".format(pcap_file_path))
         finally:
             return list(set(headers))  # 去掉重复的请求头
@@ -211,7 +224,7 @@ class PcapParser(BasicDeal):
         """
         print("[*] 开始解压流程")
         # 解压所有 gz/tar 格式的压缩文件, TODO: 注意只解压一级目录
-        self.decompress_all_files(pcaps_root_path)
+        # self.decompress_all_files(pcaps_root_path)
 
         # 开始解析所有 pcap 包
         print("[*] 开始提取目录 {} 下所有 pcap 包的 HTTP 请求".format(pcaps_root_path))
