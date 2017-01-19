@@ -194,6 +194,7 @@ class AutoTester(BasicDeal):
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock_connect:
                     sock_connect.connect((target_ip_address, 80))
                     sock_connect.sendall(http_header.encode("utf8"))
+                break
             except ConnectionRefusedError:
                 times -= 1
                 time.sleep(1)
