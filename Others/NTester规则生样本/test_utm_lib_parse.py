@@ -14,8 +14,8 @@ class TestUTMParse(unittest.TestCase):
     def setUp(self):
         # TODO: 这里非得让我打用户名密码啥的?
         svn_info = ("https://200.200.0.8/svn/test/测试部文件服务器/测试工程/AF版本/AF规则/UTM规则验证/",
-                    "linfeng", "lf123456", "./utm_urls_lib")
-        self.utm_parser = UTMParser(svn_info)
+                    "linfeng", "lf123456")
+        self.utm_parser = UTMParser(svn_info, "./utm_urls_lib", None)
 
     def test_extract_urls(self):
         """
