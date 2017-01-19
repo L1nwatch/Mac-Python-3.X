@@ -33,7 +33,6 @@ __author__ = '__L1n__w@tch'
 TIMEOUT = 15  # 等待一段时间再查日志
 
 
-# TODO: 提供 sockets 丢包的方法
 # TODO: MySQL 连不上, 因为监听只在 127.0.0.1 上, 需要更改
 # TODO: 不支持输出文件的文件名指定
 # TODO: target_ip 需要重构
@@ -188,9 +187,16 @@ class AutoTester(BasicDeal):
         :param http_header: str(), 整个 http 头, 比如 "POST /simple.php HTTP/1.1\r\nHost: www.shenxinfu.com..."
         :param target_ip_address: 丢包丢给谁?
         """
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock_connect:
-            sock_connect.connect((target_ip_address, 80))
-            sock_connect.sendall(http_header.encode("utf8"))
+        times = 5
+
+        while times > 0:
+            try:
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock_connect:
+                    sock_connect.connect((target_ip_address, 80))
+                    sock_connect.sendall(http_header.encode("utf8"))
+            except ConnectionRefusedError:
+                times -= 1
+                time.sleep(1)
 
     def send_waf_ips_packets(self, target_ip_address, choice="socket"):
         """

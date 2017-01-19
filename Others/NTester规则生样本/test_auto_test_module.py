@@ -114,13 +114,14 @@ class TestAutoTester(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    with open("2th_headers_result.json", "r") as f:
-        data_dict = simplejson.load(f)
-
-    for key, value in data_dict.items():
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as my_sock:
-            my_sock.connect(("192.168.116.2", 80))
-            for each_packet in value:
-                print("[*] 尝试丢 {}".format(key))
-                my_sock.sendall(each_packet.encode("utf8"))
+    # with open("2th_headers_result.json", "r") as f:
+    #     data_dict = simplejson.load(f)
+    #
+    # for key, value in data_dict.items():
+    #     for each_packet in value:
+    #         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as my_sock:
+    #             my_sock.settimeout(1)
+    #             my_sock.connect(("192.168.116.2", 80))
+    #             print("[*] 尝试丢 {}".format(key))
+    #             my_sock.send(each_packet.encode("utf8"))
     pass
