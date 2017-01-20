@@ -115,14 +115,16 @@ class AutoTester(BasicDeal):
     def get_post_data_from_http_header(http_header):
         """
         从 http 头获取 post 数据
-        :param http_header: str(), "POST /simple.php HTT...Accept-Charset: ...\r\n\r\ninput=%3CSTYLE%3E%40%5C0069mport+"
-        :return: str(), input=%3CSTYLE%3E%40%5C0069mport+
+        :param http_header: bytes(), b"POST /simple.php HTT...Accept-Charset: ...\r\n\r\ninput=%3CSTYLE%3E%40%5C0069mport+"
+        :return: bytes(), b"input=%3CSTYLE%3E%40%5C0069mport+..."
         """
+        assert type(http_header) == bytes
+
         post_data = http_header.split(b"\r\n\r\n", 1)
         if len(post_data) > 1:
             return post_data[1]
         else:
-            return ""
+            return b""
 
     def send_http_request_using_requests_lib(self, http_header, ip, method="GET"):
         url, header = self.parse_http_header(http_header)
