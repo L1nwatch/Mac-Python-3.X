@@ -175,7 +175,12 @@ class AutoTester(BasicDeal):
 
                 # 是有效请求, 记录相应信息
                 efficient_pcap.setdefault(each_pcap, list())
-                efficient_pcap[each_pcap].extend(each_pcap_https.decode("utf8", errors="backslashreplace"))
+
+                result_list = list()
+                for each_http in each_pcap_https:
+                    result_list.append(each_http.decode("utf8", errors="ignore"))
+
+                efficient_pcap[each_pcap].extend(result_list)
             else:
                 self.print_message("该 sid-{} 在数据库中查找不到".format(sid), 3)
 

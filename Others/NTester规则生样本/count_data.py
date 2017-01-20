@@ -11,6 +11,7 @@ except ImportError:
 
 import os
 import sqlite3
+import shelve
 
 __author__ = '__L1n__w@tch'
 
@@ -29,14 +30,14 @@ def count_gz_to_pcap():
 
     print("[*] 总共测试 {} 个 pcap 包".format(pcap_counts))
 
-    with open("2th_headers_result.json", "r") as f:
-        data = json.load(f)
+    with shelve.open("2th_headers_result.dat") as f:
+        data_dict = f["data"]
 
     http_counts = 0
-    for each_pcap_http_request in data:
-        http_counts += len(data[each_pcap_http_request])
+    for each_pcap_http_request in data_dict:
+        http_counts += len(data_dict[each_pcap_http_request])
 
-    print("[*] 总共提取出 {} 个 pcap 包中的 HTTP 请求, HTTP 请求一共 {} 个".format(len(data), http_counts))
+    print("[*] 总共提取出 {} 个 pcap 包中的 HTTP 请求, HTTP 请求一共 {} 个".format(len(data_dict), http_counts))
 
     return pcap_counts
 

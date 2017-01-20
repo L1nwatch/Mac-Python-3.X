@@ -127,6 +127,12 @@ class LibCreator(BasicDeal):
 
         return blocks
 
+    @staticmethod
+    def get_http_headers_dict(json_file_path):
+        with open(json_file_path, "r") as f:
+            data_dict = json.load(f)
+        return data_dict
+
     def format_pcap_json_file_to_hex_stream(self):
         """
         将有效样本 json 文件转换为十六进制流
@@ -134,7 +140,7 @@ class LibCreator(BasicDeal):
         """
         # TODO: 多个 HTTP 请求的现在先不处理
         result_dict = dict()
-        http_pcap_dict = AutoTester.get_http_headers_dict(self.waf_ips_json_file)
+        http_pcap_dict = self.get_http_headers_dict(self.waf_ips_json_file)
 
         for each_pcap, each_http_request in http_pcap_dict.items():
             if len(each_http_request) > 1:  # 不止一个 HTTP 请求, 暂时不处理
