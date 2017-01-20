@@ -96,10 +96,10 @@ class AutoTester(BasicDeal):
         :param http_header: str(), http 头
         :return: (url, http_header), 提供给 requests 作为封装使用
         """
-        url = PcapParser.get_url_from_raw_data(http_header.encode("utf8"))
+        url = PcapParser.get_url_from_raw_data(http_header).decode("utf8", errors="ignore")
         http_parameter = dict()
 
-        for each_parameter in str(http_header).split("\r\n"):
+        for each_parameter in http_header.decode("utf8", errors="ignore").split("\r\n"):
             item = each_parameter.split(":", 1)
             # 正常的 http 头字段
             if len(item) == 2:
@@ -118,7 +118,7 @@ class AutoTester(BasicDeal):
         :param http_header: str(), "POST /simple.php HTT...Accept-Charset: ...\r\n\r\ninput=%3CSTYLE%3E%40%5C0069mport+"
         :return: str(), input=%3CSTYLE%3E%40%5C0069mport+
         """
-        post_data = http_header.split("\r\n\r\n", 1)
+        post_data = http_header.split(b"\r\n\r\n", 1)
         if len(post_data) > 1:
             return post_data[1]
         else:
@@ -339,7 +339,7 @@ class AutoTester(BasicDeal):
             self.print_message("连接超时, 请确定配置信息正确", 3)
             raise RuntimeError("连接超时")
 
-    def run(self, local_ip_address, target_ip_address, choice="socket"):
+    def run(self, local_ip_address, target_ip_address, choice="requests"):
         """
         完成自动化测试流程, 这个方法先把所有类型的包丢出去, 然后再依次进行验证
         丢包时, waf 和 ips 采用 sockets 方式丢, utm 采用 requests 丢
@@ -349,7 +349,7 @@ class AutoTester(BasicDeal):
         """
         print("[*] 进行验证阶段必要的初始化工作")
         # AF 后台准备工作
-        self.af_back_prepare(local_ip_address, target_ip_address)
+        # self.af_back_prepare(local_ip_address, target_ip_address)
 
         # 初始化 MySQL 连接实例
         self.af_mysql_connect = AFMySQLQuery(*self.af_mysql_info)
