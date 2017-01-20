@@ -224,7 +224,7 @@ class AutoTester(BasicDeal):
                 elif choice.lower() == "requests":
                     self.send_request(each_http, target_ip_address)
                 else:
-                    raise RuntimeError("函数使用错误")
+                    raise RuntimeError("选择 {} 丢 WAF/IPS 包?只支持 requests 或 socket".format(choice))
 
     def send_utm_packets(self, target_ip_address):
         """
@@ -791,6 +791,7 @@ if __name__ == "__main__":
     waf_ips_pcap_after_test_json_file = cr.cp.get("json_file_name", "waf_ips_pcap_after_test_json_file")
     utm_url_test_json_file = cr.cp.get("json_file_name", "utm_parse_result_json_file")
     utm_after_test_json_file = cr.cp.get("json_file_name", "utm_after_test_json_file")
+    waf_ips_test_way = cr.cp.get("Others", "waf_ips_test_way")
     af_mysql_information = cr.read_mysql_info()
     af_back_information = cr.read_af_back_info()
     local_ip, target_ip = cr.read_ip_info()
@@ -799,4 +800,4 @@ if __name__ == "__main__":
     # 开始测试
     at = AutoTester(waf_ips_test_json_file, waf_ips_pcap_after_test_json_file, af_back_information,
                     af_mysql_information, utm_url_test_json_file, utm_after_test_json_file, need_verbose)
-    at.run(local_ip, target_ip)
+    at.run(local_ip, target_ip, waf_ips_test_way)
