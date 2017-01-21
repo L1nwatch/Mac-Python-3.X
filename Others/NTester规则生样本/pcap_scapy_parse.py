@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # version: Python3.X
 """
+2017.01.21 最后一次格式整理了
 2017.01.19 重构了输出格式, 添加了编码判断, 因为写成 json 的时候不一定能够写入(有些包里面含不可解码字符)
 2017.01.17 重构了一下, 主要是配置文件的读取, 以及增加了 verbose 打印逻辑
 2017.01.10 加入了解压 gz/tar 文件的方法, 优化了各种交互信息
@@ -227,7 +228,7 @@ class PcapParser(BasicDeal):
         """
         print("[*] 开始解压流程")
         # 解压所有 gz/tar 格式的压缩文件, TODO: 注意只解压一级目录
-        # self.decompress_all_files(pcaps_root_path)
+        self.decompress_all_files(pcaps_root_path)
 
         # 开始解析所有 pcap 包
         print("[*] 开始提取目录 {} 下所有 pcap 包的 HTTP 请求".format(pcaps_root_path))
@@ -246,25 +247,8 @@ class PcapParser(BasicDeal):
                     self.print_message("提取 {} HTTP 请求成功".format(each_pcap), 2)
 
             f["data"] = data_dict
-        # json.dump(data_dict, f)
 
         print("[*] 提取完毕, 结果请见: {}".format(result_file_path))
-
-    def print_message(self, message, style=1):
-        """
-        格式化打印信息
-        :param message: 要打印的信息
-        :param style: 按照指定格式进行打印
-        """
-        if self.verbose:
-            if style == 1:
-                print("[*] {sep} {message} {sep}".format(sep="=" * 30, message=message))
-            elif style == 2:
-                print("[*] {message}".format(message=message))
-            elif style == 3:
-                print("[!] {message}".format(message=message))
-            else:
-                raise RuntimeError("[!] 函数使用错误")
 
     def un_gz(self, file_path):
         """
