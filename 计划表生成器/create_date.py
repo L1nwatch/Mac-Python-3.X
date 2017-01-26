@@ -133,27 +133,10 @@ def create_date(start_date=datetime.date.today(), number=15):
 
 
 if __name__ == "__main__":
-    # Java 视频
-    # 计算机网络
-    # 操作系统
-    # 数据库原理
-    # Learning how to learn
-    # PHP
-    # C++
-    # 刷题
-    # 网络对抗原理
-    # 形式逻辑
-    # 软件逆向工程
-    # 科技信息检索
-    # 现代密码学
-    # 操作系统原理
-    # 计算机网络
-    # 软件安全与漏洞分析
-    # 网络对抗原理
     # 相关参数设定
-    morning_tasks = ["小甲鱼数据结构视频", "数学视频 + 锻炼身体(程序员健康指南)", "日语口语练习"]
-    after_noon_tasks = ["大话数据结构", "锻炼身体(运动) + 博客", "百家讲坛/看知乎", "大话数据结构"]
-    night_tasks = ["程序员健康指南", "锻炼身体(运动) + 博客"]
+    morning_tasks = ["小甲鱼 Python 视频", "锻炼身体(程序员健康指南) + 记笔记到有道云", "广东口语练习"]
+    after_noon_tasks = ["微信人民日报", "Python 廖雪峰教程", "锻炼身体(运动) + 写日记", "百家讲坛"]
+    night_tasks = ["Python 敲代码", "锻炼身体(运动) + 程序员健康指南", "补充当天未完成内容"]
 
     date_plan = create_date(number=200)
     morning_hour_plan = create_format_hour_plan("08:35", "11:30", morning_tasks)
