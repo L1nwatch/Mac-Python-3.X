@@ -31,7 +31,7 @@ from common_basic import ConfigReader, BasicDeal
 
 __author__ = '__L1n__w@tch'
 
-TIMEOUT = 15  # 等待一段时间再查日志
+TIMEOUT = 46  # 等待一段时间再查日志
 
 
 # TODO: MySQL 连不上, 因为监听只在 127.0.0.1 上, 需要更改
@@ -351,7 +351,7 @@ class AutoTester(BasicDeal):
         """
         print("[*] 进行验证阶段必要的初始化工作")
         # AF 后台准备工作
-        # self.af_back_prepare(local_ip_address, target_ip_address)
+        self.af_back_prepare(local_ip_address, target_ip_address)
 
         # 初始化 MySQL 连接实例
         self.af_mysql_connect = AFMySQLQuery(*self.af_mysql_info)
