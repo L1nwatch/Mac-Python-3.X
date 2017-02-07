@@ -86,7 +86,7 @@ class MenuTool:
                                                                  command=open_shadowsocks)
         self.buttons["random_play_attack"] = tkinter.Button(list_box, text="随机播放一集进击的巨人",
                                                             command=lambda: random_player(
-                                                                "/Users/L1n/Desktop/Entertainment/进击的巨人第一季全集", ["mp4"]))
+                                                                "/Users/L1n/Desktop/Entertainment/进击的巨人第一季全集/进击的巨人 OAD", ["mp4"]))
         self.buttons["switch_privoxy"] = tkinter.Button(list_box, text="开启或关闭 Privoxy",
                                                         command=lambda: switch_open_privoxy(True))
         self.buttons["git_exercise_log"] = tkinter.Button(list_box, text="git push 锻炼日志",

@@ -46,6 +46,8 @@ def open_a_file_with_right_app(file_path):
     file_path = file_path.replace(r"[", r"\[")
     file_path = file_path.replace(r"]", r"\]")
     file_path = file_path.replace(r" ", r"\ ")
+    file_path = file_path.replace(r"(", r"\(")
+    file_path = file_path.replace(r")", r"\)")
     os.system("open {}".format(file_path))
 
 
