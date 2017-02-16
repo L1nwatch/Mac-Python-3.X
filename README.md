@@ -81,7 +81,7 @@
 
 实现了一键自动化部署自己的博客，其中博客的文章笔记等内容是自动同步 github 上一个专门存放笔记的库的，主要是提供笔记的搜索功能，因为目前市面上没找到自己满意的笔记搜索软件，只好自己搞一个了
 
-#### [qlcoder]((https://github.com/L1nwatch/qlcoder))
+#### [qlcoder](https://github.com/L1nwatch/qlcoder)
 
 主要是存放千里码网站的练习题，还有自己给弟弟出的各种 Python 练习题，方式是让弟弟不断通过自己编写的测试来实现练习 Python 的目的
 
