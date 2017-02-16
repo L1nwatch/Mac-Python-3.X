@@ -22,7 +22,7 @@
 
 新增了个 UI 界面，长这样子：
 
-![UI 界面](https://github.com/L1nwatch/Mac-Python-3.X/blob/master/%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9%E6%90%9C%E7%B4%A2%E5%99%A8/2017-02-16%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9%E6%90%9C%E7%B4%A2%E5%99%A8%E7%9A%84UI%E7%95%8C%E9%9D%A2.png?raw=true)
+![UI 界面](https://github.com/L1nwatch/Mac-Python-3.X/blob/master/%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9%E6%90%9C%E7%B4%A2%E5%99%A8/2017-02-16%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9%E6%90%9C%E7%B4%A2%E5%99%A8%E7%9A%84UI%E7%95%8C%E9%9D%A2.jpg?raw=true)
 
 ### 待改进地方
 
