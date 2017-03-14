@@ -236,6 +236,7 @@ def find_port_pid(port):
 
 def switch_ngrok(verbose=True):
     need_open = True
+    root_path = os.path.dirname(os.path.abspath(__file__))
 
     try:
         # 查看进程是否存在, 存在则关闭
@@ -249,10 +250,11 @@ def switch_ngrok(verbose=True):
         else:
             # 不存在则开启
             # 确保 ngrok.cfg 文件以及 ngrok 文件的存在
-            if not os.path.exists("ngrok.cfg") or not os.path.exists("ngrok"):
+            if not os.path.exists(os.path.join(root_path, "ngrok.cfg")) or \
+                    not os.path.exists(os.path.join(root_path, "ngrok")):
                 raise RuntimeError("ngrok.cfg 或者 ngrok 文件不存在")
             # 执行命令
-            command = "./run_ngrok.sh"
+            command = "cd {} && ./run_ngrok.sh".format(root_path)
             subprocess.Popen(command, shell=True)
             time.sleep(1)  # 暂停一秒后再检测
             # 查看进程是否存在
