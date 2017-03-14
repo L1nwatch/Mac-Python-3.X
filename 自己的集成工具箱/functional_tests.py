@@ -10,7 +10,7 @@ import os
 import random
 import string
 from menu_tool import change_hidden_status_tool
-from menu_tool import switch_open_privoxy, is_privoxy_running
+from menu_tool import switch_open_privoxy, is_port_listen
 
 __author__ = '__L1n__w@tch'
 
@@ -112,7 +112,7 @@ class TestOpenPrivoxy(unittest.TestCase):
     """
 
     def setUp(self):
-        self.status = is_privoxy_running()  # 保存测试之前 privoxy 的开启状态
+        self.status = is_port_listen()  # 保存测试之前 privoxy 的开启状态
 
     def tearDown(self):
         if self.status is True:
@@ -127,11 +127,11 @@ class TestOpenPrivoxy(unittest.TestCase):
         if self.status:
             # 已经开启了, 那就关闭掉
             switch_open_privoxy(verbose=False)
-            self.assertFalse(is_privoxy_running())
+            self.assertFalse(is_port_listen())
         else:
             # 没有开启, 那就开启啊
             switch_open_privoxy(verbose=False)
-            self.assertTrue(is_privoxy_running())
+            self.assertTrue(is_port_listen())
 
 
 if __name__ == "__main__":

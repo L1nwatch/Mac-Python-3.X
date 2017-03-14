@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # version: Python3.X
 """
+2017.03.14 加入内网穿透的按钮
 2016.10.31 修正一下 privoxy 的开启关闭问题, 之前给 sudo 设置的是 w@tch 用户, 但是发现运行的时候用户应该是 L1n, 修改回来就可以用了
 2016.08.27 增加了一个功能, 把自己新写的随机选择器集成进来了, 所以多了一个随机播放机进击的巨人的功能
 2016.08.27 以前:
@@ -17,6 +18,8 @@ import subprocess
 import tkinter
 import tkinter.messagebox
 import os
+import time
+
 from library_wifi import login_after_update as logging_school_wifi
 from random_choicer import random_player
 
@@ -86,11 +89,14 @@ class MenuTool:
                                                                  command=open_shadowsocks)
         self.buttons["random_play_attack"] = tkinter.Button(list_box, text="随机播放一集进击的巨人",
                                                             command=lambda: random_player(
-                                                                "/Users/L1n/Desktop/Entertainment/进击的巨人第一季全集/", ["mp4"]))
+                                                                "/Users/L1n/Desktop/Entertainment/进击的巨人第一季全集/",
+                                                                ["mp4"]))
         self.buttons["switch_privoxy"] = tkinter.Button(list_box, text="开启或关闭 Privoxy",
                                                         command=lambda: switch_open_privoxy(True))
         self.buttons["git_exercise_log"] = tkinter.Button(list_box, text="git push 锻炼日志",
                                                           command=lambda: git_push_exercise_log(True))
+        self.buttons["start_ngrok"] = tkinter.Button(list_box, text="开关内网穿透(8080)",
+                                                     command=lambda: switch_ngrok(True))
 
     def set_buttons(self):
         """
@@ -180,13 +186,14 @@ def open_shadowsocks(verbose=True):
     tkinter.messagebox.showinfo("开启 aria2c", "开启成功") if verbose else None
 
 
-def is_privoxy_running():
+def is_port_listen(port):
     """
     查看 Privoxy 是否在开启中
-    :return:
+    :param port: int(), 端口号, 比如 8118
+    :return: boolean(), True 表示端口号正在使用, False 表示没有
     """
     try:
-        subprocess.check_output("netstat -an | grep 8118", shell=True)
+        subprocess.check_output("netstat -an | grep {}".format(port), shell=True)
     except subprocess.CalledProcessError:
         return False
     return True
@@ -196,7 +203,7 @@ def switch_open_privoxy(verbose=True):
     """
     如果 privoxy 是开启的, 就关闭掉, 否则就开启
     :param verbose: True or False, 表示是否要打印详细信息
-    :return:
+    :return: None
     """
     # 尝试使用 sudo 命令失败了, 最终是参考这篇教程成功的:
     # http://askubuntu.com/questions/155791/how-do-i-sudo-a-command-in-a-script-without-being-asked-for-a-password
@@ -206,12 +213,55 @@ def switch_open_privoxy(verbose=True):
     # 3. sudo visudo, 添加这么一句话:
     # 4. username ALL=(ALL) NOPASSWD: /Applications/Privoxy/start_privoxy_without_sudo.sh
     # 5. 注意添加的位置, 最好是放在最后添加, 省得被覆盖了
-    if is_privoxy_running():
+    if is_port_listen(8118):
         os.system("sudo /Applications/Privoxy/stop_privoxy_without_sudo.sh")
         tkinter.messagebox.showinfo("关闭 Privoxy", "关闭成功") if verbose else None
     else:
         os.system("sudo /Applications/Privoxy/start_privoxy_without_sudo.sh")
         tkinter.messagebox.showinfo("开启 Privoxy", "开启成功") if verbose else None
+
+
+def find_port_pid(port):
+    """
+    找到使用指定端口号的进程 pid
+    :param port: int(), 比如 4040
+    :return: int(), pid 号, 比如 10046
+    """
+    command = "lsof -nP -iTCP -sTCP:LISTEN | grep {} | awk '{{print $ 2}}'".format(4040)
+    pid = subprocess.check_output(command, shell=True).strip()
+    if pid == b"":
+        raise RuntimeError("找不到指定端口")
+    return int(pid)
+
+
+def switch_ngrok(verbose=True):
+    need_open = True
+
+    try:
+        # 查看进程是否存在, 存在则关闭
+        if is_port_listen(4040):
+            need_open = False
+            pid = find_port_pid(4040)
+            os.system("kill -9 {}".format(pid))
+            if is_port_listen(4040):
+                raise RuntimeError("关闭 ngrok 进程失败")
+            tkinter.messagebox.showinfo("关闭内网穿透成功", "关闭成功")
+        else:
+            # 不存在则开启
+            # 确保 ngrok.cfg 文件以及 ngrok 文件的存在
+            if not os.path.exists("ngrok.cfg") or not os.path.exists("ngrok"):
+                raise RuntimeError("ngrok.cfg 或者 ngrok 文件不存在")
+            # 执行命令
+            command = "./run_ngrok.sh"
+            subprocess.Popen(command, shell=True)
+            time.sleep(1)  # 暂停一秒后再检测
+            # 查看进程是否存在
+            if not is_port_listen(4040):
+                raise RuntimeError("虽然执行了命令但是开启失败了")
+            tkinter.messagebox.showinfo("开启内网穿透成功", "开启成功") if verbose else None
+    except RuntimeError as e:
+        if verbose:
+            tkinter.messagebox.showinfo("{}".format(str(e)), "{}失败".format("开启" if need_open else "关闭"))
 
 
 if __name__ == "__main__":
