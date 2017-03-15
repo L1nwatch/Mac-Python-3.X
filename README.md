@@ -28,6 +28,10 @@
 
 涉及 requests HTTP 库、PyQt5 UI 开发。主要是给自动化负责人报告执行结果的时候，每次都有重复冗余的人工操作，于是干脆用脚本来实现自动化了，并且提供了 UI 界面方便整理结果报告。
 
+#### xml转json
+
+毕设需要使用搜狗的数据源, 然而搜狗数据源是一大堆内容都放在同一个 txt 里面的, 格式是类似于 xml 格式, 但是没法直接用 xml 库解析, 而且自己本身的毕设是基于 JSON, 所以干脆弄了个脚本来把 xml 文本转成 json 文本
+
 #### NTester 规则生样本
 
 涉及 scapy 库解析 pcap 包，构造 DNS 数据包，requests HTTP 库，正则 re 库，sqlite3 数据库处理，DES 加密，PKCS#5 填充，命名元组，paramiko 库进行 SSH 连接，json 文件读写，SVN 库交互，解压 gz、tar 包等。是公司一款测试产品的附加组件，给 NTester 规则库提供升级样本用的。
