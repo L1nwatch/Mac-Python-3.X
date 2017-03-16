@@ -3,6 +3,7 @@
 # version: Python3.X
 """数据源是类 xml 但又不是 xml 的文件, 真坑, 按照文本流的方式进行处理之后转成 json 吧
 
+2017.03.16 增加两步操作, 把不可读的两个字符单独替换掉了
 2017.03.15 将类 xml 的数据转换为一个一个 json 文件
 """
 try:
@@ -48,6 +49,8 @@ def get_docs_from_file(file_name):
 
         for each_line in f:
             each_line = codecs.decode(each_line, "gb18030", "strict")
+            each_line = each_line.replace("", "")  # 去掉不可读字符
+            each_line = each_line.replace("　", " ")  # 去掉不可读字符
             doc_content += each_line
 
             if each_line == "</doc>\n":
@@ -62,6 +65,7 @@ def run(file_name):
     :return: None, 创建一个一个 json 文件而已
     """
     dir_path = "xml2json_result"
+    print("[*] 针对文件 {} 进行 xml2json 操作, 结果保存在 {}".format(file_name, dir_path))
     os.makedirs(dir_path, exist_ok=True)
 
     # 按 doc 读取文件
@@ -71,7 +75,9 @@ def run(file_name):
         with codecs.open(os.path.join(dir_path, "news_data{}.json".format(i)), "w") as f:
             json.dump(doc_dict, f)
 
+    print("[*] xml2json 完毕")
+
 
 if __name__ == "__main__":
-    data_file_name = "news_tensite_xml.smarty.dat"
+    data_file_name = "news_tensite_xml.dat"
     run(data_file_name)

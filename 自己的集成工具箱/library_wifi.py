@@ -1,8 +1,10 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
 # version: Python3.X
-''' 自从用了 Mac 后, 每次来到图书馆都得重新登录一下才能使用校园网, 所以干脆些了个程序来完成登录工作
-'''
+""" 自从用了 Mac 后, 每次来到图书馆都得重新登录一下才能使用校园网, 所以干脆些了个程序来完成登录工作
+
+2017.03.16 wifi 名字是改了还是打错了? 反正更正了一下
+"""
 __author__ = '__L1n__w@tch'
 
 import requests
@@ -90,7 +92,7 @@ def login_after_update(verbose=False):
     # session.get(url)
 
     wifi_name = subprocess.check_output("networksetup -getairportnetwork en0 | cut -c 24-", shell=True)
-    if b"std-xdwlan" not in wifi_name.strip().lower():
+    if b"stu-xdwlan" not in wifi_name.strip().lower():
         tkinter.messagebox.showerror("登陆校园网", "你没连上 std-xdwlan 啊!") if verbose else None
         return False
 
