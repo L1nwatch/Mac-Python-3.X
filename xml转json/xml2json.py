@@ -3,6 +3,7 @@
 # version: Python3.X
 """数据源是类 xml 但又不是 xml 的文件, 真坑, 按照文本流的方式进行处理之后转成 json 吧
 
+2017.03.17 区分一下 demo 数据和完整数据, 脚本运行结果分别保存在两个不同的地方
 2017.03.16 增加两步操作, 把不可读的两个字符单独替换掉了
 2017.03.15 将类 xml 的数据转换为一个一个 json 文件
 """
@@ -58,13 +59,14 @@ def get_docs_from_file(file_name):
                 doc_content = str()
 
 
-def run(file_name):
+def run(file_name, demo=True):
     """
     实现 xml2json 的功能
     :param file_name: str(), xml 源文件名称
+    :param demo: boolean(), True or False, 主要是区分 demo 数据与完整数据, 要保存在不同的路径
     :return: None, 创建一个一个 json 文件而已
     """
-    dir_path = "xml2json_result"
+    dir_path = "xml2json_result" if not demo else "demo_xml2json_result"
     print("[*] 针对文件 {} 进行 xml2json 操作, 结果保存在 {}".format(file_name, dir_path))
     os.makedirs(dir_path, exist_ok=True)
 
@@ -79,5 +81,9 @@ def run(file_name):
 
 
 if __name__ == "__main__":
-    data_file_name = "news_tensite_xml.dat"
-    run(data_file_name)
+    demo_run = True
+    if demo_run:
+        data_file_name = "news_tensite_xml.smarty.dat"
+    else:
+        data_file_name = "news_tensite_xml.dat"
+    run(data_file_name, demo=demo_run)
