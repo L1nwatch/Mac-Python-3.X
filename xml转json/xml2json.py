@@ -3,6 +3,7 @@
 # version: Python3.X
 """数据源是类 xml 但又不是 xml 的文件, 真坑, 按照文本流的方式进行处理之后转成 json 吧
 
+2017.03.18 处理一下全角字符的问题
 2017.03.17 区分一下 demo 数据和完整数据, 脚本运行结果分别保存在两个不同的地方
 2017.03.16 增加两步操作, 把不可读的两个字符单独替换掉了
 2017.03.15 将类 xml 的数据转换为一个一个 json 文件
@@ -14,6 +15,7 @@ except ImportError:
 import os
 import codecs
 import re
+import unicodedata
 
 __author__ = '__L1n__w@tch'
 
@@ -39,6 +41,56 @@ def parse_doc_to_dict(doc_content):
     return result_dict
 
 
+def deal_with_wrong_char_with_lib(raw_data):
+    """
+    使用标准库处理错误字符
+    :param raw_data: str(), 原始字符串, 可能包含错误字符, 比如 "abc９ｑ"
+    :return: str(), 处理错误字符之后的结果, 比如 "abc9q"
+    """
+    return unicodedata.normalize("NFKC", raw_data).replace("", "")
+
+
+def __deal_with_wrong_char_by_myself(raw_data):
+    """
+    测试后发现这个方法很慢, 所以还是用库方法吧
+    import timeit
+
+    def performSearch(array):
+        array.sort()
+
+
+    arrayTest = ["X"]*1000
+
+    if __name__ == "__main__":
+        print timeit.timeit("performSearch(arrayTest)","from __main__ import performSearch, arrayTest",number=10)
+
+    自己遍历每个字符, 处理错误字符
+    :param raw_data: str(), 原始字符串, 可能包含错误字符, 比如 "abc９ｑ"
+    :return: str(), 处理错误字符之后的结果, 比如 "abc9q"
+    """
+    result = str()
+    for each_char in raw_data:
+        if each_char == "　":
+            result += " "
+        elif each_char == "":
+            result += ""
+        else:
+            # 全角转半角处理
+            inside_code = ord(each_char)
+            if inside_code == 0x3000:
+                inside_code = 0x0020
+            else:
+                inside_code -= 0xfee0
+            if inside_code < 0x0020 or inside_code > 0x7e:  # 转完之后不是半角字符返回原来的字符
+                result += each_char
+            try:
+                result += chr(inside_code)
+            except ValueError as e:
+                print("[-] Error at {} -> {}".format(each_char, inside_code))
+                result += each_char
+    return result
+
+
 def get_docs_from_file(file_name):
     """
     作为生成器, 读取文件里的每一个段
@@ -50,9 +102,7 @@ def get_docs_from_file(file_name):
 
         for each_line in f:
             each_line = codecs.decode(each_line, "gb18030", "strict")
-            each_line = each_line.replace("", "")  # 去掉不可读字符
-            each_line = each_line.replace("　", " ")  # 去掉不可读字符
-            doc_content += each_line
+            doc_content += deal_with_wrong_char_with_lib(each_line)
 
             if each_line == "</doc>\n":
                 yield doc_content
