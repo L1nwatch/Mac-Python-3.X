@@ -19,15 +19,14 @@ class LinkRelationShip(peewee.Model):
         database = peewee.SqliteDatabase(database_name)
 
     page_id = peewee.CharField()
-    in_url = peewee.TextField()
-    out_url = peewee.TextField()
+    out_id = peewee.CharField()
 
 
 class ID2URL(peewee.Model):
     class Meta:
         database = peewee.SqliteDatabase(database_name)
 
-    page_id = peewee.CharField(unique=True, null=True)
+    page_id = peewee.CharField(null=True)
     page_url = peewee.TextField(null=True)
 
 
@@ -40,15 +39,25 @@ def create_database():
     return db
 
 
-def read_file_data(file_name):
+def read_file_data(file_name, field_name):
     """
     读取文件中的每一行, 按空格间隔后返回
+    每次读取 1w 行
     :param file_name: str(), 比如 "link_relationship.txt"
+    :param field_name: 从文件里读取的每一列的含义
     :return: tuple, (str(), str()), 比如 ("1", "https://1.html")
     """
     with open(file_name, "r") as f:
+        counts = 0
+        temp_list = list()
         for each_line in f:
-            yield each_line.split("\t")
+            counts += 1
+            temp_list.append({key: value.strip() for key, value in zip(field_name, each_line.split("\t"))})
+            if counts == 400:
+                yield temp_list
+                del temp_list[:]
+                counts = 0
+                # temp_list.clear() # python3.2 居然没有这个方法
 
 
 def clear_database():
@@ -78,16 +87,14 @@ def create_link_relationship_db(database, file_path):
     # 创建 ID2URL 的数据
     file_path = os.path.join("/Users/L1n/Desktop/Notes/毕设/毕设实现/工程文件/SogouT-Link.v1", "id2url.link")
     print("[*] 读取文件 {} 并插入数据库".format(str(file_path).rsplit("/", maxsplit=1)[1]))
-    for each_id, each_url in read_file_data(file_path):
-        each_row = ID2URL(page_id=each_id, page_url=each_url)
-        each_row.save()
+    for data_source_list in read_file_data(file_path, ["page_id", "page_url"]):
+        ID2URL.insert_many(data_source_list).execute()
 
     # 创建 LinkRelationship 数据
     file_path = os.path.join("/Users/L1n/Desktop/Notes/毕设/毕设实现/工程文件/SogouT-Link.v1", "SogouT-link")
     print("[*] 读取文件 {} 并插入数据库".format(str(file_path).rsplit("/", maxsplit=1)[1]))
-    for each_id, each_in, each_out in read_file_data(file_path):
-        link_relation_ship = LinkRelationShip(page_id=each_id, in_url=each_in, out_url=each_out)
-        link_relation_ship.save()
+    for data_source_list in read_file_data(file_path, ["page_id", "out_id"]):
+        LinkRelationShip.insert_many(data_source_list).execute()
 
 
 def run():
@@ -95,12 +102,14 @@ def run():
     db = create_database()
 
     # 创建链接数据
-    create_link_relationship_db(db, "link_relationship.txt")
+    confirm = input("[+] 即将修改数据库中的数据, 确认?[y/n]")
+    if confirm.lower() == "y":
+        create_link_relationship_db(db, "link_relationship.txt")
 
     # 访问数据库, 验证是否插入成功
     print("[*] 尝试访问数据库")
-    assert len(LinkRelationShip.select()) > 1
-    assert len(ID2URL.select()) > 1
+    assert len(LinkRelationShip.select().limit(10)) > 1
+    assert len(ID2URL.select().limit(10)) > 1
     print("[*] 成功插入数据到数据库中")
 
 
