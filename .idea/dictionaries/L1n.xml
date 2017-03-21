@@ -3,8 +3,10 @@
     <words>
       <w>catagory</w>
       <w>classmethod</w>
+      <w>domainid</w>
       <w>httpobj</w>
       <w>jsonp</w>
+      <w>linkindoc</w>
       <w>mako</w>
       <w>ngrok</w>
       <w>passwd</w>
@@ -13,6 +15,7 @@
       <w>privoxy</w>
       <w>shadowsocks</w>
       <w>sqlite</w>
+      <w>urlindoc</w>
       <w>wsgi</w>
     </words>
   </dictionary>

@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 负责新建 sqlite3 数据库, 以及插入对应的链接关系库, 以便毕设进行查询访问等操作
 
+2017.03.21 DomainID2URL 依旧存在好多冗余, 过滤一下
 2017.03.20 发现数据源里面好多链接冗余, 于是特殊处理一下
 2017.03.20 实现新建 sqlite3 数据库以及伪造部分链接关系数据, 另外顺便学习一下 peewee
 """
@@ -49,6 +50,14 @@ class LinkInDoc(peewee.Model):
     domain_id = peewee.CharField(null=False)
     out_id = peewee.CharField(null=True)
     in_id = peewee.CharField(null=True)
+
+
+class DomainID2URLInDoc(peewee.Model):
+    class Meta:
+        database = peewee.SqliteDatabase(database_name)
+
+    page_id = peewee.CharField(null=False)
+    page_url = peewee.TextField(null=False)
 
 
 def create_database():
@@ -126,9 +135,6 @@ def create_link_relationship_db(database, file_path):
     :param file_path: str(), 链接数据的文件, 比如 "link_relationship.txt"
     :return: None
     """
-    # 确保表和库存在, 且为初始状态
-    clear_database([LinkRelationShip, PageID2URL, DomainID2URL])
-
     # 创建 ID2URL 的数据
     file_path = os.path.join("/Users/L1n/Desktop/Notes/毕设/毕设实现/工程文件/SogouT-Link.v1", "id2url.link")
     print("[*] 读取文件 {} 并插入表 PageID2URL".format(str(file_path).rsplit("/", maxsplit=1)[1]))
@@ -153,7 +159,14 @@ def run():
     # 创建链接数据
     confirm = input("[+] 即将修改数据库中的数据, 确认?[y/n]")
     if confirm.lower() == "y":
-        create_link_relationship_db(db, "link_relationship.txt")
+        # 确保表和库存在, 且为初始状态
+        # clear_database([LinkRelationShip, PageID2URL, DomainID2URL, LinkInDoc, DomainID2URLInDoc])
+
+        # 从文件中读取相应数据后存放到数据库中
+        # create_link_relationship_db(db, "link_relationship.txt")
+
+        # 将数据库中的数据与文档进行比较, 只摘取跟文档有关系的放进数据库对应表格
+        compare_db_data()
 
     # 访问数据库, 验证是否插入成功
     print("[*] 尝试访问数据库")
@@ -162,21 +175,13 @@ def run():
     print("[*] 成功插入数据到数据库中")
 
 
-def compare_db_data():
+def create_linkindoc_data(file_path):
     """
-    将搜狗数据源的新闻数据与数据库中的数据相比较, 看有多少条匹配的信息在里头
-    另外将比较的结果保存在表 LinkInDoc 里面
-    结果是只有 6 个域名有匹配信息, 280 个域名没有匹配信息
-    :return:
+    经过处理创建 LinkInDoc 表格中的相关数据
+    :param file_path:  str(), 文档文件的路径, 比如 "../news_tensite_xml.dat"
+    :return: dict(), 域名及有效值, 比如 {"domain1": True, "domain2": False}
     """
-    file_path = os.path.join("/Users/L1n/Desktop/Code/Python/PyCharm/毕设辅助脚本/xml转json", "news_tensite_xml.dat")
     domain_dict = dict()
-    if not LinkInDoc.table_exists():
-        LinkInDoc.create_table()
-    else:
-        LinkInDoc.drop_table()
-        LinkInDoc.create_table()
-
     for i, each_doc in enumerate(get_docs_from_file(file_path)):
         doc_dict = parse_doc_to_dict(each_doc)
         domain_id = doc_dict["doc_number"].split("-")[1]
@@ -204,10 +209,44 @@ def compare_db_data():
     count_true, count_false = 0, 0
     for key, value in domain_dict.items():
         if value:
+            print("[*] 找到有效域名: {}".format(key))
             count_true += 1
         else:
             count_false += 1
     print("[*] 有效域名: {} 个, 无效域名: {} 个".format(count_true, count_false))
+
+    return domain_dict
+
+
+def create_domainid2urlindoc_data(domain_dict):
+    """
+    只把与有效域名相关的 URL 放进表格 domainid2urlindoc 中
+    :param domain_dict: dict(), 域名及有效值, 比如 {"domain1": True, "domain2": False}
+    :return: None
+    """
+    data_source = list()
+    for each_domain, is_valid in domain_dict.items():
+        if is_valid:
+            result = DomainID2URL.select().where(DomainID2URL.page_id == each_domain).execute()
+            for each_row in result:
+                data_source.append({"page_id": each_domain, "page_url": each_row.page_url})
+
+    # 每隔 50 个数据插入一次:
+    for i in range(0, len(data_source), 50):
+        DomainID2URLInDoc.insert_many(data_source[i:i + 50]).execute()
+
+
+def compare_db_data():
+    """
+    将搜狗数据源的新闻数据与数据库中的数据相比较, 看有多少条匹配的信息在里头
+    另外将比较的结果保存在表 LinkInDoc 里面
+    结果是只有 6 个域名有匹配信息, 280 个域名没有匹配信息
+    :return:
+    """
+    file_path = os.path.join("/Users/L1n/Desktop/Code/Python/PyCharm/毕设辅助脚本/xml转json", "news_tensite_xml.dat")
+
+    domain_dict = create_linkindoc_data(file_path)
+    create_domainid2urlindoc_data(domain_dict)
 
 
 def first_way_to_check():
@@ -229,7 +268,6 @@ def second_way_to_check():
 
 if __name__ == "__main__":
     run()
-    compare_db_data()
 
     # 比较那个快一些
     # print(timeit.timeit("first_way_to_check()", "from __main__ import first_way_to_check", number=200))
