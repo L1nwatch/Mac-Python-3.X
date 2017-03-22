@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # version: Python3.X
 """
+2017.03.22 TODO: 发现了个 BUG, 就是用 workflow 运行这个脚本的时候, 开启内网穿透之后会一直停留在右上角中, 没想到好方法可以解决
 2017.03.14 加入内网穿透的按钮
 2016.10.31 修正一下 privoxy 的开启关闭问题, 之前给 sudo 设置的是 w@tch 用户, 但是发现运行的时候用户应该是 L1n, 修改回来就可以用了
 2016.08.27 增加了一个功能, 把自己新写的随机选择器集成进来了, 所以多了一个随机播放机进击的巨人的功能
@@ -255,12 +256,12 @@ def switch_ngrok(verbose=True):
                 raise RuntimeError("ngrok.cfg 或者 ngrok 文件不存在")
             # 执行命令
             command = "cd {} && ./run_ngrok.sh".format(root_path)
-            subprocess.Popen(command, shell=True)
+            p = subprocess.Popen(command, shell=True)
             time.sleep(1)  # 暂停一秒后再检测
             # 查看进程是否存在
             if not is_port_listen(4040):
                 raise RuntimeError("虽然执行了命令但是开启失败了")
-            tkinter.messagebox.showinfo("开启内网穿透成功", "开启成功") if verbose else None
+            tkinter.messagebox.showinfo("开启内网穿透成功, 已进入后台运行", "开启成功") if verbose else None
     except RuntimeError as e:
         if verbose:
             tkinter.messagebox.showinfo("{}".format(str(e)), "{}失败".format("开启" if need_open else "关闭"))
