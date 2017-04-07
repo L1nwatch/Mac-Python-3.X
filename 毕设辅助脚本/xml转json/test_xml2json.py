@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 # version: Python3.X
 """
+2017.04.07 新增有关提取域名的相关测试
 2017.03.18 增加有关全角字符的相关测试
 2017.03.15 作为 xml2json 的测试文件
 """
 import unittest
-from xml2json import parse_doc_to_dict, get_docs_from_file, deal_with_wrong_char_with_lib
+from xml2json import parse_doc_to_dict, get_docs_from_file, deal_with_wrong_char_with_lib, extract_domain_from_url
 
 __author__ = '__L1n__w@tch'
 
@@ -53,6 +54,27 @@ class TestXML2JSON(unittest.TestCase):
         right_data = "0123456789qwertyuiop[]|\\asdfghjkl;'zxcvbnm,./ "
         my_answer = deal_with_wrong_char_with_lib(raw_data)
         self.assertEqual(right_data, my_answer)
+
+    def test_extract_domain_from_url(self):
+        test_data = "http://news.sohu.com/20120612/n345428229.shtml"
+        right_answer = "news.sohu.com"
+        my_answer = extract_domain_from_url(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+        test_data = "http://news.sohu.com/20120607/n344998325.shtml"
+        right_answer = "news.sohu.com"
+        my_answer = extract_domain_from_url(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+        test_data = "http://news.cn.yahoo.com/newspic/news/19921/1/"
+        right_answer = "news.cn.yahoo.com"
+        my_answer = extract_domain_from_url(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+        test_data = "http://biz.cn.yahoo.com/ypen/20120610/1102044.html"
+        right_answer = "biz.cn.yahoo.com"
+        my_answer = extract_domain_from_url(test_data)
+        self.assertEqual(right_answer, my_answer)
 
 
 if __name__ == "__main__":
