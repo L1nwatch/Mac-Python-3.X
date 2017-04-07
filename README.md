@@ -42,6 +42,10 @@
 
 采用 peewee 库实现的, 创建一个链接关系数据库, 源是搜狗数据源, 然后保存到 sqlite3 db 文件里面, 方便 Java 读取
 
+##### 评测
+
+要求进行准确率以及 MRR 的评测工作, 于是开始使用 selenium 库进行相关的自动化操作并计算评测结果
+
 #### NTester 规则生样本
 
 涉及 scapy 库解析 pcap 包，构造 DNS 数据包，requests HTTP 库，正则 re 库，sqlite3 数据库处理，DES 加密，PKCS#5 填充，命名元组，paramiko 库进行 SSH 连接，json 文件读写，SVN 库交互，解压 gz、tar 包等。是公司一款测试产品的附加组件，给 NTester 规则库提供升级样本用的。
