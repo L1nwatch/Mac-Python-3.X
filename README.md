@@ -60,7 +60,7 @@
 
 #### [网络对抗原理-嗅探器](https://github.com/L1nwatch/Mac-Python-3.X/blob/master/%E7%BD%91%E7%BB%9C%E5%AF%B9%E6%8A%97%E5%8E%9F%E7%90%86/readme.md)
 
-详看链接，涉及 scapy、threading、io、tkiner、collections 等库。是大学课程网络对抗原理要求编写的嗅探器实验，实现了嗅探器的基本功能以及 UI 界面。
+详看链接，涉及 scapy、threading、io、tkinter、collections 等库。是大学课程网络对抗原理要求编写的嗅探器实验，实现了嗅探器的基本功能以及 UI 界面。
 
 #### [自己的集成工具箱](https://github.com/L1nwatch/Mac-Python-3.X/blob/master/%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9B%86%E6%88%90%E5%B7%A5%E5%85%B7%E7%AE%B1/readme.md)
 
