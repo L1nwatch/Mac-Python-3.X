@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 尝试使用 selenium 进行评测工作
 
+2017.04.08 补充完成 precision 的计算工作
 2017.04.07 开始使用 selenium 库进行评测相关的自动化操作
 """
 import unittest
@@ -112,6 +113,21 @@ class AnalysisTest(unittest.TestCase):
             if content == each.text:
                 return i
 
+    @staticmethod
+    def count_related_in_list_text(a_list, related_set):
+        """
+        辅助 Precision 计算用的, 用于统计搜索结果中有多少个是相关结果
+        :param a_list: list(), 搜索结果
+        :param related_set: set(), 相关结果
+        :return: int(), 相关结果个数
+        """
+        count = 0
+        for each_result in a_list:
+            if each_result.text in related_set:
+                count += 1
+        return count
+
+    @unittest.skipUnless(False, "要进行 MRR 计算的话才改为 True")
     def test_mrr_algorithm(self):
         """
         这不是测试, 而是进行 mrr 的计算, 只不过得以 test 开头才能运行(或者说我懒得研究其他运行方式- -)
@@ -141,6 +157,45 @@ class AnalysisTest(unittest.TestCase):
 
         print("[*] 最终计算 HITS 的 MRR 为: {}".format(sum(hits_mrr_result) / len(hits_mrr_result)))
         print("[*] 最终计算 PageRank 的 MRR 为: {}".format(sum(page_rank_mrr_result) / len(page_rank_mrr_result)))
+
+    @unittest.skipUnless(True, "要进行查准率(precision)计算的话才改为 True")
+    def test_precision_algorithm(self):
+        """
+        这不是测试, 而是进行查准率计算
+        precision: 实验中对返回结果的前 20 项进行评测, 设与查询问题 i 相关的结果个数为 ni, 则该次查询的查准率 Pi = ni / 20,
+                   再对所有查询取平均值
+        """
+        keyword_result_dict = {
+            "test": {"某个被搜索结果指向的页面", "People's Daily Online"},
+            "life": {"新加坡华人任证婚人7年 见证781对情侣缔结良缘"},
+        }
+        hits_precision_result = list()
+        pagerank_precision_result = list()
+
+        # 遍历每一个查询
+        for each_keyword, each_related in keyword_result_dict.items():
+            # 进行 HITS 的 Precision 计算
+            self.do_search(each_keyword)
+            hits_results = self.browser.find_elements_by_id("id_hits_result")
+            # 对 HITS 计算 ni / 20, 保存下来
+            hits_precision_result.append(
+                fractions.Fraction(self.count_related_in_list_text(hits_results, each_related), len(hits_results))
+            )
+
+            # 进行 PageRank 的 Precision 计算
+            pagerank_results = self.browser.find_elements_by_id("id_page_rank_result")
+            # 对 PageRank 计算 ni / 20, 保存下来
+            pagerank_precision_result.append(
+                fractions.Fraction(
+                    self.count_related_in_list_text(pagerank_results, each_related), len(pagerank_results)
+                )
+            )
+
+        # 进行 P 值计算
+        print("[*] 最终计算 HITS 的 Precision 为: {}".format(sum(hits_precision_result) / len(hits_precision_result)))
+        print("[*] 最终计算 PageRank 的 Precision 为: {}".format(
+            sum(pagerank_precision_result) / len(pagerank_precision_result))
+        )
 
 
 if __name__ == "__main__":
