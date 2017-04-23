@@ -15,6 +15,7 @@
       <w>pcaps</w>
       <w>privoxy</w>
       <w>shadowsocks</w>
+      <w>smtp</w>
       <w>sqlite</w>
       <w>urlindoc</w>
       <w>wsgi</w>
