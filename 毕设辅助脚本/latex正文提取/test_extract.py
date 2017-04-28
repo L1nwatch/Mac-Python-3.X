@@ -4,38 +4,98 @@
 """ 针对提取脚本作测试
 """
 import unittest
-
+from extract import LatexExtract
 
 __author__ = '__L1n__w@tch'
 
+
 class TestExtract(unittest.TestCase):
+    def setUp(self):
+        self.le = LatexExtract()
+
     def test_extract_figure(self):
         """
         提取 figure 应该只提取 caption 字段
         :return:
         """
-        pass
+        test_data = r"""
+\\begin{figure}[htbp]
+\\centering
+\\numberwithin{figure}{chapter}
+\\includegraphics[width=0.7\textwidth]{figures/chap2/chap-2-system_lucene.png}
+\\vspace{-1em}
+\\caption{系统结构}
+\\label{fig:lucene_system}
+\\end{figure}"""
+        right_answer = "系统结构"
+        my_answer = self.le.extract_content_from_figure(test_data)
+        self.assertEqual(right_answer, my_answer)
 
     def test_extract_segment(self):
         """
         能够自动提取代码段, 比如说 figure 代码段
         :return:
         """
-        pass
+        test_data = """\chapter{相关技术和理论}\n\label{chap:technology}\n接下来介绍以下本文所涉及到的相关技术和理论知识，主要是搜索平台框架~Lucene~、针对中文的分词器、网页排序的算法介绍等。\n\section{Lucene~简介}"""
+        right_answer = [("text", "\chapter{相关技术和理论}"), ("label", "\label{chap:technology}"),
+                        ("text", "接下来介绍以下本文所涉及到的相关技术和理论知识，主要是搜索平台框架~Lucene~、针对中文的分词器、网页排序的算法介绍等。"),
+                        ("text", "\section{Lucene~简介}")]
+        my_answer = self.le.get_each_segment(test_data)
+        self.assertEqual(right_answer, list(my_answer))
+
+        test_data2 = """\subsection{Lucene~介绍}\nLucene~是~Apache~Software~Foundation~的一个免费信息检索软件库\cite{lucene_introduce}。Lucene~提供了索引引擎以及查询引擎，以便支持全文检索功能。它使用了高度优化的倒排索引结构，并支持增量索引\cite{lucene_introduce2}，具有性能高、可扩展等特点。整个~Apache~的系统结构可以用下图 \ref{fig:lucene_system} 表示：\n\\begin{figure}[htbp]\n\n\\centering\n\\numberwithin{figure}{chapter}\n\\includegraphics[width=0.7\textwidth]{figures/chap2/chap-2-system_lucene.png}\n\\vspace{-1em}\n\\caption{系统结构}\n\\label{fig:lucene_system}\n\\end{figure}\n"""
+        right_answer = [("text", "\subsection{Lucene~介绍}"),
+                        ("text",
+                         "Lucene~是~Apache~Software~Foundation~的一个免费信息检索软件库\cite{lucene_introduce}。Lucene~提供了索引引擎以及查询引擎，以便支持全文检索功能。它使用了高度优化的倒排索引结构，并支持增量索引\cite{lucene_introduce2}，具有性能高、可扩展等特点。整个~Apache~的系统结构可以用下图 \ref{fig:lucene_system} 表示："),
+                        ("figure",
+                         "\begin{figure}[htbp]\n\n\centering\n\numberwithin{figure}{chapter}\n\includegraphics[width=0.7\textwidth]{figures/chap2/chap-2-system_lucene.png}\n\vspace{-1em}\n\caption{系统结构}\n\label{fig:lucene_system}\n\end{figure}""")]
+        my_answer = self.le.get_each_segment(test_data2)
+        self.assertEqual(right_answer, list(my_answer))
 
     def test_extract_itemize(self):
         """
         验证提取 itemize 中的内容
         :return:
         """
-        pass
+        test_data = """
+\\begin{itemize}
+\\item \\textbf{各种供外部使用的~API~}：开发人员调用这些~API~可以进行搜索、分析，以及进一步对搜索结果进行处理等。
+\\item \\textbf{基本包装结构}：主要是指内部使用的各种数据结构的封装，比如说每一个网页被封装成一个~document~数据结构等。
+\\item \\textbf{索引核心}：主要提供为数据源建立特定的数据结构，即索引，这是~Lucene~优异检索性能的来源。生成的索引数据要在搜索时提供给对应接口，所以还涉及到存储相关的操作。
+\\end{itemize}
+"""
+        right_answer = "\n".join(["各种供外部使用的~API~：开发人员调用这些~API~可以进行搜索、分析，以及进一步对搜索结果进行处理等。",
+                                  "基本包装结构：主要是指内部使用的各种数据结构的封装，比如说每一个网页被封装成一个~document~数据结构等。",
+                                  "索引核心：主要提供为数据源建立特定的数据结构，即索引，这是~Lucene~优异检索性能的来源。生成的索引数据要在搜索时提供给对应接口，所以还涉及到存储相关的操作。"])
+        my_answer = self.le.extract_content_from_itemize(test_data)
+        self.assertEqual(right_answer, my_answer)
 
     def test_extract_label(self):
         """
         针对 label 则不进行提取操作
         :return:
         """
-        pass
+        test_data = "\\label{chap:technology}"
+        right_answer = ""
+        my_answer = self.le.extract_content_from_label(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+    def test_clear_tag(self):
+        test_data = "\\textbf{aa}"
+        right_answer = "aa"
+        my_answer = self.le.clear_tag(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+        test_data = "bb\\textbf{aa}cc"
+        right_answer = "bbaacc"
+        my_answer = self.le.clear_tag(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+        test_data = '当今互联网信息量正在持续地进行爆发性增长，网上资源的形式和内容也是日新月异。ILS（Internet~Live~Stats）组织致力于统计互联网的使用情况，图~\\ref{fig:internet_websites_count}~给出了自~1991~年以来网站数目的增长情况。'
+        right_answer = "当今互联网信息量正在持续地进行爆发性增长，网上资源的形式和内容也是日新月异。ILS（Internet~Live~Stats）组织致力于统计互联网的使用情况，图~~给出了自~1991~年以来网站数目的增长情况。"
+        my_answer = self.le.clear_tag(test_data)
+        self.assertEqual(right_answer, my_answer)
+
 
 if __name__ == "__main__":
     pass
