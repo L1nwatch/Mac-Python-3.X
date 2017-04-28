@@ -52,7 +52,7 @@ class LatexExtract:
     def extract_content_from_itemize(self, segment):
         """
         提取 itemize 段, 例子参考 test 文件
-        :param segment: str(), 比如 "\begin{itemize}...\end{itemize}"
+        :param segment: str(), 比如 "\\begin{itemize}...\\end{itemize}"
         :return: str(), 比如 "各种供外部使用的~API~..."
         """
         result = re.findall("\\\\item\s(.*)", segment, flags=re.IGNORECASE)
@@ -62,7 +62,7 @@ class LatexExtract:
     def get_types_from_begin(label_data):
         """
         提取 types 信息
-        :param label_data: str(), 比如 "\begin{figure}"
+        :param label_data: str(), 比如 "\\begin{figure}"
         :return: str(), 比如 "figure"
         """
         result = re.findall("\\\\begin\{(.*)}", label_data, flags=re.IGNORECASE)
@@ -71,8 +71,8 @@ class LatexExtract:
     def get_each_segment(self, raw_data):
         """
         实现分段操作
-        :param raw_data: str(), 比如 "\chapter{评测分析}\n\section{实验环境}\n"
-        :return: 生成器 yield 结果, 比如 ["\chapter{评测分析}", "\section{实验环境}"]
+        :param raw_data: str(), 比如 "\\chapter{评测分析}\n\\section{实验环境}\n"
+        :return: 生成器 yield 结果, 比如 ["\\chapter{评测分析}", "\\section{实验环境}"]
         """
         lines = iter(raw_data.split("\n"))
         each_line = next(lines, None)
@@ -106,7 +106,7 @@ class LatexExtract:
     def extract_content(self, content):
         """
         实现提取正文内容, 删除标签信息等
-        :param content: str(), 比如 "\chapter{评测分析}"
+        :param content: str(), 比如 "\\chapter{评测分析}"
         :return: "评测分析\n"
         """
         result = list()
