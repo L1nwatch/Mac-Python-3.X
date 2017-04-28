@@ -16,7 +16,7 @@ class LatexExtract:
     def clear_tag(raw_data):
         """
         清除标签信息, \textbf{} 会保留花括号里面的内容, 不过 \label、\ref、\cite 就会删除花括号里面的内容
-        :param raw_data: str(), 比如 "\textbf{aaa}"
+        :param raw_data: str(), 比如 "\\textbf{aaa}"
         :return: str(), "aaa"
         """
 
@@ -43,7 +43,7 @@ class LatexExtract:
     def extract_content_from_figure(segment):
         """
         从 figure 段中提取信息, 只提取 caption 信息
-        :param segment: str(), 比如 "\begin{figure}...\end{figure}"
+        :param segment: str(), 比如 "\\begin{figure}...\\end{figure}"
         :return: str(), 比如 "系统结构"
         """
         result = re.findall("\\\\caption{(.*)}", segment, flags=re.IGNORECASE)
