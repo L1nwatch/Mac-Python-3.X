@@ -19,13 +19,15 @@ class LatexExtract:
         :param raw_data: str(), 比如 "\textbf{aaa}"
         :return: str(), "aaa"
         """
+
         def _sub_call(m):
             label = m.group(1)
-            if label in ("label", "ref", "cite"):
+            if label.lower() in ("label", "ref", "cite"):
                 return str()
             else:
                 return "{}".format(m.group(2))
-        result = re.sub("\\\\(?P<label>.+)\{(?P<content>.*)}", _sub_call, raw_data)
+
+        result = re.sub("\\\\(?P<label>.+?)\{(?P<content>.*)}", _sub_call, raw_data)
         return result
 
     @staticmethod
@@ -57,31 +59,41 @@ class LatexExtract:
         return "\n".join([self.clear_tag(x) for x in result])
 
     @staticmethod
-    def get_each_segment(raw_data):
+    def get_types_from_begin(label_data):
+        """
+        提取 types 信息
+        :param label_data: str(), 比如 "\begin{figure}"
+        :return: str(), 比如 "figure"
+        """
+        result = re.findall("\\\\begin\{(.*)}", label_data, flags=re.IGNORECASE)
+        return result[0]
+
+    def get_each_segment(self, raw_data):
         """
         实现分段操作
         :param raw_data: str(), 比如 "\chapter{评测分析}\n\section{实验环境}\n"
         :return: 生成器 yield 结果, 比如 ["\chapter{评测分析}", "\section{实验环境}"]
         """
-        type_re = re.compile("\begin{(.*)}", flags=re.IGNORECASE)
-
         lines = iter(raw_data.split("\n"))
         each_line = next(lines, None)
         while each_line is not None:
-            if "\begin" in each_line:
+            if r"\begin" in each_line:
                 segment = list()
 
-                result = type_re.findall(each_line)
-                types = result[0] if len(result) > 0 else "unknown"
+                types = self.get_types_from_begin(each_line)
 
                 segment.append(each_line)
                 # 迭代到 end 位置
                 each_line = next(lines)
-                while "\end" not in each_line:
+                while r"\end" not in each_line:
                     segment.append(each_line)
                     each_line = next(lines)
                 segment.append(each_line)
                 yield types, "\n".join(segment)
+
+            # 如果是注释语句就忽略
+            elif each_line.lstrip().startswith("%"):
+                pass
 
             elif r"\label" in each_line:
                 yield "label", each_line
@@ -110,21 +122,25 @@ class LatexExtract:
             elif types.lower() == "Unknown":
                 raise ("[-] 未知类型: {}".format(each_segment))
             else:
-                result.append(self.clear_tag(each_segment))
+                result.append(each_segment)
 
-        return "\n".join(result)
+        return "\n".join(self.clear_tag(x.replace("~", " ")) for x in result)
 
     def run(self, source_file_path):
-        for each_file in (x for x in os.listdir(source_file_path) if x.endswith(".tex") and x.startswith("chap-")):
+        total_result = list()
+        for each_file in ("chap-{}.tex".format(x) for x in ["intro", "tech", "implement", "analysis", "faq"]):
             with open(os.path.join(source_file_path, each_file), "rt", encoding="gb18030") as f:
                 data = f.read()
-                print("[*] {sep} 从 {file_name} 中提取得到的内容如下 {sep}".format(file_name=each_file, sep="=" * 30))
+                print("[*] 从 {file_name} 中提取内容完成".format(file_name=each_file))
 
-                print("{}".format(self.extract_content(data)))
+                total_result.append(self.extract_content(data))
+        print("[*] 所有内容提取完毕")
+        return "\n\n".join(total_result)
 
 
 if __name__ == "__main__":
     source_file_dir = "source_file"
 
     le = LatexExtract()
-    le.run(source_file_dir)
+    result = le.run(source_file_dir)
+    print(result)

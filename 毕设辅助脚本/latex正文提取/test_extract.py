@@ -31,7 +31,7 @@ class TestExtract(unittest.TestCase):
         my_answer = self.le.extract_content_from_figure(test_data)
         self.assertEqual(right_answer, my_answer)
 
-    def test_extract_segment(self):
+    def test_get_each_segment_can_work(self):
         """
         能够自动提取代码段, 比如说 figure 代码段
         :return:
@@ -43,13 +43,36 @@ class TestExtract(unittest.TestCase):
         my_answer = self.le.get_each_segment(test_data)
         self.assertEqual(right_answer, list(my_answer))
 
-        test_data2 = """\subsection{Lucene~介绍}\nLucene~是~Apache~Software~Foundation~的一个免费信息检索软件库\cite{lucene_introduce}。Lucene~提供了索引引擎以及查询引擎，以便支持全文检索功能。它使用了高度优化的倒排索引结构，并支持增量索引\cite{lucene_introduce2}，具有性能高、可扩展等特点。整个~Apache~的系统结构可以用下图 \ref{fig:lucene_system} 表示：\n\\begin{figure}[htbp]\n\n\\centering\n\\numberwithin{figure}{chapter}\n\\includegraphics[width=0.7\textwidth]{figures/chap2/chap-2-system_lucene.png}\n\\vspace{-1em}\n\\caption{系统结构}\n\\label{fig:lucene_system}\n\\end{figure}\n"""
+        test_data2 = r"""
+\subsection{Lucene~介绍}
+
+Lucene~是~Apache~Software~Foundation~的一个免费信息检索软件库\cite{lucene_introduce}。Lucene~提供了索引引擎以及查询引擎，以便支持全文检索功能。它使用了高度优化的倒排索引结构，并支持增量索引\cite{lucene_introduce2}，具有性能高、可扩展等特点。整个~Apache~的系统结构可以用下图 \ref{fig:lucene_system} 表示：
+
+    \begin{figure}[htbp]
+        \centering
+        \numberwithin{figure}{chapter}
+        \includegraphics[width=0.7\textwidth]{figures/chap2/chap-2-system_lucene.png}
+        \vspace{-1em}
+        \caption{系统结构}
+        \label{fig:lucene_system}
+    \end{figure}"""
+
         right_answer = [("text", "\subsection{Lucene~介绍}"),
                         ("text",
-                         "Lucene~是~Apache~Software~Foundation~的一个免费信息检索软件库\cite{lucene_introduce}。Lucene~提供了索引引擎以及查询引擎，以便支持全文检索功能。它使用了高度优化的倒排索引结构，并支持增量索引\cite{lucene_introduce2}，具有性能高、可扩展等特点。整个~Apache~的系统结构可以用下图 \ref{fig:lucene_system} 表示："),
+                         r"Lucene~是~Apache~Software~Foundation~的一个免费信息检索软件库\cite{lucene_introduce}。Lucene~提供了索引引擎以及查询引擎，以便支持全文检索功能。它使用了高度优化的倒排索引结构，并支持增量索引\cite{lucene_introduce2}，具有性能高、可扩展等特点。整个~Apache~的系统结构可以用下图 \ref{fig:lucene_system} 表示："),
                         ("figure",
-                         "\begin{figure}[htbp]\n\n\centering\n\numberwithin{figure}{chapter}\n\includegraphics[width=0.7\textwidth]{figures/chap2/chap-2-system_lucene.png}\n\vspace{-1em}\n\caption{系统结构}\n\label{fig:lucene_system}\n\end{figure}""")]
+                         "    \\begin{figure}[htbp]\n        \\centering\n        \\numberwithin{figure}{chapter}\n        \\includegraphics[width=0.7\\textwidth]{figures/chap2/chap-2-system_lucene.png}\n        \\vspace{-1em}\n        \\caption{系统结构}\n        \\label{fig:lucene_system}\n    \\end{figure}""")]
         my_answer = self.le.get_each_segment(test_data2)
+        self.assertEqual(right_answer, list(my_answer))
+
+    def test_get_each_segment_will_ignore_comment(self):
+        """
+        测试是否可以忽略注释
+        :return:
+        """
+        test_data = '%部分用户开始倾向于使用专业化、领域化的搜索引擎，避免歧义的网页搜索结果。传统的搜索引擎还存在着不能即时更新网络信息资源的缺陷，在面对有即时性查询需求的用户搜索请求时，难免会不尽人意。'
+        right_answer = []
+        my_answer = self.le.get_each_segment(test_data)
         self.assertEqual(right_answer, list(my_answer))
 
     def test_extract_itemize(self):
@@ -94,6 +117,17 @@ class TestExtract(unittest.TestCase):
         test_data = '当今互联网信息量正在持续地进行爆发性增长，网上资源的形式和内容也是日新月异。ILS（Internet~Live~Stats）组织致力于统计互联网的使用情况，图~\\ref{fig:internet_websites_count}~给出了自~1991~年以来网站数目的增长情况。'
         right_answer = "当今互联网信息量正在持续地进行爆发性增长，网上资源的形式和内容也是日新月异。ILS（Internet~Live~Stats）组织致力于统计互联网的使用情况，图~~给出了自~1991~年以来网站数目的增长情况。"
         my_answer = self.le.clear_tag(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+        test_data = r'\ref{fig:internet_websites_count} \cite{aaaa}'
+        right_answer = ""
+        my_answer = self.le.clear_tag(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+    def test_get_types_from_begin(self):
+        test_data = "\\begin{figure}"
+        right_answer = "figure"
+        my_answer = self.le.get_types_from_begin(test_data)
         self.assertEqual(right_answer, my_answer)
 
 
