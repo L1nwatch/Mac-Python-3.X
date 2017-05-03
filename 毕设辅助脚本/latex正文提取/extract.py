@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 自己写的论文是 LaTex 格式, 论文查重需要文本内容, 所以还是写个脚本来提取好了
 
+2017.05.03 增加对 displaymath、lst input listing、$$ 等语法的处理
 2017.04.28 开始针对初始脚本进行提取, 针对 Windows 下生成的 tex 文件
 """
 import os
@@ -22,13 +23,15 @@ class LatexExtract:
 
         def _sub_call(m):
             label = m.group(1)
-            if label.lower() in ("label", "ref", "cite"):
+            if label.lower() in ("label", "ref", "cite", "lstinputlisting"):
                 return str()
             else:
                 return "{}".format(m.group(2))
 
-        result = re.sub("\\\\(?P<label>.+?)\{(?P<content>.*)}", _sub_call, raw_data)
-        return result
+        clean_data = re.sub("\\\\(?P<label>.+?)\{(?P<content>.*)}", _sub_call, raw_data)
+        clean_data = re.sub("\$(?P<content>.+?)\$", "\g<content>", clean_data)
+
+        return clean_data
 
     @staticmethod
     def extract_content_from_label(segment):
@@ -117,7 +120,7 @@ class LatexExtract:
                 result.append(self.extract_content_from_figure(each_segment))
             elif types.lower() == "itemize":
                 result.append(self.extract_content_from_itemize(each_segment))
-            elif types.lower() == "label":
+            elif types.lower() in ("label", "displaymath"):
                 continue
             elif types.lower() == "Unknown":
                 raise ("[-] 未知类型: {}".format(each_segment))
@@ -134,7 +137,7 @@ class LatexExtract:
                 print("[*] 从 {file_name} 中提取内容完成".format(file_name=each_file))
 
                 total_result.append(self.extract_content(data))
-        print("[*] 所有内容提取完毕")
+        print("[*] 所有内容提取完毕, 总共 {} 字".format(sum(len(x) for x in total_result)))
         return "\n\n".join(total_result)
 
 

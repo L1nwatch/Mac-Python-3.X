@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 # version: Python3.X
 """ 针对提取脚本作测试
+
+2017.05.03 增加对 displaymath、lst input listing、$$ 等语法的处理的测试代码
 """
 import unittest
 from extract import LatexExtract
@@ -124,9 +126,24 @@ Lucene~是~Apache~Software~Foundation~的一个免费信息检索软件库\cite{
         my_answer = self.le.clear_tag(test_data)
         self.assertEqual(right_answer, my_answer)
 
+        test_data = "$a$"
+        right_answer = "a"
+        my_answer = self.le.clear_tag(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+        test_data = "\lstinputlisting{aaa}"
+        right_answer = str()
+        my_answer = self.le.clear_tag(test_data)
+        self.assertEqual(right_answer, my_answer)
+
     def test_get_types_from_begin(self):
         test_data = "\\begin{figure}"
         right_answer = "figure"
+        my_answer = self.le.get_types_from_begin(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+        test_data = "\\begin{displaymath}"
+        right_answer = "displaymath"
         my_answer = self.le.get_types_from_begin(test_data)
         self.assertEqual(right_answer, my_answer)
 
