@@ -13,6 +13,8 @@ import peewee
 import os
 import timeit
 import re
+import random
+import bisect
 
 from xml2json import get_docs_from_file, parse_doc_to_dict, extract_domain_from_url
 
@@ -70,8 +72,27 @@ class DomainID2URLInDoc(peewee.Model):
     class Meta:
         database = peewee.SqliteDatabase(database_name)
 
+    order_id = peewee.IntegerField(null=False, unique=True, primary_key=True)
     page_id = peewee.CharField(null=False)
     page_url = peewee.TextField(null=False)
+
+
+class WeightRandom:
+    def __init__(self, items):
+        weights = [w for _, w in items]
+        self.goods = [x for x, _ in items]
+        self.total = sum(weights)
+        self.acc = list(self.accumulate(weights))
+
+    @staticmethod
+    def accumulate(weights):  # 累和.如accumulate([10,40,50])->[10,50,100]
+        cur = 0
+        for w in weights:
+            cur = cur + w
+            yield cur
+
+    def __call__(self):
+        return self.goods[bisect.bisect_right(self.acc, random.uniform(0, self.total))]
 
 
 class DatabaseBasicDeal:
@@ -315,7 +336,7 @@ class FakeDatabase(DatabaseBasicDeal):
         :return: None, 直接写入数据到数据库中
         """
         print("[*] 开始写入数据到表格: DomainID2URLInDoc")
-        for each_domain, each_url in domain_url_dict.items():
+        for i, (each_domain, each_url) in enumerate(domain_url_dict.items()):
             DomainID2URLInDoc.insert({"page_id": each_domain, "page_url": each_url}).execute()
 
     def create_domain_id_2_url_in_doc_table_data(self):
@@ -385,19 +406,19 @@ class FakeDatabase(DatabaseBasicDeal):
     def get_rates(domain_url):
         """
         根据 URL 给定不同的概率(三个概率分别代表: 不进行链接、外链、内链):
-            cn.yahoo.com        ——      50、25、25
-            people.com.cn       ——      50、15、35
-            news.ifeng.com      ——      50、30、20
-            news.163.com        ——      50、35、15
-            news.sohu.com       ——      50、20、30
+            cn.yahoo.com        ——      (60, 20, 20)
+            people.com.cn       ——      (60, 10, 30)
+            news.ifeng.com      ——      (60, 25, 15)
+            news.163.com        ——      (60, 30, 10)
+            news.sohu.com       ——      (60, 15, 25)
         :param domain_url: str(), 比如: "1688.news.cn.yahoo.com"
         :return: tuple, (int, int, int), 比如: (50, 25, 25)
         """
-        domain_rates = {"cn.yahoo.com": (50, 25, 25),
-                        "people.com.cn": (50, 15, 35),
-                        "news.ifeng.com": (50, 30, 20),
-                        "news.163.com": (50, 35, 15),
-                        "news.sohu.com": (50, 20, 30)}
+        domain_rates = {"cn.yahoo.com": (70, 15, 15),
+                        "people.com.cn": (70, 5, 25),
+                        "news.ifeng.com": (70, 20, 10),
+                        "news.163.com": (70, 25, 5),
+                        "news.sohu.com": (70, 10, 20)}
         for each_domain, rate in domain_rates.items():
             if domain_url.endswith(each_domain):
                 return rate
@@ -413,9 +434,10 @@ class FakeDatabase(DatabaseBasicDeal):
             for domain_y, url_y in domain_info_dict.items():
                 # 获取概率指数
                 rates = self.get_rates(url_x)
+                choices = ["no", "out", "in"]
 
                 # 随机选择一个: 【不链、外链、内链】
-                choice = ["no", "out", "in"]
+                choice = WeightRandom([(x, y) for x, y in zip(choices, rates)])()
                 if choice == "no":
                     continue
                 elif choice == "out" and not self.is_same_domain(url_x, url_y):
@@ -424,6 +446,26 @@ class FakeDatabase(DatabaseBasicDeal):
                     link_result.append((domain_x, domain_y))
 
         return link_result
+
+    def write_fake_link_into_db(self, link_result):
+        """
+        将伪造的数据写入到表 LinkInDoc 之中
+        :param link_result:  list(), [(id1, id2), ...], 表示 id1 指向 id2
+        :return: None, 直接写入到数据库
+        """
+        # 清除原来的数据
+        self.clear_database([LinkInDoc])
+
+        print("[*] 开始将数据写入到表 LinkInDoc 之中")
+        data_list = list()
+        for domain_id, out_id in link_result:
+            data_list.append({"domain_id": domain_id, "out_id": out_id})
+
+            if len(data_list) >= 400:
+                LinkInDoc.insert_many(data_list).execute()
+                del data_list[:]
+        if len(data_list) >= 0:
+            LinkInDoc.insert_many(data_list).execute()
 
     def run(self):
         """
@@ -437,6 +479,11 @@ class FakeDatabase(DatabaseBasicDeal):
 
         # 创建伪造的链接关系库
         domain_info_dict = self.get_all_domain_id_url_in_doc_from_db()
+        link_result = self.create_fake_link_info(domain_info_dict)
+        print("[*] 获得了 {} 条链接关系".format(len(link_result)))
+
+        print("[*] 开始将伪造的链接数据写入到数据库中")
+        self.write_fake_link_into_db(link_result)
 
 
 if __name__ == "__main__":
