@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 负责新建 sqlite3 数据库, 以及插入对应的链接关系库, 以便毕设进行查询访问等操作
 
+2017.05.05 编写代码, 自己伪造关系链接库
 2017.03.21 DomainID2URL 依旧存在好多冗余, 过滤一下
 2017.03.20 发现数据源里面好多链接冗余, 于是特殊处理一下
 2017.03.20 实现新建 sqlite3 数据库以及伪造部分链接关系数据, 另外顺便学习一下 peewee
@@ -11,12 +12,17 @@ import sqlite3
 import peewee
 import os
 import timeit
+import re
 
-from xml2json import get_docs_from_file, parse_doc_to_dict
+from xml2json import get_docs_from_file, parse_doc_to_dict, extract_domain_from_url
 
 __author__ = '__L1n__w@tch'
 
 database_name = "link_relationship.db"
+id2url_file = os.path.join("/Users/L1n/Desktop/Notes/毕设/毕设实现/工程文件/SogouT-Link.v1", "id2url.link")
+link_file = os.path.join("/Users/L1n/Desktop/Notes/毕设/毕设实现/工程文件/SogouT-Link.v1", "SogouT-link")
+doc_file = os.path.join("/Users/L1n/Desktop/Code/Python/PyCharm/毕设辅助脚本/xml转json", "news_tensite_xml.dat")
+evaluate_file = os.path.join("/Users/L1n/Desktop/Notes/毕设/毕设实现/工程文件", "网页搜索结果评价-完整版.txt")
 
 
 class LinkRelationShip(peewee.Model):
@@ -44,15 +50,23 @@ class DomainID2URL(peewee.Model):
 
 
 class LinkInDoc(peewee.Model):
+    """
+    用于存放与 Doc 中的网页有关联的那些链接关系
+    """
+
     class Meta:
         database = peewee.SqliteDatabase(database_name)
 
     domain_id = peewee.CharField(null=False)
-    out_id = peewee.CharField(null=True)
-    in_id = peewee.CharField(null=True)
+    out_id = peewee.CharField(null=True)  # 某 domain_id 指向了 xxx
+    in_id = peewee.CharField(null=True)  # 某 domain_id 被 xxx 指向了
 
 
 class DomainID2URLInDoc(peewee.Model):
+    """
+    将域名 id 转换为 url 的表
+    """
+
     class Meta:
         database = peewee.SqliteDatabase(database_name)
 
@@ -60,214 +74,379 @@ class DomainID2URLInDoc(peewee.Model):
     page_url = peewee.TextField(null=False)
 
 
-def create_database():
-    """
-    负责创建 sqlite3 数据库, 如果已存在则进行连接操作
-    :return: sqlite3 的 db 实例
-    """
-    db = sqlite3.connect(database_name)
-    return db
+class DatabaseBasicDeal:
+    @staticmethod
+    def create_database():
+        """
+        负责创建 sqlite3 数据库, 如果已存在则进行连接操作
+        :return: sqlite3 的 db 实例
+        """
+        db = sqlite3.connect(database_name)
+        return db
+
+    @staticmethod
+    def clear_database(tables):
+        """
+        清除指定表
+        :param tables: list(), 每个是表的类, 比如 []
+        :return: None
+        """
+        print("[*] 执行清除数据库操作")
+        # 确保表和库存在, 之后清除数据后重建表
+        for each_table in tables:
+            if each_table.table_exists():
+                # 清除原来的数据
+                each_table.drop_table()
+                each_table.create_table()
+            else:
+                each_table.create_table()
+
+    @staticmethod
+    def get_all_domain_id_in_doc(file_path):
+        """
+        从数据源中获取所有文档的域名 id
+        :param file_path: str(), 数据源的路径, 比如 "../news_tensite_xml.dat"
+        :return: 此函数为生成器, 每次返回一个域名 id
+        """
+        for each_doc in get_docs_from_file(file_path):
+            doc_dict = parse_doc_to_dict(each_doc)
+            domain_id = doc_dict["doc_number"].split("-")[1]
+            yield domain_id, extract_domain_from_url(doc_dict["url"])
 
 
-def special_deal(data, choice=1):
-    """
-    主要针对表 LinkRelationShip, 只保留域名到域名的指向关系
-    :param data: str(), 需要处理的数据, 比如 "6a4c0d0f7adf1d20-6ef9b1edc1c18510	6a4c0d0f7adf1d20-6ef9b1edc1c18510"
-    :param choice: int(), 表明是什么特殊处理方法
-    :return: str(), 处理过后的数据, 比如 "6ef9b1edc1c18510\t6ef9b1edc1c18510"
-    """
-    if choice == 1:
-        # 表明是 LinkRelationShip 的特殊处理
-        source, destination = data.split("\t")
-        source, destination = source.split("-")[1], destination.split("-")[1]
-    else:
-        # 表明是 DomainID2URL 的特殊处理
-        source, destination = data.split("\t")
-        source = source.split("-")[1]
-    return "{}\t{}".format(source, destination)
-
-
-def read_file_data(file_name, field_name, need_special_deal=0):
-    """
-    读取文件中的每一行, 按空格间隔后返回
-    每次读取 1w 行
-    :param file_name: str(), 比如 "link_relationship.txt"
-    :param field_name: 从文件里读取的每一列的含义
-    :param need_special_deal: int(), 区分一下是否需要特殊处理, 0 表示不用特殊处理
-    :return: tuple, (str(), str()), 比如 ("1", "https://1.html")
-    """
-    with open(file_name, "r") as f:
-        counts = 0
-        temp_list = list()
-        for each_line in f:
-            counts += 1
-            if need_special_deal != 0:
-                each_line = special_deal(each_line, need_special_deal)
-            temp_list.append({key: value.strip() for key, value in zip(field_name, each_line.split("\t"))})
-            if counts == 400:
-                yield temp_list
-                del temp_list[:]
-                counts = 0
-                # temp_list.clear() # python3.2 居然没有这个方法
-
-
-def clear_database(tables):
-    """
-    清除指定表
-    :param tables: list(), 每个是表的类, 比如 []
-    :return: None
-    """
-    print("[*] 执行清除数据库操作")
-    # 确保表和库存在, 之后清除数据后重建表
-    for each_table in tables:
-        if each_table.table_exists():
-            # 清除原来的数据
-            each_table.drop_table()
-            each_table.create_table()
+class RealDatabase(DatabaseBasicDeal):
+    @staticmethod
+    def _special_deal(data, choice=1):
+        """
+        主要针对表 LinkRelationShip, 只保留域名到域名的指向关系
+        :param data: str(), 需要处理的数据, 比如 "6a4c0d0f7adf1d20-6ef9b1edc1c18510	6a4c0d0f7adf1d20-6ef9b1edc1c18510"
+        :param choice: int(), 表明是什么特殊处理方法
+        :return: str(), 处理过后的数据, 比如 "6ef9b1edc1c18510\t6ef9b1edc1c18510"
+        """
+        if choice == 1:
+            # 表明是 LinkRelationShip 的特殊处理
+            source, destination = data.split("\t")
+            source, destination = source.split("-")[1], destination.split("-")[1]
         else:
-            each_table.create_table()
+            # 表明是 DomainID2URL 的特殊处理
+            source, destination = data.split("\t")
+            source = source.split("-")[1]
+        return "{}\t{}".format(source, destination)
+
+    def read_file_data(self, file_name, field_name, need_special_deal=0):
+        """
+        读取文件中的每一行, 按空格间隔后返回
+        每次读取 1w 行
+        :param file_name: str(), 比如 "link_relationship.txt"
+        :param field_name: 从文件里读取的每一列的含义
+        :param need_special_deal: int(), 区分一下是否需要特殊处理, 0 表示不用特殊处理
+        :return: tuple, (str(), str()), 比如 ("1", "https://1.html")
+        """
+        with open(file_name, "r") as f:
+            counts = 0
+            temp_list = list()
+            for each_line in f:
+                counts += 1
+                if need_special_deal != 0:
+                    each_line = self._special_deal(each_line, need_special_deal)
+                temp_list.append({key: value.strip() for key, value in zip(field_name, each_line.split("\t"))})
+                if counts == 400:
+                    yield temp_list
+                    del temp_list[:]
+                    counts = 0
+                    # temp_list.clear() # python3.2 居然没有这个方法
+
+    def create_link_relationship_db(self):
+        """
+        负责创建链接数据库相关的表, 插入或更新数据等操作
+        :return: None
+        """
+        # 创建 ID2URL 的数据
+        file_path = link_file
+        print("[*] 读取文件 {} 并插入表 PageID2URL".format(str(file_path).rsplit("/", maxsplit=1)[1]))
+        for data_source_list in self.read_file_data(file_path, ["page_id", "page_url"]):
+            PageID2URL.insert_many(data_source_list).execute()
+
+        print("[*] 读取文件 {} 并插入表 DomainID2URL".format(str(file_path).rsplit("/", maxsplit=1)[1]))
+        for data_source_list in self.read_file_data(file_path, ["page_id", "page_url"], need_special_deal=2):
+            DomainID2URL.insert_many(data_source_list).execute()
+
+        # 创建 LinkRelationship 数据
+        file_path = id2url_file
+        print("[*] 读取文件 {} 并插入数据库".format(str(file_path).rsplit("/", maxsplit=1)[1]))
+        for data_source_list in self.read_file_data(file_path, ["page_id", "out_id"], need_special_deal=1):
+            LinkRelationShip.insert_many(data_source_list).execute()
+
+    def run(self):
+        # 创建数据库
+        db = self.create_database()
+
+        # 创建链接数据
+        confirm = input("[+] 即将修改数据库中的数据, 确认?[y/n]")
+        if confirm.lower() == "y":
+            # 确保表和库存在, 且为初始状态
+            # self.clear_database([LinkRelationShip, PageID2URL, DomainID2URL, LinkInDoc, DomainID2URLInDoc])
+
+            # 从文件中读取相应数据后存放到数据库中
+            # self.create_link_relationship_db(db, "link_relationship.txt")
+
+            # 将数据库中的数据与文档进行比较, 只摘取跟文档有关系的放进数据库对应表格
+            self.compare_db_data()
+
+        # 访问数据库, 验证是否插入成功
+        print("[*] 尝试访问数据库")
+        assert len(LinkRelationShip.select().limit(10)) > 1
+        assert len(DomainID2URL.select().limit(10)) > 1
+        print("[*] 成功插入数据到数据库中")
+
+    def create_linkindoc_data(self, file_path):
+        """
+        经过处理创建 LinkInDoc 表格中的相关数据
+        :param file_path:  str(), 文档文件的路径, 比如 "../news_tensite_xml.dat"
+        :return: dict(), 域名及有效值, 比如 {"domain1": True, "domain2": False}
+        """
+        domain_dict = dict()
+
+        for i, domain_id, _ in enumerate(self.get_all_domain_id_in_doc(file_path)):
+            if domain_id in domain_dict:
+                continue
+
+            result = LinkRelationShip.select().where(
+                LinkRelationShip.page_id == domain_id or LinkRelationShip.out_id == domain_id
+            ).execute()
+            if result.count > 0:
+                domain_dict[domain_id] = True
+                print("[*] {} 找到了!目前是第 {} 个文档, 总共 1294233 个文档".format(domain_id, i + 1))
+                for each_row in result:
+                    # 如果是该网页被其他网页指向
+                    if each_row.out_id == domain_id:
+                        LinkInDoc.insert({"domain_id": domain_id, "in_id": each_row.page_id}).execute()
+                    # 如果是该网页指向其他网页
+                    elif each_row.page_id == domain_id:
+                        LinkInDoc.insert({"domain_id": domain_id, "out_id": each_row.out_id}).execute()
+            else:
+                domain_dict[domain_id] = False
+                print("[-] {} 找不到!目前是第 {} 个文档, 总共 1294233 个文档".format(domain_id, i + 1))
+
+        print("[*] 总共有域名 {} 个".format(len(domain_dict)))
+        count_true, count_false = 0, 0
+        for key, value in domain_dict.items():
+            if value:
+                print("[*] 找到有效域名: {}".format(key))
+                count_true += 1
+            else:
+                count_false += 1
+        print("[*] 有效域名: {} 个, 无效域名: {} 个".format(count_true, count_false))
+
+        return domain_dict
+
+    @staticmethod
+    def create_domainid2urlindoc_data(domain_dict):
+        """
+        只把与有效域名相关的 URL 放进表格 domainid2urlindoc 中
+        :param domain_dict: dict(), 域名及有效值, 比如 {"domain1": True, "domain2": False}
+        :return: None
+        """
+        data_source = list()
+        for each_domain, is_valid in domain_dict.items():
+            if is_valid:
+                result = DomainID2URL.select().where(DomainID2URL.page_id == each_domain).execute()
+                for each_row in result:
+                    data_source.append({"page_id": each_domain, "page_url": each_row.page_url})
+
+        # 每隔 50 个数据插入一次:
+        for i in range(0, len(data_source), 50):
+            DomainID2URLInDoc.insert_many(data_source[i:i + 50]).execute()
+
+    def compare_db_data(self):
+        """
+        将搜狗数据源的新闻数据与数据库中的数据相比较, 看有多少条匹配的信息在里头
+        另外将比较的结果保存在表 LinkInDoc 里面
+        结果是只有 6 个域名有匹配信息, 280 个域名没有匹配信息
+        :return:
+        """
+        file_path = doc_file
+
+        domain_dict = self.create_linkindoc_data(file_path)
+        self.create_domainid2urlindoc_data(domain_dict)
+
+    @staticmethod
+    def first_way_to_check():
+        try:
+            LinkRelationShip.get(page_id="69713306c0bb3300")
+            LinkRelationShip.get(page_id="49f37189a1acd500")
+        except peewee.DoesNotExist:
+            pass
+
+    @staticmethod
+    def second_way_to_check():
+        test_1 = LinkRelationShip.select().where(LinkRelationShip.page_id == "69713306c0bb3300").execute()
+        test_2 = LinkRelationShip.select().where(LinkRelationShip.page_id == "49f37189a1acd500").execute()
+
+        for each in test_1:
+            print(each.page_id)
+            print(each.out_id)
 
 
-def create_link_relationship_db(database, file_path):
-    """
-    负责创建链接数据库相关的表, 插入或更新数据等操作
-    :param database: sqlite3 的 db 实例
-    :param file_path: str(), 链接数据的文件, 比如 "link_relationship.txt"
-    :return: None
-    """
-    # 创建 ID2URL 的数据
-    file_path = os.path.join("/Users/L1n/Desktop/Notes/毕设/毕设实现/工程文件/SogouT-Link.v1", "id2url.link")
-    print("[*] 读取文件 {} 并插入表 PageID2URL".format(str(file_path).rsplit("/", maxsplit=1)[1]))
-    for data_source_list in read_file_data(file_path, ["page_id", "page_url"]):
-        PageID2URL.insert_many(data_source_list).execute()
+class FakeDatabase(DatabaseBasicDeal):
+    def get_domain_id_dict_in_doc(self):
+        """
+        获取所有 doc 中的域名 id
+        总共有域名 286 个, 每个域名类似于: "shop.people.com.cn"
+        :return: set(), 过滤重复域名 id
+        """
+        result_dict = dict()
+        for i, (each_domain, domain_url) in enumerate(self.get_all_domain_id_in_doc(doc_file)):
+            if each_domain not in result_dict:
+                progress = ((i + 1) / 1294233) * 100
+                print("[*] 进度: {:.2f}%, 找到域名: {}, URL 为: {}".format(progress, each_domain, domain_url))
+                result_dict[each_domain] = domain_url
 
-    print("[*] 读取文件 {} 并插入表 DomainID2URL".format(str(file_path).rsplit("/", maxsplit=1)[1]))
-    for data_source_list in read_file_data(file_path, ["page_id", "page_url"], need_special_deal=2):
-        DomainID2URL.insert_many(data_source_list).execute()
+        return result_dict
 
-    # 创建 LinkRelationship 数据
-    file_path = os.path.join("/Users/L1n/Desktop/Notes/毕设/毕设实现/工程文件/SogouT-Link.v1", "SogouT-link")
-    print("[*] 读取文件 {} 并插入数据库".format(str(file_path).rsplit("/", maxsplit=1)[1]))
-    for data_source_list in read_file_data(file_path, ["page_id", "out_id"], need_special_deal=1):
-        LinkRelationShip.insert_many(data_source_list).execute()
+    @staticmethod
+    def create_domainid_to_url_in_doc_table(domain_url_dict):
+        """
+        创建该表: DomainID2URLInDoc
+        其中的数据类似于:
+            page_id: "fa7f32f06cef7000"
+            page_url: "ah.people.com.cn"
+        :param domain_url_dict: dict(), {"domain_id": "url", ...}
+        :return: None, 直接写入数据到数据库中
+        """
+        print("[*] 开始写入数据到表格: DomainID2URLInDoc")
+        for each_domain, each_url in domain_url_dict.items():
+            DomainID2URLInDoc.insert({"page_id": each_domain, "page_url": each_url}).execute()
 
+    def create_domain_id_2_url_in_doc_table_data(self):
+        """
+        完成清除数据、获取 domain_id_dict、写入到数据库
+        :return: None, 直接写入到数据库
+        """
+        # 清空原来的数据
+        self.clear_database([DomainID2URLInDoc])
 
-def run():
-    # 创建数据库
-    db = create_database()
+        domain_id_dict = self.get_domain_id_dict_in_doc()
+        print("[*] 总共有域名: {}".format(len(domain_id_dict)))
 
-    # 创建链接数据
-    confirm = input("[+] 即将修改数据库中的数据, 确认?[y/n]")
-    if confirm.lower() == "y":
-        # 确保表和库存在, 且为初始状态
-        # clear_database([LinkRelationShip, PageID2URL, DomainID2URL, LinkInDoc, DomainID2URLInDoc])
+        # 创建 domainid2urlindoc
+        print("[*] 开始将数据写入到数据库的 DomainID2URLInDoc 表中")
+        self.create_domainid_to_url_in_doc_table(domain_id_dict)
 
-        # 从文件中读取相应数据后存放到数据库中
-        # create_link_relationship_db(db, "link_relationship.txt")
+    @staticmethod
+    def get_all_domain_id_url_in_doc_from_db():
+        """
+        之前是从文件里获取所有域名 id, 现在已经把这部分信息写入到数据库了, 所以就从数据库中读取出来即可
+        :return: dict(), {domain_id: domain_url, ...}
+        """
+        domain_info_dict = dict()
 
-        # 将数据库中的数据与文档进行比较, 只摘取跟文档有关系的放进数据库对应表格
-        compare_db_data()
+        for each_row in DomainID2URLInDoc.select():
+            domain_info_dict[each_row.page_id] = each_row.page_url
 
-    # 访问数据库, 验证是否插入成功
-    print("[*] 尝试访问数据库")
-    assert len(LinkRelationShip.select().limit(10)) > 1
-    assert len(DomainID2URL.select().limit(10)) > 1
-    print("[*] 成功插入数据到数据库中")
+        return domain_info_dict
 
+    @staticmethod
+    def compare_evaluate_doc_url(doc_domain_set):
+        """
+        匹配评估文件里面的 url 和 doc 里面存在的 url, 看是否能有合适的评估结果
+        """
+        evaluate_re = re.compile("\[(?P<keyword>.+)\]\s(?P<url>\S+)\s(?P<types>\d+)")
 
-def create_linkindoc_data(file_path):
-    """
-    经过处理创建 LinkInDoc 表格中的相关数据
-    :param file_path:  str(), 文档文件的路径, 比如 "../news_tensite_xml.dat"
-    :return: dict(), 域名及有效值, 比如 {"domain1": True, "domain2": False}
-    """
-    domain_dict = dict()
-    for i, each_doc in enumerate(get_docs_from_file(file_path)):
-        doc_dict = parse_doc_to_dict(each_doc)
-        domain_id = doc_dict["doc_number"].split("-")[1]
-        if domain_id in domain_dict:
-            continue
+        with open(evaluate_file, "rt", encoding="gb18030", errors="ignore") as f:
+            for each_line in f:
+                re_result = evaluate_re.findall(each_line)
+                if re_result:
+                    keyword, url, search_type = re_result.pop()
+                    if extract_domain_from_url("http://{}".format(url)) in doc_domain_set:
+                        print("[*] 找到了: {}, {}, {}".format(keyword, url, search_type))
 
-        result = LinkRelationShip.select().where(
-            LinkRelationShip.page_id == domain_id or LinkRelationShip.out_id == domain_id
-        ).execute()
-        if result.count > 0:
-            domain_dict[domain_id] = True
-            print("[*] {} 找到了!目前是第 {} 个文档, 总共 1294233 个文档".format(domain_id, i + 1))
-            for each_row in result:
-                # 如果是该网页被其他网页指向
-                if each_row.out_id == domain_id:
-                    LinkInDoc.insert({"domain_id": domain_id, "in_id": each_row.page_id}).execute()
-                # 如果是该网页指向其他网页
-                elif each_row.page_id == domain_id:
-                    LinkInDoc.insert({"domain_id": domain_id, "out_id": each_row.out_id}).execute()
-        else:
-            domain_dict[domain_id] = False
-            print("[-] {} 找不到!目前是第 {} 个文档, 总共 1294233 个文档".format(domain_id, i + 1))
+    @staticmethod
+    def is_same_domain(url_x, url_y):
+        """
+        判断两个 URL 是不是属于同一个主域名
+        主域名总共有五个:
+            cn.yahoo.com
+            people.com.cn
+            news.ifeng.com
+            news.163.com
+            news.sohu.com
+        :param url_x: str(), 比如: "cul.cn.yahoo.com"
+        :param url_y: str(), 比如: "1688.news.cn.yahoo.com"
+        :return: boolean(), 比如 True
+        """
+        main_domains = ["cn.yahoo.com", "people.com.cn", "news.ifeng.com", "news.163.com", "news.sohu.com"]
+        for each_main in main_domains:
+            if url_x.endswith(each_main) and url_y.endswith(each_main):
+                return True
+        return False
 
-    print("[*] 总共有域名 {} 个".format(len(domain_dict)))
-    count_true, count_false = 0, 0
-    for key, value in domain_dict.items():
-        if value:
-            print("[*] 找到有效域名: {}".format(key))
-            count_true += 1
-        else:
-            count_false += 1
-    print("[*] 有效域名: {} 个, 无效域名: {} 个".format(count_true, count_false))
+    @staticmethod
+    def get_rates(domain_url):
+        """
+        根据 URL 给定不同的概率(三个概率分别代表: 不进行链接、外链、内链):
+            cn.yahoo.com        ——      50、25、25
+            people.com.cn       ——      50、15、35
+            news.ifeng.com      ——      50、30、20
+            news.163.com        ——      50、35、15
+            news.sohu.com       ——      50、20、30
+        :param domain_url: str(), 比如: "1688.news.cn.yahoo.com"
+        :return: tuple, (int, int, int), 比如: (50, 25, 25)
+        """
+        domain_rates = {"cn.yahoo.com": (50, 25, 25),
+                        "people.com.cn": (50, 15, 35),
+                        "news.ifeng.com": (50, 30, 20),
+                        "news.163.com": (50, 35, 15),
+                        "news.sohu.com": (50, 20, 30)}
+        for each_domain, rate in domain_rates.items():
+            if domain_url.endswith(each_domain):
+                return rate
 
-    return domain_dict
+    def create_fake_link_info(self, domain_info_dict):
+        """
+        创建伪造的链接信息
+        :param domain_info_dict: dict(), 比如 {domain_id: domain_url, ...}
+        :return: list(), 每一个元素是一条伪造的数据, (1, 2) 表示 1 指向 2, 比如 [(domain_id1, domain_id2),  ...]
+        """
+        link_result = list()
+        for domain_x, url_x in domain_info_dict.items():
+            for domain_y, url_y in domain_info_dict.items():
+                # 获取概率指数
+                rates = self.get_rates(url_x)
 
+                # 随机选择一个: 【不链、外链、内链】
+                choice = ["no", "out", "in"]
+                if choice == "no":
+                    continue
+                elif choice == "out" and not self.is_same_domain(url_x, url_y):
+                    link_result.append((domain_x, domain_y))
+                elif choice == "in" and self.is_same_domain(url_x, url_y):
+                    link_result.append((domain_x, domain_y))
 
-def create_domainid2urlindoc_data(domain_dict):
-    """
-    只把与有效域名相关的 URL 放进表格 domainid2urlindoc 中
-    :param domain_dict: dict(), 域名及有效值, 比如 {"domain1": True, "domain2": False}
-    :return: None
-    """
-    data_source = list()
-    for each_domain, is_valid in domain_dict.items():
-        if is_valid:
-            result = DomainID2URL.select().where(DomainID2URL.page_id == each_domain).execute()
-            for each_row in result:
-                data_source.append({"page_id": each_domain, "page_url": each_row.page_url})
+        return link_result
 
-    # 每隔 50 个数据插入一次:
-    for i in range(0, len(data_source), 50):
-        DomainID2URLInDoc.insert_many(data_source[i:i + 50]).execute()
+    def run(self):
+        """
+        关系链接库只需要两个表:
+            LinkInDoc: 用于存放链接关系, 即某个 id 被 某个 id 所指向之类的
+            domainid2urlindoc: 将域名 id 转换为 url 的表
+        :return:
+        """
+        # 创建 DomainID2URLInDoc 表, 运行一次即可
+        # self.create_domain_id_2_url_in_doc_table_data()
 
-
-def compare_db_data():
-    """
-    将搜狗数据源的新闻数据与数据库中的数据相比较, 看有多少条匹配的信息在里头
-    另外将比较的结果保存在表 LinkInDoc 里面
-    结果是只有 6 个域名有匹配信息, 280 个域名没有匹配信息
-    :return:
-    """
-    file_path = os.path.join("/Users/L1n/Desktop/Code/Python/PyCharm/毕设辅助脚本/xml转json", "news_tensite_xml.dat")
-
-    domain_dict = create_linkindoc_data(file_path)
-    create_domainid2urlindoc_data(domain_dict)
-
-
-def first_way_to_check():
-    try:
-        LinkRelationShip.get(page_id="69713306c0bb3300")
-        LinkRelationShip.get(page_id="49f37189a1acd500")
-    except peewee.DoesNotExist:
-        pass
-
-
-def second_way_to_check():
-    test_1 = LinkRelationShip.select().where(LinkRelationShip.page_id == "69713306c0bb3300").execute()
-    test_2 = LinkRelationShip.select().where(LinkRelationShip.page_id == "49f37189a1acd500").execute()
-
-    for each in test_1:
-        print(each.page_id)
-        print(each.out_id)
+        # 创建伪造的链接关系库
+        domain_info_dict = self.get_all_domain_id_url_in_doc_from_db()
 
 
 if __name__ == "__main__":
-    run()
+    # 自己伪造关系链接库
+    fake_db = FakeDatabase()
+    fake_db.run()
+
+    # 根据搜狗提供的数据创建关系链接库
+    # real_db = RealDatabase()
+    # real_db.run()
 
     # 比较那个快一些
     # print(timeit.timeit("first_way_to_check()", "from __main__ import first_way_to_check", number=200))

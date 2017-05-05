@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="DataSourceManagerImpl" format="xml" hash="1729307199">
+  <component name="DataSourceManagerImpl" format="xml" hash="1689733959">
     <data-source source="LOCAL" name="Sqlite (Xerial) - test.lib" uuid="b2aefb47-f0fc-4510-ab93-9c2929839b02">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/Others/NTester规则生样本/test.lib</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="link_relation_ship" uuid="51799a8a-c98d-4e7c-93cf-6f1d7962c4c2">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/毕设辅助脚本/SQLite数据库辅助/link_relationship.db</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="Sqlite (Xerial) - identifier.sqlite [2]" uuid="689199ad-6297-4938-a8aa-6e0969813cab">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:identifier.sqlite</jdbc-url>
     </data-source>
   </component>
 </project>
