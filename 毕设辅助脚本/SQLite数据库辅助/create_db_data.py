@@ -499,11 +499,11 @@ class FakeDatabase(DatabaseBasicDeal):
 
         print("[*] 内联链接如下: ")
         for each_inside_href in same_href:
-            print("[*] \t{}".format(domain_info_dict[each_inside_href]))
+            print("[*] {sep}{0}".format(domain_info_dict[each_inside_href], sep="\t"))
 
         print("[*] 外链链接情况如下: ")
         for each_outside_href, count in outside_href.items():
-            print("[*] \t{}\t\t->\t\t{} 条".format(each_outside_href, count))
+            print("[*] {sep}{0}{sep2}->{sep2}{1} 条".format(each_outside_href, count, sep="\t", sep2="\t" * 3))
 
     def run(self):
         """
