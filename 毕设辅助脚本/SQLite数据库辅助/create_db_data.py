@@ -480,26 +480,25 @@ class FakeDatabase(DatabaseBasicDeal):
         :param domain_info_dict: dict(), 域名与 url 的映射关系
         :return: None, 统计结果直接打印出来
         """
-        same_href = set()
+        inside_href = defaultdict(lambda: 0)
         outside_href = defaultdict(lambda: 0)
         main_domains = ["cn.yahoo.com", "people.com.cn", "news.ifeng.com", "news.163.com", "news.sohu.com"]
 
         for x, y in link_result:
-            # 内联链接
-            if x == y:
-                same_href.add(x)
-            else:
-                for each_main_domain in main_domains:
-                    if domain_info_dict[x].endswith(each_main_domain):
+            for each_main_domain in main_domains:
+                if domain_info_dict[x].endswith(each_main_domain):
+                    if x == y:
+                        inside_href[each_main_domain] += 1
+                    else:
                         outside_href[each_main_domain] += 1
-                        break
+                    break
 
         print("[*] 获得了 {} 条链接关系, 其中内联链接有 {} 条, 外链链接有 {} 条".format(
-            len(link_result), len(same_href), len(link_result) - len(same_href)))
+            len(link_result), sum(inside_href.values()), len(link_result) - sum(inside_href.values())))
 
         print("[*] 内联链接如下: ")
-        for each_inside_href in same_href:
-            print("[*] {sep}{0}".format(domain_info_dict[each_inside_href], sep="\t"))
+        for each_inside_href, count in inside_href.items():
+            print("[*] {sep}{0}{sep2}->{sep2}{1} 条".format(each_inside_href, count, sep="\t", sep2="\t" * 3))
 
         print("[*] 外链链接情况如下: ")
         for each_outside_href, count in outside_href.items():

@@ -71,10 +71,138 @@
 
 \subsection{整体框架总揽}
 
+图~\ref{fig:online_response}~所示的实时响应模块中，已经按照相关度进行了排序。接下来要加入~HITS~排序算法以及~PageRank~排序算法，所以在传递给用户之前，进行相关度排序之后，进行这两个算法的运算，如下图~\ref{fig:sort_by_algorithm}~所示：
 
+\begin{figure}[htbp]
+    \centering
+    \numberwithin{figure}{chapter}
+    \includegraphics[width=0.5\textwidth]{figures/chap3/chap3-sort_by_hits_and_pagerank.png}
+    %\vspace{-1em}
+    \caption{加入排序算法}
+    \label{fig:sort_by_algorithm}
+\end{figure}
 
-\subsection{导入超链关系库}
+这里排序算法依赖于网页之间的链接关系，为了提高检索效率，需要事先创建链接关系库（作为离线部分），在用户检索的流程中实时与链接关系库进行交互来获取链接关系从而进行算法的计算。
+
+按照论文~\cite{hits_base}~的算法逻辑，需要首先将检索得到的结果选择其中的一部分，作为根集，之后按照扩展算法生成基本集。再由这个基本集进行迭代运算，并进行排序，最终得到算法结果。
+
+这里由于同时实现了~HITS~排序算法以及~PageRank~排序算法，于是将其中通用的代码逻辑整合到一起，这两个算法均采用同一个根集扩展之后的基本集作为迭代源，根据各自的迭代公式进行运算直到收敛，再按各自的指标值（HITS~为中心值与权威值，~PageRank~为~PR~值）进行排序，最终在同一界面中呈现出来。
+
+为了避免不必要的干扰因素，本文采用的链接关系库同数据源一样都是由搜狗实验室提供的，另外由于所提供的链接关系库版本不仅仅包括了新闻数据，因此需要对所提供的链接关系库进行过滤处理，只保留跟数据源有关联的那部分链接信息，并按照工程规范统一格式化后写入到数据库中。
+
+\subsection{超链关系库的创建与分析}
+
+在排序算法的离线部分，主要的目标是创建一个超链关系库。使得在实时响应的流程当中可以快速地获取各个网页之间的超链接关系，从而减少算法耗时。
+
+本文采用的是搜狗实验室提供的网页链接关系库，这是从网上获取而来的真实数据，可以部分地反映出互联网中真实的链接情况。本文所采用的版本包含了~354~万个网页之间的链接关系，共有链接关系~846~万个。但是分析发现，其中存在着大量的内联链接，比如下图~\ref{fig:self_href}：
+
+\begin{figure}[htbp]
+    \centering
+    \numberwithin{figure}{chapter}
+    \includegraphics[width=0.7\textwidth]{figures/chap3/chap3-self-href.png}
+    %\vspace{-1em}
+    \caption{单个网页的内联链接}
+    \label{fig:self_href}
+\end{figure}
+
+可以看到~$dd7a8d16907e82b7-2d9bdb6adfa092d0$~（格式是“网页ID-域名ID”）在图中出现了多次，而且空格前后的~ID~号是一致的，这说明了该网页内包含了多个指向自身的链接。
+
+这种情况不仅仅存在于单个网页之间，还存在于同一域名之间，这里使用~SQL~语句查询了一下域名内某网页指向自身域名的情况：
+
+\begin{figure}[htbp]
+    \centering
+    \numberwithin{figure}{chapter}
+    \includegraphics[width=0.7\textwidth]{figures/chap3/chap3-domain_self_href.png}
+    %\vspace{-1em}
+    \caption{同一域名的内联链接}
+    \label{fig:domain_self_href}
+\end{figure}
+
+这里删去了网页~ID~而只保留域名~ID~，查询时仅仅显示前~10~条，但查询结果足以说明域名内联的情况普遍存在于各个域名中。
+
+然后分析还发现了，有的网页还大量指向其他的网页，如图~\ref{fig:point_many_others}~：
+
+\begin{figure}[htbp]
+    \centering
+    \numberwithin{figure}{chapter}
+    \includegraphics[width=0.5\textwidth]{figures/chap3/chap3-point_many_others.png}
+    %\vspace{-1em}
+    \caption{一个网页指向很多网页}
+    \label{fig:point_many_others}
+\end{figure}
+
+图中表明~ID~为~$1df13306c0bb3300$~的网页，除了指向了几个不同~ID~的其他网页，还包含有指向自己的内联链接。由此推测这可能是个索引页面，才会有这么多指向的超链接。
+
+经过以上的分析，互联网中网页的开发者创建超链接的原因可能有各种各样，因此算法根据这些超链接来进行排序时如何进行处理是个不可忽略的步骤。
+
+另外由于这些链接是互联网中真实存在的情况，所以在数据处理时并没有删除这些内联链接而是直接照搬到数据库之中。本文对关系链接库的处理主要是两个工作，一个是按照工程的规划将网页~ID~与域名~ID~区别开，单独存放在各自的表格当中。
+
+\begin{figure}[htbp]
+    \centering
+    \numberwithin{figure}{chapter}
+    \includegraphics[width=0.7\textwidth]{figures/chap3/chap3-filter_match_href.png}
+    %\vspace{-1em}
+    \caption{筛选匹配数据源的链接}
+    \label{fig:filter_match_href}
+\end{figure}
+
+另一个工作是对照数据源，只选取与数据源有关的链接关系保存到对应的表格中，上图~\ref{fig:filter_match_href}~展示了部分筛选的结果。
 
 \subsection{构建基本集}
 
-\subsection{迭代收敛识别中心页面与权威页面}
+上述链接关系库建立完毕之后，就可以开始进行~HITS~算法的实现了。按照论文~\cite{hits_base}~所述，为了保证算法运行时的候选页面中既有相关查询词的中心页面，同时也具有足够多的权威页面，算法要进行的第一步是对检索完之后的根集进行扩展操作，将其扩展为基本集。
+
+前面已经讨论过~HITS~算法与~PageRank~算法的区别：
+
+\begin{itemize}
+  \item ~HITS~面向的是互联网中的某个局部，而~PageRank~针对整个互联网；
+  \item ~HITS~需要根据查询词进行实时检索运算，而~PageRank~可以离线完成；
+  \item ~HITS~与~PageRank~的迭代方法不同，~HITS~收敛会比~PageRank~快一些；
+  \item ~HITS~有两个指标值（中心、权威），而~PageRank~仅需参考~PR~值排序。
+\end{itemize}
+
+由于本文的重点是~HITS~算法，因此在工程实现时对~PageRank~做了一定的简化，比如不事先计算好~PR~值而是在实时检索中完成计算。另外~PageRank~所面向的数据不再是整个数据源，而是同~HITS~算法一样的基本集。因此这里由根集页面扩展为基本集的代码逻辑也同样运用在了~PageRank~算法中。
+
+参考论文~\cite{hits_base}~所给的伪码，扩展根集成为基本集的代码实现如下：
+
+\lstinputlisting{code/hits_expand_code.java}
+
+这里面涉及到的几个常量，比如说根集的大小为~200~，常量~d~（用于所有指向某个页面的集合）的取值为~50~，都是论文作者~\cite{hits_base}~给出的推荐数值，故直接沿用，在此不重复讨论作者为何推荐这个数值。
+
+
+\subsection{~HITS~算法迭代收敛}
+
+经过上一步的扩展，~HITS~算法和~PageRank~算法均得到了要进行排序的网页集合，即基本集。接下来先实现~HITS~的迭代运算直到收敛，其目标是识别出这个基本集中哪些页面是中心页面，哪些页面是权威页面。
+
+对于~HITS~算法来说，其指标值有两个，中心值和权威值，只要能够计算得到每个网页的这两个指标值，再根据这两个指标值分别排序，筛选出其中排名靠前的~c~个页面即是中心页面集合和权威页面集合。根据前面讨论过的伪码，其迭代算法实现如下：
+
+\lstinputlisting{code/hits_sort.java}
+
+该函数接收参数是基本集中所有页面之间的链接关系，本文实现时采用矩阵进行表示，这个矩阵是由读取数据库中对应数据后创建得到的。在迭代的过程当中，先进行权威值的更新操作，再进行中心值的更新操作，最后进行归一化。更新权威值时，需要判断页面~p~是否被其他页面~q~所指向，如果是的话，则~p~的权威值上升，数值为~q~的中心值；同理更新中心值时，每个页面中心值上升的数值为对应页面的权威值。
+
+当经过~k~轮迭代运算后，论文~\cite{hits_base}~提到此时各个网页的中心值和权威值已经基本固定，即算法已经达到收敛。再之后对中心值和权威值依次进行排序即可。
+
+\subsection{~PageRank~算法迭代收敛}
+
+类似于~HITS~迭代算法，先进行初始化操作，之后迭代计算，再判断是否收敛，参考论文~\cite{pagerank_base}~提供的伪码后实现代码如下：
+
+\lstinputlisting{code/pagerank_sort.java}
+
+每次迭代运算中，先调用公式计算得到每个网页在该次迭代中的~PR~值，之后进行收敛判断。
+
+通过计算每个网页中本轮迭代的~PR~值相比上一轮迭代的~PR~值的平均误差是否在可接受的范围内，是则认为收敛，之后再按照~PR~值进行排序，将~PR~值较高的页面，即被认为是较“重要”的页面呈现给用户。
+
+\subsection{排序以及结果展示}
+
+经过两个算法各自的迭代运算，可以得到三组数据，分别由中心值、权威值、~PR~值排序过后的网页列表。依据~HITS~算法所述，在其中选取~c~个数值最高的页面当作代表性页面，比如选取中心值排名靠前的~10~个页面作为中心页面组；权威值排名靠前的~10~个页面作为权威页面组，最后综合呈现给用户。而对于~PageRank~算法，只要依照~PR~值进行排序选取总数一致的页面呈现给用户即可。
+
+最终本文显示的搜索界面如下图~\ref{fig:search_result_display}~所示：
+
+\begin{figure}[htbp]
+    \centering
+    \numberwithin{figure}{chapter}
+    \includegraphics[width=\textwidth]{figures/chap3/chap3-search_result_display.png}
+    %\vspace{-1em}
+    \caption{同时显示两种算法的搜索结果}
+    \label{fig:search_result_display}
+\end{figure}
