@@ -1,0 +1,61 @@
+mrr_test_data = {
+    "张筱雨": "news.163.com",
+    "接吻技巧": "life.people.com.cn",
+    "美女走光": "news.163.com",
+    "作爱": "news.sohu.com",
+    "一本道": "news.sohu.com",
+    "我淫我色": ["hi.people.com.cn", "media.people.com.cn"],
+    "春节放假通知": "news.sohu.com",
+    "成人图片": "news.sohu.com",
+    "电信重组": "it.people.com.cn",
+    "陈良宇": "news.ifeng.com",
+    "做爱图片": ["pic.people.com.cn", "news.sohu.com", "news.163.com", "pic.people.com.cn"],
+    "璩美凤": "news.sohu.com",
+    "情色小说": "news.sohu.com",
+    "美国大选": "news.ifeng.com",
+    "mm美图": ["news.163.com", "it.people.com.cn"],
+    "春节放假": "news.sohu.com",
+    "人民网": "www.people.com.cn",
+    "色情电影": "www.people.com.cn",
+    "台湾新闻": "news.ifeng.com",
+    "99bb": "news.sohu.com",
+    "大雪无情人有情": "tv.people.com.cn",
+    "南方雪灾": "news.sohu.com",
+    "朝鲜": "news.sohu.com",
+    "法定节假日": "news.sohu.com",
+    "婚姻法": "www.people.com.cn",
+    "人民日报": "www.people.com.cn",
+    "激情": ["health.people.com.cn", "pic.people.com.cn"],
+    "赵紫阳": "cpc.people.com.cn",
+}
+
+[*] 找到词汇: 成人图片, MRR 评分为: 1
+[*] 找到词汇: 春节放假, MRR 评分为: 1
+[-] 词汇找不到结果: 色情电影
+[-] 词汇找不到结果: 电信重组
+[*] 找到词汇: 朝鲜, MRR 评分为: 1
+[-] 词汇找不到结果: 陈良宇
+[*] 找到词汇: 璩美凤, MRR 评分为: 1
+[*] 找到词汇: 台湾新闻, MRR 评分为: 1/6
+[-] 词汇找不到结果: 人民网
+[-] 词汇找不到结果: 做爱图片
+[*] 找到词汇: 赵紫阳, MRR 评分为: 1
+[*] 找到词汇: 大雪无情人有情, MRR 评分为: 1/3
+[*] 找到词汇: 99bb, MRR 评分为: 1
+[*] 找到词汇: 张筱雨, MRR 评分为: 1/5
+[*] 找到词汇: 春节放假通知, MRR 评分为: 1/4
+[-] 词汇找不到结果: 人民日报
+[-] 词汇找不到结果: 美女走光
+[*] 找到词汇: 作爱, MRR 评分为: 1/2
+[-] 词汇找不到结果: 一本道
+[*] 找到词汇: 情色小说, MRR 评分为: 1/3
+[*] 找到词汇: 法定节假日, MRR 评分为: 1
+[*] 找到词汇: 南方雪灾, MRR 评分为: 1
+[-] 词汇找不到结果: 我淫我色
+[-] 词汇找不到结果: 美国大选
+[-] 词汇找不到结果: mm美图
+[-] 词汇找不到结果: 接吻技巧
+[-] 词汇找不到结果: 激情
+[*] 找到词汇: 婚姻法, MRR 评分为: 1/2
+[*] 最终计算 HITS 的 MRR 为: 617/900
+[*] 最终计算 PageRank 的 MRR 为: 617/900
