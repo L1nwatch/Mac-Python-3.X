@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 负责新建 sqlite3 数据库, 以及插入对应的链接关系库, 以便毕设进行查询访问等操作
 
+2017.05.06 新增伪造链接的相关统计代码, 方便伪造控制
 2017.05.05 编写代码, 自己伪造关系链接库
 2017.03.21 DomainID2URL 依旧存在好多冗余, 过滤一下
 2017.03.20 发现数据源里面好多链接冗余, 于是特殊处理一下
@@ -373,14 +374,17 @@ class FakeDatabase(DatabaseBasicDeal):
         匹配评估文件里面的 url 和 doc 里面存在的 url, 看是否能有合适的评估结果
         """
         evaluate_re = re.compile("\[(?P<keyword>.+)\]\s(?P<url>\S+)\s(?P<types>\d+)")
+        reversed_dict = dict(zip(doc_domain_set.values(), doc_domain_set.keys()))
 
         with open(evaluate_file, "rt", encoding="gb18030", errors="ignore") as f:
             for each_line in f:
                 re_result = evaluate_re.findall(each_line)
                 if re_result:
                     keyword, url, search_type = re_result.pop()
-                    if extract_domain_from_url("http://{}".format(url)) in doc_domain_set:
-                        print("[*] 找到了: {}, {}, {}".format(keyword, url, search_type))
+                    sub_domain_url = extract_domain_from_url("http://{}".format(url))
+                    if sub_domain_url in reversed_dict:
+                        print("[*] 找到了: {}, {}, {}, {}".format(keyword, url,
+                                                               search_type, reversed_dict[sub_domain_url]))
 
     @staticmethod
     def is_same_domain(url_x, url_y):
@@ -414,11 +418,11 @@ class FakeDatabase(DatabaseBasicDeal):
         :param domain_url: str(), 比如: "1688.news.cn.yahoo.com"
         :return: tuple, (int, int, int), 比如: (50, 25, 25)
         """
-        domain_rates = {"cn.yahoo.com": (70, 15, 15),
-                        "people.com.cn": (70, 5, 25),
-                        "news.ifeng.com": (70, 20, 10),
-                        "news.163.com": (70, 25, 5),
-                        "news.sohu.com": (70, 10, 20)}
+        domain_rates = {"cn.yahoo.com": (100, 0, 0),
+                        "people.com.cn": (100, 0, 0),
+                        "news.ifeng.com": (100, 0, 0),
+                        "news.163.com": (100, 0, 0),
+                        "news.sohu.com": (85, 2.5, 12.5)}
         for each_domain, rate in domain_rates.items():
             if domain_url.endswith(each_domain):
                 return rate
@@ -467,6 +471,12 @@ class FakeDatabase(DatabaseBasicDeal):
         if len(data_list) >= 0:
             LinkInDoc.insert_many(data_list).execute()
 
+    @staticmethod
+    def analysis_fake_link_date(link_result):
+        same_count = len(list(x for (x, y) in link_result if x == y))
+        print("[*] 获得了 {} 条链接关系, 其中内联链接有 {} 条, 外链链接有 {} 条".format(
+            len(link_result), same_count, len(link_result) - same_count))
+
     def run(self):
         """
         关系链接库只需要两个表:
@@ -477,11 +487,16 @@ class FakeDatabase(DatabaseBasicDeal):
         # 创建 DomainID2URLInDoc 表, 运行一次即可
         # self.create_domain_id_2_url_in_doc_table_data()
 
-        # 创建伪造的链接关系库
         domain_info_dict = self.get_all_domain_id_url_in_doc_from_db()
-        link_result = self.create_fake_link_info(domain_info_dict)
-        print("[*] 获得了 {} 条链接关系".format(len(link_result)))
 
+        # 创建评估数据
+        # self.compare_evaluate_doc_url(domain_info_dict)
+
+        # 创建伪造的链接关系库
+        link_result = self.create_fake_link_info(domain_info_dict)
+        self.analysis_fake_link_date(link_result)
+
+        # 将伪造链接数据写入到数据库中
         print("[*] 开始将伪造的链接数据写入到数据库中")
         self.write_fake_link_into_db(link_result)
 
