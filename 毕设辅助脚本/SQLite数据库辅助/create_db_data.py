@@ -16,6 +16,7 @@ import timeit
 import re
 import random
 import bisect
+from collections import defaultdict
 
 from xml2json import get_docs_from_file, parse_doc_to_dict, extract_domain_from_url
 
@@ -472,10 +473,37 @@ class FakeDatabase(DatabaseBasicDeal):
             LinkInDoc.insert_many(data_list).execute()
 
     @staticmethod
-    def analysis_fake_link_date(link_result):
-        same_count = len(list(x for (x, y) in link_result if x == y))
+    def analysis_fake_link_date(link_result, domain_info_dict):
+        """
+        统计链接的情况
+        :param link_result: list(), 每一项是一条链接
+        :param domain_info_dict: dict(), 域名与 url 的映射关系
+        :return: None, 统计结果直接打印出来
+        """
+        same_href = set()
+        outside_href = defaultdict(lambda: 0)
+        main_domains = ["cn.yahoo.com", "people.com.cn", "news.ifeng.com", "news.163.com", "news.sohu.com"]
+
+        for x, y in link_result:
+            # 内联链接
+            if x == y:
+                same_href.add(x)
+            else:
+                for each_main_domain in main_domains:
+                    if domain_info_dict[x].endswith(each_main_domain):
+                        outside_href[each_main_domain] += 1
+                        break
+
         print("[*] 获得了 {} 条链接关系, 其中内联链接有 {} 条, 外链链接有 {} 条".format(
-            len(link_result), same_count, len(link_result) - same_count))
+            len(link_result), len(same_href), len(link_result) - len(same_href)))
+
+        print("[*] 内联链接如下: ")
+        for each_inside_href in same_href:
+            print("[*] \t{}".format(domain_info_dict[each_inside_href]))
+
+        print("[*] 外链链接情况如下: ")
+        for each_outside_href, count in outside_href.items():
+            print("[*] \t{}\t\t->\t\t{} 条".format(each_outside_href, count))
 
     def run(self):
         """
@@ -494,7 +522,7 @@ class FakeDatabase(DatabaseBasicDeal):
 
         # 创建伪造的链接关系库
         link_result = self.create_fake_link_info(domain_info_dict)
-        self.analysis_fake_link_date(link_result)
+        self.analysis_fake_link_date(link_result, domain_info_dict)
 
         # 将伪造链接数据写入到数据库中
         print("[*] 开始将伪造的链接数据写入到数据库中")
