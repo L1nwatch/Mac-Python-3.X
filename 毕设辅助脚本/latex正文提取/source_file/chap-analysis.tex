@@ -2,24 +2,114 @@
 \chapter{评测分析}
 \label{chap:analysis}
 
-\section{实验环境}
+在前面的研究与实现章节中，已经搭建起了一个中文搜索平台，且实现了使用~HITS~和~PageRank~进行排序的功能，接下来需要对这两种算法进行评测分析。
 
+\section{评测标准}
 
+接下来引入信息检索系统中的评价指标来对算法进行评估，评价指标一般采用平均准确率~MAP（Mean~Average~Precision）、平均排序倒数~MRR（Mean~Reciprocal~Rank）、查准率（Precision）、召回率（Recall）等。
 
-\section{评测数据\&评测标准}
+\subsection{MAP}
 
-\subsection{评测标准}
+MAP~反映了一个信息检索系统对于搜索全部相关联的文档上所具有的性能，其搜索出来的有关文档排名越靠前，MAP~指标的数值就会越高。
 
-\subsubsection{MRR}
+对于搜索引擎来说，MAP~表示的是，某个关键词所能检索到的全部相关结果的准确率的平均值再进行算数平均值计算，定义如下~\cite{analysis}：
+\begin{equation}\label{eq:map}
+  MAP = \frac{\sum_{m\in M}\frac{1}{m}\sum_{k=1}^{K}\frac{k}{rank(k)}}{num(M)}
+\end{equation}
+式~\ref{eq:map}~中，m~代表每一个检索词的标注结果数，K~为标注结果出现在搜索结果中的总数，k~表示序号~$1, ..., K$，rank(k)~表示第~k~个结果在搜索结果中的排名，num(M)~表示检索词总数，当搜索结果中不存在任何标注结果时定义该值为~0。
 
-\subsubsection{准确率}
+举例：现有两个检索词~Q1~和~Q2~，各有~50~个标注结果，对于检索词~Q1~搜索出了~10~个结果，其中被标注结果的排名分别为~1，3，5，7；对于检索词~Q2~搜索出了~10~个结果，其中被标注结果的排名分别为~2，4，6；则对于检索词~Q1，其~$MAP = \frac{(1/1+2/3+3/5+4/7)}{50} \approx 0.06$，对于检索词~Q2~，其~$MAP = \frac{(1/2+2/4+3/6)}{50} = 0.03$，综合的~MAP~为 $(0.06 + 0.03) / 2 \approx 0.05$。
 
-\subsubsection{召回率}
+\subsection{MRR}
 
-\subsection{评测数据}
+MRR~这个指标关注的是所检索到的相关文档是否排在搜索结果列表中的前列，相关文档越靠前，MRR~指标的数值就会越高。
+
+计算的方法是，对于每个检索词，把被标注结果在搜索结果中的排序取倒数作为其准确度，然后再对所有检索词取平均，公式定义如下~\cite{analysis_2}：
+\begin{equation}\label{eq:mrr}
+  MRR = \frac{\sum_{i=1}^{N}\frac{1}{n_i}}{N}
+\end{equation}
+式~\ref{eq:mrr}~中，N~代表检索词总数，i~表示序号~$1, ... N$，$n_i$~代表的是对于每个检索词，其第一个被标注结果在排序结果中的位置。
+
+举例：现有两个检索词~Q1~和~Q2~，对于检索词~Q1~来说，其中第一个被标注结果出现的位置是~1；而对于检索词~Q2~，第一个被标注结果所在位置是~4，则~$MRR = (1/1+1/4)/2 \approx 0.63$。
+
+\subsection{准确率}
+
+查准率（Precision），考量检索的结果当中，有多少比例是被标注的结果。计算的公式如下，对于每个检索词，统计其标记结果个数所占比例，再对所有检索词取平均值~\cite{analysis_2}：
+\begin{equation}\label{eq:precision}
+  P = \frac{\sum_{i=1}^{N}\frac{n_i}{L}}{N}
+\end{equation}
+式~\ref{eq:precision}~中，N~代表检索词总数，$n_i$~表示第~i~个检索词中有多少个被标注结果出现在检索结果列表中，而检索结果列表的长度用~L~来表示。
+
+举例：现有两个检索词~Q1~和~Q2~，对于检索词~Q1~来说，检索出来的~20~个结果中含有标注结果~7~个；而对于检索词~Q2~，在~20~个检索结果中只找到了~5~个标注结果，故~$P = \frac{(7/20+5/20)}{2} = 0.3$。
+
+\subsection{召回率}
+
+召回率（Recall）评估的是搜索引擎是否找得足够全。对于每个检索词，统计其标记结果个数在搜索结果中出现的比例，再对所有检索词取平均值：
+\begin{equation}\label{eq:recall}
+  R = \frac{\sum_{i=1}^{N}\frac{n_i}{K}}{N}
+\end{equation}
+式~ref{eq:recall}~中，与准确率公式~\ref{eq:precision}~唯一不同的参数是~K~，这里的~K~表示的是标记结果的总数。
+
+举例：现有两个检索词~Q1~和~Q2~，均被标记了~50~个结果。对于检索词~Q1~来说，检索出来的结果中含有标注结果~27~个；而对于检索词~Q2~，只找到了~15~个标注结果，故~$R = \frac{(27/50+15/50)}{2} = 0.42$。
+
+\section{评测操作}
+
+\subsection{实验环境及评测数据}
+
+本文搭建中文搜索平台及其评测分析采用的是同一套实验环境，即作为搜索平台的服务端和进行评测分析的客户端在同一台个人~PC~上进行。实验环境的配置指标以及评测数据如下图~\ref{fig:development_environment}~所示：
+
+\begin{figure}[htbp]
+    \centering
+    \numberwithin{figure}{chapter}
+    \includegraphics[width=0.5\textwidth]{figures/chap4/chap4-development_environment.png}
+    %\vspace{-1em}
+    \caption{实验环境}
+    \label{fig:development_environment}
+\end{figure}
+
+主要的数据来源，比如语料库、关系链接库、评测数据等都是采用搜狗实验室提供的~2012~年版本的互联网真实数据。然而由于个人~PC~硬盘空间有限，语料库采用的是占用空间较小的全网新闻数据，涵盖~5~个主要域名以及~286~个子域名总计约~130~万个网页。
+
+由于语料库规模的缩小，导致关系链接库中大部分链接与语料库对应不上，故评测是关系链接以子域名作为基准，避免链接基数太小影响算法评估。另外语料库规模的缩小也影响到了评测数据，经过统计原本~4000+~的评测数据，现在只有~35~个评测数据与语料库相关。剔除了冗余、不健康内容的评测之后决定采用其中~14~个评测数据来进行本文实验的评测。
+
+\subsection{评测步骤}
+
+评测脚本采用~Python~语言使用~Selenium~框架编写，该框架能够模拟用户打开浏览器，进行网页浏览，网页查找等操作，由此替代了大量的人力工作完成本次实验的评测。整个流程如下：
+
+\begin{figure}[htbp]
+    \centering
+    \numberwithin{figure}{chapter}
+    \includegraphics[width=0.5\textwidth]{figures/chap4/chap4-analysis-process.png}
+    %\vspace{-1em}
+    \caption{评测流程}
+    \label{fig:analysis_process}
+\end{figure}
+
+依次重复图~\ref{fig:analysis_process}~示的这几个步骤，直至所有检索词都检索完毕。每此都从评估数据中获取要检索的词汇，然后脚本模拟人工输入访问中文搜索平台并进行检索，之后继续模拟人工查找搜索出来的结果并按照~HITS~算法以及~PageRank~算法进行分类，之后再跟评估数据中给定的标记数据进行对比，收集足够多的参数信息后，最后进行评估指标值的计算。
 
 \section{评测结果与分析}
 
+前面介绍了~4~种评测指标，对于~MAP~评估指标以及~Recall~评估指标来说，都需要准确的标记结果数目参与计算，然而由于评估数据的不足，无法提供这个参数，因此接下来仅仅从~MRR~指标以及~Precision~指标进行评估。
+
 \subsection{评测结果}
 
+由指定的评估数据中，依次对~14~个结果词进行查询，并跟标记结果比对，然后采用前面所述的~MRR~和~Precision~指标，最终得到如下的评测结果。
+
+\begin{figure}[htbp]
+    \centering
+    \numberwithin{figure}{chapter}
+    \includegraphics[width=0.5\textwidth]{figures/chap4/chap4-analysis-result.png}
+    %\vspace{-1em}
+    \caption{评测结果}
+    \label{fig:analysis_result}
+\end{figure}
+
 \subsection{分析总结}
+
+对比图~\ref{fig:development_environment}~中的链接关系，以及图~\ref{fig:analysis_result}~展示出来的评测结果。可以得到以下的推论：
+
+\begin{itemize}
+  \item 111
+  \item 222
+  \item 333
+  \item 444
+\end{itemize}

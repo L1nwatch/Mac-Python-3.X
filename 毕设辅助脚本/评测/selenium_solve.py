@@ -19,22 +19,22 @@ need_test = False
 mrr_test_data = {
     "张筱雨": "news.163.com",
     "接吻技巧": "life.people.com.cn",
-    "美女走光": "news.163.com",
-    "作爱": "news.sohu.com",
+    # "美女走光": "news.163.com",
+    # "作爱": "news.sohu.com",
     "一本道": "news.sohu.com",
-    "我淫我色": ["hi.people.com.cn", "media.people.com.cn"],
+    # "我淫我色": ["hi.people.com.cn", "media.people.com.cn"],
     "春节放假通知": "news.sohu.com",
-    "成人图片": "news.sohu.com",
+    # "成人图片": "news.sohu.com",
     "电信重组": "it.people.com.cn",
     "陈良宇": "news.ifeng.com",
-    "做爱图片": ["pic.people.com.cn", "news.sohu.com", "news.163.com", "pic.people.com.cn"],
+    # "做爱图片": ["pic.people.com.cn", "news.sohu.com", "news.163.com", "pic.people.com.cn"],
     "璩美凤": "news.sohu.com",
-    "情色小说": "news.sohu.com",
+    # "情色小说": "news.sohu.com",
     "美国大选": "news.ifeng.com",
-    "mm美图": ["news.163.com", "it.people.com.cn"],
+    # "mm美图": ["news.163.com", "it.people.com.cn"],
     "春节放假": "news.sohu.com",
     "人民网": "www.people.com.cn",
-    "色情电影": "www.people.com.cn",
+    # "色情电影": "www.people.com.cn",
     "台湾新闻": "news.ifeng.com",
     "99bb": "news.sohu.com",
     "大雪无情人有情": "tv.people.com.cn",
@@ -192,11 +192,12 @@ class AnalysisTest(unittest.TestCase):
         return count
 
     @unittest.skipUnless(True, "要进行 MRR 计算的话才改为 True")
-    def test_mrr_algorithm(self):
+    def test_mrr_algorithm(self, visible=False):
         """
         这不是测试, 而是进行 mrr 的计算, 只不过得以 test 开头才能运行(或者说我懒得研究其他运行方式- -)
         MRR: 平均排序倒数(MRR, Mean Reciprocal Rank of Homepage), 即对每个问题而言,
              把标准答案在被评价系统给出结果中的排序取倒数作为它的准确度, 再对所有的问题取平均
+        :param visible: boolean, 是否进行可视化打印
         """
         keyword_result_dict = mrr_test_data
         hits_mrr_result = list()
@@ -204,33 +205,49 @@ class AnalysisTest(unittest.TestCase):
 
         print("\n[*] {sep} 以下进行 MRR 计算 {sep}".format(sep="=" * 30))
         for each_keyword, evaluate_domain in keyword_result_dict.items():
-            # 进行 HITS 的 MRR 计算
+
             self.do_search(each_keyword)
-            hits_results = self.browser.find_elements_by_id("id_hits_result")
             try:
+                # 进行 HITS 的 MRR 计算
+                hits_results = self.browser.find_elements_by_id("id_hits_result")
                 hits_mrr_result.append(
                     fractions.Fraction(1, self.index_in_list_text(hits_results, evaluate_domain) + 1)
                 )
-                print("[*] 找到词汇: {}, MRR 评分为: {}".format(each_keyword, hits_mrr_result[-1]))
+
+                # 进行 PageRank 的 MRR 计算
+                page_rank_results = self.browser.find_elements_by_id("id_page_rank_result")
+                page_rank_mrr_result.append(
+                    fractions.Fraction(1, self.index_in_list_text(page_rank_results, evaluate_domain) + 1)
+                )
+                if visible:
+                    str_format = "[*] 找到词汇: {}, HITS-MRR 为: {}, PageRank-MRR 为: {}"
+                else:
+                    str_format = "{}\t{}\t{}"
+                print(str_format.format(each_keyword, hits_mrr_result[-1], page_rank_mrr_result[-1]))
             except TypeError as e:
-                print("[-] 词汇找不到结果: {}".format(each_keyword))
+                if visible:
+                    str_format = "[-] 词汇找不到结果: {}"
+                else:
+                    str_format = "{}\t-\t-"
+                print(str_format.format(each_keyword))
                 continue
 
-            # 进行 PageRank 的 MRR 计算
-            page_rank_results = self.browser.find_elements_by_id("id_page_rank_result")
-            page_rank_mrr_result.append(
-                fractions.Fraction(1, self.index_in_list_text(page_rank_results, evaluate_domain) + 1)
-            )
-
-        print("[*] 最终计算 HITS 的 MRR 为: {}".format(sum(hits_mrr_result) / len(hits_mrr_result)))
-        print("[*] 最终计算 PageRank 的 MRR 为: {}".format(sum(page_rank_mrr_result) / len(page_rank_mrr_result)))
+        if visible:
+            str_format1 = "[*] 最终计算 HITS 的 MRR 为: {}"
+            str_format2 = "[*] 最终计算 PageRank 的 MRR 为: {}"
+        else:
+            str_format1 = "最终计算\t{}"
+            str_format2 = "\t{}"
+        print(str_format1.format(sum(hits_mrr_result) / len(hits_mrr_result)),end="")
+        print(str_format2.format(sum(page_rank_mrr_result) / len(page_rank_mrr_result)))
 
     @unittest.skipUnless(True, "要进行查准率(precision)计算的话才改为 True")
-    def test_precision_algorithm(self):
+    def test_precision_algorithm(self, visible=False):
         """
         这不是测试, 而是进行查准率计算
         precision: 实验中对返回结果的前 20 项进行评测, 设与查询问题 i 相关的结果个数为 ni, 则该次查询的查准率 Pi = ni / 20,
                    再对所有查询取平均值
+        :param visible: boolean, 是否进行可视化打印
         """
         keyword_result_dict = precision_test_data
         hits_precision_result = list()
@@ -255,15 +272,23 @@ class AnalysisTest(unittest.TestCase):
                     self.count_related_in_list_text(pagerank_results, each_related), len(pagerank_results)
                 )
             )
-            print("[*] 针对 '{}', HITS 匹配 {}, PageRank 匹配 {}".format(each_keyword,
-                                                                   hits_precision_result[-1],
-                                                                   pagerank_precision_result[-1]))
+            if visible:
+                str_format = "[*] 针对 '{}', HITS 匹配 {hits}, PageRank 匹配 {pagerank}"
+            else:
+                str_format = "{hits}\t{pagerank}"
+            print(str_format.format(each_keyword,
+                                    hits=hits_precision_result[-1],
+                                    pagerank=pagerank_precision_result[-1]))
 
         # 进行 P 值计算
-        print("[*] 最终计算 HITS 的 Precision 为: {}".format(sum(hits_precision_result) / len(hits_precision_result)))
-        print("[*] 最终计算 PageRank 的 Precision 为: {}".format(
-            sum(pagerank_precision_result) / len(pagerank_precision_result))
-        )
+        if visible:
+            str_format = "[*] 最终计算 HITS 的 Precision 为: {}"
+            str_format2 = "[*] 最终计算 PageRank 的 Precision 为: {}"
+        else:
+            str_format = "{}"
+            str_format2 = "\t{}"
+        print(str_format.format(sum(hits_precision_result) / len(hits_precision_result)), end="")
+        print(str_format2.format(sum(pagerank_precision_result) / len(pagerank_precision_result)))
 
 
 if __name__ == "__main__":
