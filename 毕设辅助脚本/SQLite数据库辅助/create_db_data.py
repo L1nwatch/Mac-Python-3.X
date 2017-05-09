@@ -266,11 +266,10 @@ class RealDatabase(DatabaseBasicDeal):
         confirm = input("[+] 即将修改数据库中的数据, 确认?[y/n]")
         if confirm.lower() == "y":
             # 确保表和库存在, 且为初始状态
-            # self.clear_database([LinkRelationShip, PageID2URL, DomainID2URL, LinkInDoc, DomainID2URLInDoc])
-            self.clear_database([LinkInDoc, DomainID2URLInDoc])
+            self.clear_database([LinkRelationShip, PageID2URL, DomainID2URL, LinkInDoc, DomainID2URLInDoc])
 
             # 从文件中读取相应数据后存放到数据库中
-            # self.create_link_relationship_db()
+            self.create_link_relationship_db()
 
             # 将数据库中的数据与文档进行比较, 只摘取跟文档有关系的放进数据库对应表格
             # 创建表 LinkInDoc 以及 domainid2urlindoc 的数据
@@ -280,7 +279,7 @@ class RealDatabase(DatabaseBasicDeal):
         print("[*] 尝试访问数据库")
         assert len(LinkRelationShip.select().limit(10)) > 1
         assert len(DomainID2URL.select().limit(10)) > 1
-        print("[*] 成功插入数据到数据库中")
+        print("[*] 数据库中存在数据")
 
     def create_linkindoc_data(self, file_path):
         """

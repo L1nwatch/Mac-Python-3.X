@@ -233,13 +233,13 @@ class AnalysisTest(unittest.TestCase):
                 continue
 
         if visible:
-            str_format1 = "[*] 最终计算 HITS 的 MRR 为: {}"
-            str_format2 = "[*] 最终计算 PageRank 的 MRR 为: {}"
+            str_format1 = "[*] 最终计算 HITS 的 MRR 为: {:.2f}"
+            str_format2 = "[*] 最终计算 PageRank 的 MRR 为: {:.2f}"
         else:
-            str_format1 = "最终计算\t{}"
-            str_format2 = "\t{}"
-        print(str_format1.format(sum(hits_mrr_result) / len(hits_mrr_result)),end="")
-        print(str_format2.format(sum(page_rank_mrr_result) / len(page_rank_mrr_result)))
+            str_format1 = "最终计算\t{:.2f}"
+            str_format2 = "\t{:.2f}"
+        print(str_format1.format(float(sum(hits_mrr_result) / len(hits_mrr_result))), end="")
+        print(str_format2.format(float(sum(page_rank_mrr_result) / len(page_rank_mrr_result))))
 
     @unittest.skipUnless(True, "要进行查准率(precision)计算的话才改为 True")
     def test_precision_algorithm(self, visible=False):
@@ -282,13 +282,13 @@ class AnalysisTest(unittest.TestCase):
 
         # 进行 P 值计算
         if visible:
-            str_format = "[*] 最终计算 HITS 的 Precision 为: {}"
-            str_format2 = "[*] 最终计算 PageRank 的 Precision 为: {}"
+            str_format = "[*] 最终计算 HITS 的 Precision 为: {:.2f}"
+            str_format2 = "[*] 最终计算 PageRank 的 Precision 为: {:.2f}"
         else:
-            str_format = "{}"
-            str_format2 = "\t{}"
-        print(str_format.format(sum(hits_precision_result) / len(hits_precision_result)), end="")
-        print(str_format2.format(sum(pagerank_precision_result) / len(pagerank_precision_result)))
+            str_format = "{:.2f}"
+            str_format2 = "\t{:.2f}"
+        print(str_format.format(float(sum(hits_precision_result) / len(hits_precision_result))), end="")
+        print(str_format2.format(float(sum(pagerank_precision_result) / len(pagerank_precision_result))))
 
 
 if __name__ == "__main__":

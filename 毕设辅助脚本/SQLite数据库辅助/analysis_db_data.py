@@ -34,7 +34,7 @@ class DBAnalysis:
         :return: None, 直接打印
         """
         for each in link_set:
-            print("[*] {sep}{domain}{sep}->{sep}{count}".format(sep="\t", domain=each, count=1))
+            print("[*] {sep}{domain}{sep}---->{sep}{count}".format(sep="\t", domain=each, count=1))
 
     def run(self):
         # 需要统计的信息, 有多少链接关系, 多少内联, 分别是什么域名链接什么域名, 多少外链, 分别是什么域名链接什么域名
