@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 负责新建 sqlite3 数据库, 以及插入对应的链接关系库, 以便毕设进行查询访问等操作
 
+2017.05.09 统一实际数据库和伪造数据库, 主要是统一表格 DomainID2URLInDoc, 之后 LinkInDoc 采用各自的数据
 2017.05.06 新增伪造链接的相关统计代码, 方便伪造控制
 2017.05.05 编写代码, 自己伪造关系链接库
 2017.03.21 DomainID2URL 依旧存在好多冗余, 过滤一下
@@ -22,7 +23,7 @@ from xml2json import get_docs_from_file, parse_doc_to_dict, extract_domain_from_
 
 __author__ = '__L1n__w@tch'
 
-database_name = "link_relationship.db"
+database_name = "/Users/L1n/Desktop/Notes/毕设/毕设实现/工程文件/link_relationship.db"
 id2url_file = os.path.join("/Users/L1n/Desktop/Notes/毕设/毕设实现/工程文件/SogouT-Link.v1", "id2url.link")
 link_file = os.path.join("/Users/L1n/Desktop/Notes/毕设/毕设实现/工程文件/SogouT-Link.v1", "SogouT-link")
 doc_file = os.path.join("/Users/L1n/Desktop/Code/Python/PyCharm/毕设辅助脚本/xml转json", "news_tensite_xml.dat")
@@ -63,7 +64,6 @@ class LinkInDoc(peewee.Model):
 
     domain_id = peewee.CharField(null=False)
     out_id = peewee.CharField(null=True)  # 某 domain_id 指向了 xxx
-    in_id = peewee.CharField(null=True)  # 某 domain_id 被 xxx 指向了
 
 
 class DomainID2URLInDoc(peewee.Model):
@@ -98,6 +98,10 @@ class WeightRandom:
 
 
 class DatabaseBasicDeal:
+    def __init__(self):
+        # 用来保存存在于 doc 中的 域名 id 映射
+        self.doc_domain_id_url_dict = dict()
+
     @staticmethod
     def create_database():
         """
@@ -135,6 +139,60 @@ class DatabaseBasicDeal:
             doc_dict = parse_doc_to_dict(each_doc)
             domain_id = doc_dict["doc_number"].split("-")[1]
             yield domain_id, extract_domain_from_url(doc_dict["url"])
+
+    def get_domain_id_dict_in_doc(self):
+        """
+        获取所有 doc 中的域名 id
+        总共有域名 286 个, 每个域名类似于: "shop.people.com.cn"
+        :return: set(), 过滤重复域名 id
+        """
+        result_dict = dict()
+        for i, (each_domain, domain_url) in enumerate(self.get_all_domain_id_in_doc(doc_file)):
+            if each_domain not in result_dict:
+                progress = ((i + 1) / 1294233) * 100
+                print("[*] 进度: {:.2f}%, 找到域名: {}, URL 为: {}".format(progress, each_domain, domain_url))
+                result_dict[each_domain] = domain_url
+
+        return result_dict
+
+    def create_domain_id_2_url_in_doc_table_data(self):
+        """
+        完成清除数据、获取 doc_domain_id_url_dict、写入到数据库
+        :return: None, 直接写入到数据库
+        """
+        self.doc_domain_id_url_dict = self.get_domain_id_dict_in_doc()
+        print("[*] 总共有域名: {}".format(len(self.doc_domain_id_url_dict)))
+
+        # 创建 domainid2urlindoc
+        print("[*] 开始将数据写入到数据库的 DomainID2URLInDoc 表中")
+        self.create_domainid_to_url_in_doc_table(self.doc_domain_id_url_dict)
+
+    @staticmethod
+    def create_domainid_to_url_in_doc_table(domain_url_dict):
+        """
+        创建该表: DomainID2URLInDoc
+        其中的数据类似于:
+            page_id: "fa7f32f06cef7000"
+            page_url: "ah.people.com.cn"
+        :param domain_url_dict: dict(), {"domain_id": "url", ...}
+        :return: None, 直接写入数据到数据库中
+        """
+        print("[*] 开始写入数据到表格: DomainID2URLInDoc")
+        for i, (each_domain, each_url) in enumerate(domain_url_dict.items()):
+            DomainID2URLInDoc.insert({"page_id": each_domain, "page_url": each_url}).execute()
+
+    @staticmethod
+    def get_all_domain_id_url_in_doc_from_db():
+        """
+        之前是从文件里获取所有域名 id, 现在已经把这部分信息写入到数据库了, 所以就从数据库中读取出来即可
+        :return: dict(), {domain_id: domain_url, ...}
+        """
+        domain_info_dict = dict()
+
+        for each_row in DomainID2URLInDoc.select():
+            domain_info_dict[each_row.page_id] = each_row.page_url
+
+        return domain_info_dict
 
 
 class RealDatabase(DatabaseBasicDeal):
@@ -185,7 +243,7 @@ class RealDatabase(DatabaseBasicDeal):
         :return: None
         """
         # 创建 ID2URL 的数据
-        file_path = link_file
+        file_path = id2url_file
         print("[*] 读取文件 {} 并插入表 PageID2URL".format(str(file_path).rsplit("/", maxsplit=1)[1]))
         for data_source_list in self.read_file_data(file_path, ["page_id", "page_url"]):
             PageID2URL.insert_many(data_source_list).execute()
@@ -195,25 +253,27 @@ class RealDatabase(DatabaseBasicDeal):
             DomainID2URL.insert_many(data_source_list).execute()
 
         # 创建 LinkRelationship 数据
-        file_path = id2url_file
+        file_path = link_file
         print("[*] 读取文件 {} 并插入数据库".format(str(file_path).rsplit("/", maxsplit=1)[1]))
         for data_source_list in self.read_file_data(file_path, ["page_id", "out_id"], need_special_deal=1):
             LinkRelationShip.insert_many(data_source_list).execute()
 
     def run(self):
         # 创建数据库
-        db = self.create_database()
+        self.create_database()
 
         # 创建链接数据
         confirm = input("[+] 即将修改数据库中的数据, 确认?[y/n]")
         if confirm.lower() == "y":
             # 确保表和库存在, 且为初始状态
             # self.clear_database([LinkRelationShip, PageID2URL, DomainID2URL, LinkInDoc, DomainID2URLInDoc])
+            self.clear_database([LinkInDoc, DomainID2URLInDoc])
 
             # 从文件中读取相应数据后存放到数据库中
-            # self.create_link_relationship_db(db, "link_relationship.txt")
+            # self.create_link_relationship_db()
 
             # 将数据库中的数据与文档进行比较, 只摘取跟文档有关系的放进数据库对应表格
+            # 创建表 LinkInDoc 以及 domainid2urlindoc 的数据
             self.compare_db_data()
 
         # 访问数据库, 验证是否插入成功
@@ -230,7 +290,7 @@ class RealDatabase(DatabaseBasicDeal):
         """
         domain_dict = dict()
 
-        for i, domain_id, _ in enumerate(self.get_all_domain_id_in_doc(file_path)):
+        for i, (domain_id, _) in enumerate(self.get_all_domain_id_in_doc(file_path)):
             if domain_id in domain_dict:
                 continue
 
@@ -241,9 +301,13 @@ class RealDatabase(DatabaseBasicDeal):
                 domain_dict[domain_id] = True
                 print("[*] {} 找到了!目前是第 {} 个文档, 总共 1294233 个文档".format(domain_id, i + 1))
                 for each_row in result:
+                    # 如果链接相关的 2 个 id 都存在于 doc 中:
+                    if (each_row.out_id not in self.doc_domain_id_url_dict) \
+                            or (domain_id not in self.doc_domain_id_url_dict):
+                        continue
                     # 如果是该网页被其他网页指向
-                    if each_row.out_id == domain_id:
-                        LinkInDoc.insert({"domain_id": domain_id, "in_id": each_row.page_id}).execute()
+                    elif each_row.out_id == domain_id:
+                        LinkInDoc.insert({"domain_id": each_row.page_id, "out_id": domain_id}).execute()
                     # 如果是该网页指向其他网页
                     elif each_row.page_id == domain_id:
                         LinkInDoc.insert({"domain_id": domain_id, "out_id": each_row.out_id}).execute()
@@ -264,9 +328,9 @@ class RealDatabase(DatabaseBasicDeal):
         return domain_dict
 
     @staticmethod
-    def create_domainid2urlindoc_data(domain_dict):
+    def _create_domainid2urlindoc_data(domain_dict):
         """
-        只把与有效域名相关的 URL 放进表格 domainid2urlindoc 中
+        【弃用】只把与有效域名相关的 URL 放进表格 domainid2urlindoc 中
         :param domain_dict: dict(), 域名及有效值, 比如 {"domain1": True, "domain2": False}
         :return: None
         """
@@ -290,8 +354,8 @@ class RealDatabase(DatabaseBasicDeal):
         """
         file_path = doc_file
 
-        domain_dict = self.create_linkindoc_data(file_path)
-        self.create_domainid2urlindoc_data(domain_dict)
+        self.create_domain_id_2_url_in_doc_table_data()
+        self.create_linkindoc_data(file_path)
 
     @staticmethod
     def first_way_to_check():
@@ -312,63 +376,6 @@ class RealDatabase(DatabaseBasicDeal):
 
 
 class FakeDatabase(DatabaseBasicDeal):
-    def get_domain_id_dict_in_doc(self):
-        """
-        获取所有 doc 中的域名 id
-        总共有域名 286 个, 每个域名类似于: "shop.people.com.cn"
-        :return: set(), 过滤重复域名 id
-        """
-        result_dict = dict()
-        for i, (each_domain, domain_url) in enumerate(self.get_all_domain_id_in_doc(doc_file)):
-            if each_domain not in result_dict:
-                progress = ((i + 1) / 1294233) * 100
-                print("[*] 进度: {:.2f}%, 找到域名: {}, URL 为: {}".format(progress, each_domain, domain_url))
-                result_dict[each_domain] = domain_url
-
-        return result_dict
-
-    @staticmethod
-    def create_domainid_to_url_in_doc_table(domain_url_dict):
-        """
-        创建该表: DomainID2URLInDoc
-        其中的数据类似于:
-            page_id: "fa7f32f06cef7000"
-            page_url: "ah.people.com.cn"
-        :param domain_url_dict: dict(), {"domain_id": "url", ...}
-        :return: None, 直接写入数据到数据库中
-        """
-        print("[*] 开始写入数据到表格: DomainID2URLInDoc")
-        for i, (each_domain, each_url) in enumerate(domain_url_dict.items()):
-            DomainID2URLInDoc.insert({"page_id": each_domain, "page_url": each_url}).execute()
-
-    def create_domain_id_2_url_in_doc_table_data(self):
-        """
-        完成清除数据、获取 domain_id_dict、写入到数据库
-        :return: None, 直接写入到数据库
-        """
-        # 清空原来的数据
-        self.clear_database([DomainID2URLInDoc])
-
-        domain_id_dict = self.get_domain_id_dict_in_doc()
-        print("[*] 总共有域名: {}".format(len(domain_id_dict)))
-
-        # 创建 domainid2urlindoc
-        print("[*] 开始将数据写入到数据库的 DomainID2URLInDoc 表中")
-        self.create_domainid_to_url_in_doc_table(domain_id_dict)
-
-    @staticmethod
-    def get_all_domain_id_url_in_doc_from_db():
-        """
-        之前是从文件里获取所有域名 id, 现在已经把这部分信息写入到数据库了, 所以就从数据库中读取出来即可
-        :return: dict(), {domain_id: domain_url, ...}
-        """
-        domain_info_dict = dict()
-
-        for each_row in DomainID2URLInDoc.select():
-            domain_info_dict[each_row.page_id] = each_row.page_url
-
-        return domain_info_dict
-
     @staticmethod
     def compare_evaluate_doc_url(doc_domain_set):
         """
@@ -512,7 +519,7 @@ class FakeDatabase(DatabaseBasicDeal):
         :return:
         """
         # 创建 DomainID2URLInDoc 表, 运行一次即可
-        # self.create_domain_id_2_url_in_doc_table_data()
+        self.create_domain_id_2_url_in_doc_table_data()
 
         domain_info_dict = self.get_all_domain_id_url_in_doc_from_db()
 
@@ -530,12 +537,12 @@ class FakeDatabase(DatabaseBasicDeal):
 
 if __name__ == "__main__":
     # 自己伪造关系链接库
-    fake_db = FakeDatabase()
-    fake_db.run()
+    # fake_db = FakeDatabase()
+    # fake_db.run()
 
     # 根据搜狗提供的数据创建关系链接库
-    # real_db = RealDatabase()
-    # real_db.run()
+    real_db = RealDatabase()
+    real_db.run()
 
     # 比较那个快一些
     # print(timeit.timeit("first_way_to_check()", "from __main__ import first_way_to_check", number=200))
