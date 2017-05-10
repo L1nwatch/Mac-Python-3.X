@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 自己写的论文是 LaTex 格式, 论文查重需要文本内容, 所以还是写个脚本来提取好了
 
+2017.05.10 补充 equation 标签的过滤、以及针对 itemize 和 enumerate 的提取修复 BUG
 2017.05.03 增加对 displaymath、lst input listing、$$ 等语法的处理
 2017.04.28 开始针对初始脚本进行提取, 针对 Windows 下生成的 tex 文件
 """
@@ -49,8 +50,8 @@ class LatexExtract:
         :param segment: str(), 比如 "\\begin{figure}...\\end{figure}"
         :return: str(), 比如 "系统结构"
         """
-        result = re.findall("\\\\caption{(.*)}", segment, flags=re.IGNORECASE)
-        return result[0]
+        re_result = re.findall("\\\\caption{(.*)}", segment, flags=re.IGNORECASE)
+        return re_result[0]
 
     def extract_content_from_itemize(self, segment):
         """
@@ -58,8 +59,11 @@ class LatexExtract:
         :param segment: str(), 比如 "\\begin{itemize}...\\end{itemize}"
         :return: str(), 比如 "各种供外部使用的~API~..."
         """
-        result = re.findall("\\\\item\s(.*)", segment, flags=re.IGNORECASE)
-        return "\n".join([self.clear_tag(x) for x in result])
+        # 删除 begin end 标签
+        re_result = re.findall("\\\\begin{[^}]+}(.+)\\\\end{.+}", segment, flags=re.IGNORECASE | re.DOTALL)[0]
+        # 删除 item 标签
+        re_result = re_result.replace("\\item", "")
+        return self.clear_tag(re_result)
 
     @staticmethod
     def get_types_from_begin(label_data):
@@ -68,8 +72,8 @@ class LatexExtract:
         :param label_data: str(), 比如 "\\begin{figure}"
         :return: str(), 比如 "figure"
         """
-        result = re.findall("\\\\begin\{(.*)}", label_data, flags=re.IGNORECASE)
-        return result[0]
+        re_result = re.findall("\\\\begin\{(.*?)}.*", label_data, flags=re.IGNORECASE)
+        return re_result[0]
 
     def get_each_segment(self, raw_data):
         """
@@ -118,9 +122,9 @@ class LatexExtract:
             # 针对不同类型进行处理
             if types.lower() == "figure":
                 result.append(self.extract_content_from_figure(each_segment))
-            elif types.lower() == "itemize":
+            elif types.lower() in ("itemize", "enumerate"):
                 result.append(self.extract_content_from_itemize(each_segment))
-            elif types.lower() in ("label", "displaymath"):
+            elif types.lower() in ("label", "displaymath", "equation"):
                 continue
             elif types.lower() == "Unknown":
                 raise ("[-] 未知类型: {}".format(each_segment))
@@ -145,5 +149,6 @@ if __name__ == "__main__":
     source_file_dir = "source_file"
 
     le = LatexExtract()
-    result = le.run(source_file_dir)
-    print(result)
+    total_result = le.run(source_file_dir)
+    with open("final_result.txt", "wt") as result_file_io:
+        result_file_io.write(total_result)
