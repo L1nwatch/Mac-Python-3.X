@@ -205,32 +205,30 @@ class AnalysisTest(unittest.TestCase):
 
         print("\n[*] {sep} 以下进行 MRR 计算 {sep}".format(sep="=" * 30))
         for each_keyword, evaluate_domain in keyword_result_dict.items():
-
             self.do_search(each_keyword)
-            try:
-                # 进行 HITS 的 MRR 计算
-                hits_results = self.browser.find_elements_by_id("id_hits_result")
-                hits_mrr_result.append(
-                    fractions.Fraction(1, self.index_in_list_text(hits_results, evaluate_domain) + 1)
-                )
+            # 进行 HITS 的 MRR 计算
+            hits_results = self.browser.find_elements_by_id("id_hits_result")
+            index = self.index_in_list_text(hits_results, evaluate_domain)
+            if index is None:
+                hits_current_value = "-"
+            else:
+                hits_mrr_result.append(fractions.Fraction(1, index + 1))
+                hits_current_value = hits_mrr_result[-1]
 
-                # 进行 PageRank 的 MRR 计算
-                page_rank_results = self.browser.find_elements_by_id("id_page_rank_result")
-                page_rank_mrr_result.append(
-                    fractions.Fraction(1, self.index_in_list_text(page_rank_results, evaluate_domain) + 1)
-                )
-                if visible:
-                    str_format = "[*] 找到词汇: {}, HITS-MRR 为: {}, PageRank-MRR 为: {}"
-                else:
-                    str_format = "{}\t{}\t{}"
-                print(str_format.format(each_keyword, hits_mrr_result[-1], page_rank_mrr_result[-1]))
-            except TypeError as e:
-                if visible:
-                    str_format = "[-] 词汇找不到结果: {}"
-                else:
-                    str_format = "{}\t-\t-"
-                print(str_format.format(each_keyword))
-                continue
+            # 进行 PageRank 的 MRR 计算
+            page_rank_results = self.browser.find_elements_by_id("id_page_rank_result")
+            index = self.index_in_list_text(page_rank_results, evaluate_domain)
+            if index is None:
+                page_rank_current_value = "-"
+            else:
+                page_rank_mrr_result.append(fractions.Fraction(1, index + 1))
+                page_rank_current_value = page_rank_mrr_result[-1]
+
+            if visible:
+                str_format = "[*] 找到词汇: {}, HITS-MRR 为: {}, PageRank-MRR 为: {}"
+            else:
+                str_format = "{}\t{}\t{}"
+            print(str_format.format(each_keyword, hits_current_value, page_rank_current_value))
 
         if visible:
             str_format1 = "[*] 最终计算 HITS 的 MRR 为: {:.2f}"

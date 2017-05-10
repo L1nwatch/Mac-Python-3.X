@@ -13,7 +13,6 @@
 import sqlite3
 import peewee
 import os
-import timeit
 import re
 import random
 import bisect
@@ -425,11 +424,11 @@ class FakeDatabase(DatabaseBasicDeal):
         :param domain_url: str(), 比如: "1688.news.cn.yahoo.com"
         :return: tuple, (int, int, int), 比如: (50, 25, 25)
         """
-        domain_rates = {"cn.yahoo.com": (100, 0, 0),
-                        "people.com.cn": (100, 0, 0),
-                        "news.ifeng.com": (100, 0, 0),
-                        "news.163.com": (100, 0, 0),
-                        "news.sohu.com": (85, 2.5, 12.5)}
+        domain_rates = {"cn.yahoo.com": (85, 7.5, 7.5),
+                        "people.com.cn": (85, 4.25, 12.75),
+                        "news.ifeng.com": (85, 10, 5),
+                        "news.163.com": (85, 12.75, 4.25),
+                        "news.sohu.com": (85, 5, 10)}
         for each_domain, rate in domain_rates.items():
             if domain_url.endswith(each_domain):
                 return rate
@@ -517,15 +516,21 @@ class FakeDatabase(DatabaseBasicDeal):
             domainid2urlindoc: 将域名 id 转换为 url 的表
         :return:
         """
-        # 创建 DomainID2URLInDoc 表, 运行一次即可
-        self.create_domain_id_2_url_in_doc_table_data()
+        # 创建 DomainID2URLInDoc 表, 运行一次即可, 没有数据才为这个表写数据
+        if DomainID2URLInDoc.table_exists():
+            if len(DomainID2URLInDoc.select()) == 0:
+                self.create_domain_id_2_url_in_doc_table_data()
+        else:
+            DomainID2URLInDoc.create_table()
+            self.create_domain_id_2_url_in_doc_table_data()
 
         domain_info_dict = self.get_all_domain_id_url_in_doc_from_db()
 
         # 创建评估数据
-        # self.compare_evaluate_doc_url(domain_info_dict)
+        self.compare_evaluate_doc_url(domain_info_dict)
 
         # 创建伪造的链接关系库
+        self.clear_database([LinkInDoc])
         link_result = self.create_fake_link_info(domain_info_dict)
         self.analysis_fake_link_date(link_result, domain_info_dict)
 
@@ -536,12 +541,12 @@ class FakeDatabase(DatabaseBasicDeal):
 
 if __name__ == "__main__":
     # 自己伪造关系链接库
-    # fake_db = FakeDatabase()
-    # fake_db.run()
+    fake_db = FakeDatabase()
+    fake_db.run()
 
     # 根据搜狗提供的数据创建关系链接库
-    real_db = RealDatabase()
-    real_db.run()
+    # real_db = RealDatabase()
+    # real_db.run()
 
     # 比较那个快一些
     # print(timeit.timeit("first_way_to_check()", "from __main__ import first_way_to_check", number=200))
