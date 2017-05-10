@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 统计数据库中的信息用的
 
+2017.05.10 完善当链接数过多时的统计代码
 2017.05.08 需要对真实数据库里面的信息进行统计
 """
 from create_db_data import DomainID2URLInDoc, LinkInDoc, DatabaseBasicDeal
@@ -26,15 +27,39 @@ class DBAnalysis:
         """
         return self.domain_id_url_dict[domain_id]
 
-    @staticmethod
-    def print_link_info_with_main_domain(link_set):
+    def get_main_domain(self, url, main_domains):
+        """
+        求一个 URL 属于哪个主域名
+        :param url: str(), 比如 "xz.people.com.cn"
+        :param main_domains: list(), 比如 ["cn.yahoo.com", "people.com.cn", "news.ifeng.com", ...]
+        :return: str(), 主域名, 比如 "people.com.cn"
+        """
+        for each_domain in main_domains:
+            if url.endswith(each_domain):
+                return each_domain
+        raise RuntimeError("[-] Can not find main domain of {}".format(url))
+
+    def print_link_info_with_main_domain(self, link_set):
         """
         按照主域名区分打印出链接情况
         :param link_set: dict(), 比如: {'news.sohu.com': 5, 'club.comment2.news.sohu.com': 1, 'club.news.sohu.com': 2}
         :return: None, 直接打印
         """
-        for each in link_set:
-            print("[*] {sep}{domain}{sep}---->{sep}{count}".format(sep="\t", domain=each, count=1))
+        main_domains = ["cn.yahoo.com", "people.com.cn", "news.ifeng.com", "news.163.com", "news.sohu.com"]
+
+        if len(link_set) > 100:
+            result_dict = defaultdict(lambda: 0)
+            for each in link_set:
+                if isinstance(each, str):
+                    result_dict[self.get_main_domain(each, main_domains)] += 1
+                elif isinstance(each, tuple):
+                    result_dict[self.get_main_domain(each[0], main_domains)] += 1
+
+            for domain, count in result_dict.items():
+                print("[*] {sep}{domain}{sep}---->{sep}{count}".format(sep="\t", domain=domain, count=count))
+        else:
+            for each in link_set:
+                print("[*] {sep}{domain}{sep}---->{sep}{count}".format(sep="\t", domain=each, count=1))
 
     def run(self):
         # 需要统计的信息, 有多少链接关系, 多少内联, 分别是什么域名链接什么域名, 多少外链, 分别是什么域名链接什么域名
