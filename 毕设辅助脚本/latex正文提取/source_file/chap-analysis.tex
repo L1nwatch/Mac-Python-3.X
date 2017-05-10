@@ -63,7 +63,7 @@ MRR~这个指标关注的是所检索到的相关文档是否排在搜索结果列表中的前列，相关文档越靠
     \numberwithin{figure}{chapter}
     \includegraphics[width=0.5\textwidth]{figures/chap4/chap4-development_environment.png}
     %\vspace{-1em}
-    \caption{实验环境}
+    \caption{实验环境及参数}
     \label{fig:development_environment}
 \end{figure}
 
@@ -78,7 +78,7 @@ MRR~这个指标关注的是所检索到的相关文档是否排在搜索结果列表中的前列，相关文档越靠
 \begin{figure}[htbp]
     \centering
     \numberwithin{figure}{chapter}
-    \includegraphics[width=0.5\textwidth]{figures/chap4/chap4-analysis-process.png}
+    \includegraphics[width=0.7\textwidth]{figures/chap4/chap4-analysis-process.png}
     %\vspace{-1em}
     \caption{评测流程}
     \label{fig:analysis_process}
@@ -88,28 +88,47 @@ MRR~这个指标关注的是所检索到的相关文档是否排在搜索结果列表中的前列，相关文档越靠
 
 \section{评测结果与分析}
 
-前面介绍了~4~种评测指标，对于~MAP~评估指标以及~Recall~评估指标来说，都需要准确的标记结果数目参与计算，然而由于评估数据的不足，无法提供这个参数，因此接下来仅仅从~MRR~指标以及~Precision~指标进行评估。
+前面介绍了~4~种评测指标，对于~MAP~评估指标以及~Recall~评估指标来说，都需要准确的标记结果数目参与计算，然而由于评估数据的不足，无法进行准确地标记，因此也就无法提供总标记数目这个参数，故接下来仅仅从~MRR~指标以及~Precision~指标进行评估。
 
 \subsection{评测结果}
 
-由指定的评估数据中，依次对~14~个结果词进行查询，并跟标记结果比对，然后采用前面所述的~MRR~和~Precision~指标，最终得到如下的评测结果。
+由指定的评估数据中，依次对~20~个评测词进行查询，对于~MRR~指标，每次查询记录标记结果第一次出现在搜索结果中的位置，并取其倒数保存下来；对于~Precision~指标，每次查询记录标记结果中出现在显示结果中的总数量，并保存下来。最后当~20~个评测词都查询完毕之后，对保存下来的数据进行汇总计算，最终得到如~\ref{fig:analysis_result}~所示的评测结果。
 
 \begin{figure}[htbp]
     \centering
     \numberwithin{figure}{chapter}
-    \includegraphics[width=0.5\textwidth]{figures/chap4/chap4-analysis-result.png}
+    \includegraphics[width=\textwidth]{figures/chap4/chap4-analysis-result.png}
     %\vspace{-1em}
     \caption{评测结果}
     \label{fig:analysis_result}
 \end{figure}
 
+观察这份评测结果，里面总共有~4~列指标值。前两列指标值分别表示~HITS~的~MRR~值以及~PageRank~的~MRR~值；后两列指标值分别表示~HITS~的~Precision~指标值以及~PageRank~的指标值。指标值为~$-$~表示没出现对应的标记结果，因此也不计入到最终汇总计算之中。
+
+同时，对链接关系库进行具体的分析，按照主域名来进行划分的话，可以发现内联链接与外联连接如下图~\ref{fig:relationship-analysis}~所示：
+
+\begin{figure}[htbp]
+    \centering
+    \numberwithin{figure}{chapter}
+    \includegraphics[width=0.7\textwidth]{figures/chap4/chap4-relationship-analysis.png}
+    %\vspace{-1em}
+    \caption{关系链接库分析}
+    \label{fig:relationship-analysis}
+\end{figure}
+
 \subsection{分析总结}
 
-对比图~\ref{fig:development_environment}~中的链接关系，以及图~\ref{fig:analysis_result}~展示出来的评测结果。可以得到以下的推论：
+对比图~\ref{fig:development_environment}~中给出的链接关系统计数目，结合图~\ref{fig:analysis_result}~展示出来的评测结果。可以观察到这些现象：
 
 \begin{itemize}
-  \item 111
-  \item 222
-  \item 333
-  \item 444
+  \item 对于部分检索词，~HITS~算法与~PageRank~算法在展示的有限条目中，均无找到对应的标记结果；
+  \item 观察~Precision~指标值，当~HITS~指标值大的时候，~PageRank~指标值也较大；当~HITS~指标值很小的时候，~PageRank~指标值也很小；
+  \item 观察~MRR~指标值，没有发现明显的规律，也即~HITS~指标值与~PageRank~指标值较大可能不具有关联性；
+  \item 在实验中，指定的~20~个评测词查询结果的最终计算表明，~PageRank~算法的~MRR~指标值以及~Precision~指标值均高于~HITS~算法对应的指标值。
 \end{itemize}
+
+关于现象一，虽然评估数据与实验用的数据都是由搜狗实验室提供的，但由于采用的版本不同（评估数据针对的是全网数据，而实验用的数据仅仅是新闻类网站的数据），因此，针对部分检索词的评估数据是不会出现在新闻类网站的数据之中，因此也就不会有对应的标记结果。
+
+关于现象二和三，由于本文实现的~HITS~算法与~PageRank~算法是基于同一个基本集进行的迭代运算，在当链接关系与标记结果关联性大时，基于超链分析的网页排序算法所排序过后的检索结果应与标记结果更为接近，而本次实验的数据也证明了这一点；但是当链接关系与标记结果的关联性较小时，结果取决于全文搜索以及极少数的链接关系等许多不确定因素，因此产生的搜索结果会比较随机的，也就没有明显的规律可言。
+
+关于现象四，由前面的理论知识可以知道，~HITS~算法相比于~PageRank~算法的优势在于其对内联链接的处理，但是本次实验用的测试数据中内联链接所占比例很小，因此~HITS~算法的优势不明显。故实验得出的~PageRank~算法在~MRR~指标值以及~Precision~指标值优于~HITS~算法可能是因为~PageRank~算法针对外链数目较多的查询中能够得到比~HITS~算法更让用户满意的检索结果。 
