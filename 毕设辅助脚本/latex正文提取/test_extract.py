@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 针对提取脚本作测试
 
+2017.05.11 修复在提取 $$ 语句时的 BUG
 2017.05.10 补充 equation 标签的测试、以及 enumerate 的提取修复 BUG
 2017.05.03 增加对 displaymath、lst input listing、$$ 等语法的处理的测试代码
 """
@@ -160,6 +161,21 @@ Lucene~是~Apache~Software~Foundation~的一个免费信息检索软件库\cite{
 
         test_data = "$a$"
         right_answer = "a"
+        my_answer = self.le.clear_tag(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+        test_data = "$MAP = \frac{(1/1+2/3+3/5+4/7)}{50} \approx 0.06$"
+        right_answer = "MAP = (1/1+2/3+3/5+4/7)50  0.06"
+        my_answer = self.le.clear_tag(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+        test_data = "$MAP = \frac{(1/2+2/4+3/6)}{50} = 0.03$"
+        right_answer = "MAP = (1/2+2/4+3/6)50 = 0.03"
+        my_answer = self.le.clear_tag(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+        test_data = "$(0.06 + 0.03) / 2 \approx 0.05$"
+        right_answer = "(0.06 + 0.03) / 2  0.05"
         my_answer = self.le.clear_tag(test_data)
         self.assertEqual(right_answer, my_answer)
 

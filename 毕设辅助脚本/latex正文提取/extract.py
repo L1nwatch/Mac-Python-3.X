@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 自己写的论文是 LaTex 格式, 论文查重需要文本内容, 所以还是写个脚本来提取好了
 
+2017.05.11 修复在提取 $$ 语句时的 BUG
 2017.05.10 补充 equation 标签的过滤、以及针对 itemize 和 enumerate 的提取修复 BUG
 2017.05.03 增加对 displaymath、lst input listing、$$ 等语法的处理
 2017.04.28 开始针对初始脚本进行提取, 针对 Windows 下生成的 tex 文件
@@ -29,8 +30,17 @@ class LatexExtract:
             else:
                 return "{}".format(m.group(2))
 
-        clean_data = re.sub("\\\\(?P<label>.+?)\{(?P<content>.*)}", _sub_call, raw_data)
-        clean_data = re.sub("\$(?P<content>.+?)\$", "\g<content>", clean_data)
+        def _math_clean(m):
+            content = m.group(1)
+
+            content = content.replace("\approx", "")
+            content = re.sub("\\f.*?{(?P<save>.+?)}", "\g<save>", content)
+            content = re.sub("{(?P<save>.+?)}", "\g<save>", content)
+
+            return content
+
+        clean_data = re.sub("\$(?P<content>.+?)\$", _math_clean, raw_data)
+        clean_data = re.sub("\\\\(?P<label>.+?)\{(?P<content>.*)\}", _sub_call, clean_data)
 
         return clean_data
 
@@ -135,20 +145,21 @@ class LatexExtract:
 
     def run(self, source_file_path):
         total_result = list()
-        for each_file in ("chap-{}.tex".format(x) for x in ["intro", "tech", "implement", "analysis", "faq"]):
+        # for each_file in ("chap-{}.tex".format(x) for x in ["intro", "tech", "implement", "analysis", "faq"]):
+        for each_file in ("chap-{}.tex".format(x) for x in ["analysis"]):
             with open(os.path.join(source_file_path, each_file), "rt", encoding="gb18030") as f:
                 data = f.read()
                 print("[*] 从 {file_name} 中提取内容完成".format(file_name=each_file))
 
                 total_result.append(self.extract_content(data))
         print("[*] 所有内容提取完毕, 总共 {} 字".format(sum(len(x) for x in total_result)))
-        return "\n\n".join(total_result)
+        return "\n\n\n".join(total_result)
 
 
 if __name__ == "__main__":
     source_file_dir = "source_file"
 
     le = LatexExtract()
-    total_result = le.run(source_file_dir)
+    full_text = le.run(source_file_dir)
     with open("final_result.txt", "wt") as result_file_io:
-        result_file_io.write(total_result)
+        result_file_io.write(full_text)
