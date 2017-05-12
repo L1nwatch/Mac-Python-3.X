@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 尝试使用 selenium 进行评测工作
 
+2017.05.12 统一 MRR 和 Precision 都采用主域名进行评估
 2017.05.06 完成 MRR 和 precision 流程的全部计算工作
 2017.05.06 修改评测的测试代码, 使其兼容最新的链接关系库
 2017.04.08 补充完成 precision 的计算工作
@@ -19,22 +20,14 @@ need_test = False
 mrr_test_data = {
     "张筱雨": "news.163.com",
     "接吻技巧": "life.people.com.cn",
-    # "美女走光": "news.163.com",
-    # "作爱": "news.sohu.com",
     "一本道": "news.sohu.com",
-    # "我淫我色": ["hi.people.com.cn", "media.people.com.cn"],
     "春节放假通知": "news.sohu.com",
-    # "成人图片": "news.sohu.com",
     "电信重组": "it.people.com.cn",
     "陈良宇": "news.ifeng.com",
-    # "做爱图片": ["pic.people.com.cn", "news.sohu.com", "news.163.com", "pic.people.com.cn"],
     "璩美凤": "news.sohu.com",
-    # "情色小说": "news.sohu.com",
     "美国大选": "news.ifeng.com",
-    # "mm美图": ["news.163.com", "it.people.com.cn"],
     "春节放假": "news.sohu.com",
     "人民网": "www.people.com.cn",
-    # "色情电影": "www.people.com.cn",
     "台湾新闻": "news.ifeng.com",
     "99bb": "news.sohu.com",
     "大雪无情人有情": "tv.people.com.cn",
@@ -144,15 +137,19 @@ class AnalysisTest(unittest.TestCase):
             [right_answer in my_results for right_answer in right_results]
         ))
 
-    @staticmethod
-    def index_in_list_text(a_list, content):
-        for i, each in enumerate(a_list):
-            if isinstance(content, list):
-                for each_content in content:
-                    if each_content in each.text:
-                        return i
-            elif content in each.text:
-                return i
+    def index_in_list_text(self, a_list, evaluate_sub_domain):
+        """
+        辅助 MRR 计算用的, 在搜索结果中查找第一个相关结果
+        :param a_list: list(), 搜索结果
+        :param evaluate_sub_domain: list() or str(), 用于评估的相关结果
+        :return: int(), 第一个索引的位置
+        """
+        evaluate_domain = self.get_evaluate_main_domain(evaluate_sub_domain)
+
+        for i, each_result in enumerate(a_list):
+            for each_main_domain in evaluate_domain:
+                if each_main_domain in each_result.text:
+                    return i
 
     @staticmethod
     def get_evaluate_main_domain(evaluate_sub_domain):
