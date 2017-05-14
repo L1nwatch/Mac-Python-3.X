@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 尝试使用 selenium 进行评测工作
 
+2017.05.14 修改 MRR, 现在是采用主域名进行评估
 2017.05.12 统一 MRR 和 Precision 都采用主域名进行评估
 2017.05.06 完成 MRR 和 precision 流程的全部计算工作
 2017.05.06 修改评测的测试代码, 使其兼容最新的链接关系库
@@ -211,8 +212,7 @@ class AnalysisTest(unittest.TestCase):
             if index is None:
                 hits_current_value = "-"
             else:
-                hits_mrr_result.append(fractions.Fraction(1, index + 1))
-                hits_current_value = hits_mrr_result[-1]
+                hits_current_value = fractions.Fraction(1, index + 1)
 
             # 进行 PageRank 的 MRR 计算
             page_rank_results = self.browser.find_elements_by_id("id_page_rank_result")
@@ -220,14 +220,15 @@ class AnalysisTest(unittest.TestCase):
             if index is None:
                 page_rank_current_value = "-"
             else:
-                page_rank_mrr_result.append(fractions.Fraction(1, index + 1))
-                page_rank_current_value = page_rank_mrr_result[-1]
-
+                page_rank_current_value = fractions.Fraction(1, index + 1)
             if visible:
                 str_format = "[*] 找到词汇: {}, HITS-MRR 为: {}, PageRank-MRR 为: {}"
             else:
                 str_format = "{}\t{}\t{}"
             print(str_format.format(each_keyword, hits_current_value, page_rank_current_value))
+            if hits_current_value != "-" and page_rank_current_value != "-":
+                hits_mrr_result.append(hits_current_value)
+                page_rank_mrr_result.append(page_rank_current_value)
 
         if visible:
             str_format1 = "[*] 最终计算 HITS 的 MRR 为: {:.2f}"
@@ -235,10 +236,11 @@ class AnalysisTest(unittest.TestCase):
         else:
             str_format1 = "最终计算\t{:.2f}"
             str_format2 = "\t{:.2f}"
+
         print(str_format1.format(float(sum(hits_mrr_result) / len(hits_mrr_result))), end="")
         print(str_format2.format(float(sum(page_rank_mrr_result) / len(page_rank_mrr_result))))
 
-    @unittest.skipUnless(True, "要进行查准率(precision)计算的话才改为 True")
+    @unittest.skipUnless(False, "要进行查准率(precision)计算的话才改为 True")
     def test_precision_algorithm(self, visible=False):
         """
         这不是测试, 而是进行查准率计算
