@@ -240,7 +240,7 @@ class AnalysisTest(unittest.TestCase):
         print(str_format1.format(float(sum(hits_mrr_result) / len(hits_mrr_result))), end="")
         print(str_format2.format(float(sum(page_rank_mrr_result) / len(page_rank_mrr_result))))
 
-    @unittest.skipUnless(False, "要进行查准率(precision)计算的话才改为 True")
+    @unittest.skipUnless(True, "要进行查准率(precision)计算的话才改为 True")
     def test_precision_algorithm(self, visible=False):
         """
         这不是测试, 而是进行查准率计算
