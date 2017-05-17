@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 针对提取脚本作测试
 
+2017.05.17 补充表格语法的提取测试
 2017.05.11 修复在提取 $$ 语句时的 BUG
 2017.05.10 补充 equation 标签的测试、以及 enumerate 的提取修复 BUG
 2017.05.03 增加对 displaymath、lst input listing、$$ 等语法的处理的测试代码
@@ -16,6 +17,50 @@ __author__ = '__L1n__w@tch'
 class TestExtract(unittest.TestCase):
     def setUp(self):
         self.le = LatexExtract()
+
+    def test_get_each_segment_can_del_with_table(self):
+        test_data = r"""\begin{table}[htbp]
+\caption{实验环境}
+\label{tab:development_environment}
+\centering
+\begin{tabular}{c|l}
+\hline
+类别 & 内容 \\
+\hline
+处理器 & 2.9 GHz Intel Core i5 \\
+内存 & 8~GB \\
+操作系统 & OS X 10.10.5 \\
+服务器 & Tomcatv7 \\
+Lucene 版本 & Lucene~v4.3 \\
+语言版本 & Python3、Java1.8 \\
+\hline
+\end{tabular}
+\end{table}"""
+        right_answer = [("table", test_data)]
+        my_answer = self.le.get_each_segment(test_data)
+        self.assertEqual(right_answer, list(my_answer))
+
+    def test_extract_table(self):
+        test_data = r"""\begin{table}[htbp]
+\caption{实验环境}
+\label{tab:development_environment}
+\centering
+\begin{tabular}{c|l}
+\hline
+类别 & 内容 \\
+\hline
+处理器 & 2.9 GHz Intel Core i5 \\
+内存 & 8~GB \\
+操作系统 & OS X 10.10.5 \\
+服务器 & Tomcatv7 \\
+Lucene 版本 & Lucene~v4.3 \\
+语言版本 & Python3、Java1.8 \\
+\hline
+\end{tabular}
+\end{table}"""
+        right_answer = "实验环境\n类别 & 内容\n处理器 & 2.9 GHz Intel Core i5\n内存 & 8~GB\n操作系统 & OS X 10.10.5\n服务器 & Tomcatv7\nLucene 版本 & Lucene~v4.3\n语言版本 & Python3、Java1.8"
+        my_answer = self.le.extract_content_from_table(test_data)
+        self.assertEqual(right_answer, my_answer)
 
     def test_extract_figure(self):
         """

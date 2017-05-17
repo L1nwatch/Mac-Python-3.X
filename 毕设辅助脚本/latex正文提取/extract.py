@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 自己写的论文是 LaTex 格式, 论文查重需要文本内容, 所以还是写个脚本来提取好了
 
+2017.05.17 补充提取表格语句的相关代码实现
 2017.05.11 修复在提取 $$ 语句时的 BUG
 2017.05.10 补充 equation 标签的过滤、以及针对 itemize 和 enumerate 的提取修复 BUG
 2017.05.03 增加对 displaymath、lst input listing、$$ 等语法的处理
@@ -102,7 +103,7 @@ class LatexExtract:
                 segment.append(each_line)
                 # 迭代到 end 位置
                 each_line = next(lines)
-                while r"\end" not in each_line:
+                while not each_line.lstrip().startswith(r"\end{{{}}}".format(types)):
                     segment.append(each_line)
                     each_line = next(lines)
                 segment.append(each_line)
@@ -120,6 +121,20 @@ class LatexExtract:
 
             each_line = next(lines, None)
 
+    def extract_content_from_table(self, segment):
+        """
+        提取 table 字段的内容, 例子参考 test 文件
+        :param segment: str(), 比如 "\begin{table}[htbp]...\end{tabular}"
+        :return: str(), 表格里面的所有内容
+        """
+        result = list()
+        for each_line in segment.splitlines():
+            if each_line.lstrip().startswith(r"\caption"):
+                result.append(self.clear_tag(each_line))
+            elif each_line.endswith(r"\\"):
+                result.append(each_line.strip(r" \\"))
+        return "\n".join(result)
+
     def extract_content(self, content):
         """
         实现提取正文内容, 删除标签信息等
@@ -136,6 +151,8 @@ class LatexExtract:
                 result.append(self.extract_content_from_itemize(each_segment))
             elif types.lower() in ("label", "displaymath", "equation"):
                 continue
+            elif types.lower() == "table":
+                result.append(self.extract_content_from_table(each_segment))
             elif types.lower() == "Unknown":
                 raise ("[-] 未知类型: {}".format(each_segment))
             else:
@@ -145,8 +162,7 @@ class LatexExtract:
 
     def run(self, source_file_path):
         total_result = list()
-        # for each_file in ("chap-{}.tex".format(x) for x in ["intro", "tech", "implement", "analysis", "faq"]):
-        for each_file in ("chap-{}.tex".format(x) for x in ["analysis"]):
+        for each_file in ("chap-{}.tex".format(x) for x in ["intro", "tech", "implement", "analysis", "faq"]):
             with open(os.path.join(source_file_path, each_file), "rt", encoding="gb18030") as f:
                 data = f.read()
                 print("[*] 从 {file_name} 中提取内容完成".format(file_name=each_file))
