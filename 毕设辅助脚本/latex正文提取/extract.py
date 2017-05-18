@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 自己写的论文是 LaTex 格式, 论文查重需要文本内容, 所以还是写个脚本来提取好了
 
+2017.05.18 补充添加序号的功能
 2017.05.18 修复 clear tag 的一个 BUG, 修复 math 提取的 BUG
 2017.05.17 补充提取表格语句的相关代码实现
 2017.05.11 修复在提取 $$ 语句时的 BUG
@@ -17,6 +18,12 @@ __author__ = '__L1n__w@tch'
 
 
 class LatexExtract:
+    def __init__(self):
+        self.chapter_level = 0
+        self.section_level = 0
+        self.subsection_level = 0
+        self.subsubsection_level = 0
+
     @staticmethod
     def clear_tag(raw_data):
         """
@@ -91,7 +98,7 @@ class LatexExtract:
         """
         实现分段操作
         :param raw_data: str(), 比如 "\\chapter{评测分析}\n\\section{实验环境}\n"
-        :return: 生成器 yield 结果, 比如 ["\\chapter{评测分析}", "\\section{实验环境}"]
+        :return: 生成器 yield 结果, 比如 [("chapter","\\chapter{评测分析}"), ("section", "\\section{实验环境}")]
         """
         lines = iter(raw_data.split("\n"))
         each_line = next(lines, None)
@@ -113,9 +120,16 @@ class LatexExtract:
             # 如果是注释语句就忽略
             elif each_line.lstrip().startswith("%"):
                 pass
-
             elif r"\label" in each_line:
                 yield "label", each_line
+            elif r"\chapter" in each_line:
+                yield "chapter", each_line
+            elif r"\section" in each_line:
+                yield "section", each_line
+            elif r"\subsection" in each_line:
+                yield "subsection", each_line
+            elif r"\subsubsection" in each_line:
+                yield "subsubsection", each_line
 
             elif each_line != "":
                 yield "text", each_line
@@ -136,11 +150,47 @@ class LatexExtract:
                 result.append(each_line.strip(r" \\"))
         return "\n".join(result)
 
+    def add_order(self, segment, types):
+        """
+        为对应的标题语句添加序号
+        :param types: str(), 比如 "chapter"
+        :param segment: str(), 比如 r"\chapter{评测分析}"
+        :return: "第一章 评测分析"
+        """
+        content = re.findall(".+\{(.+)\}", segment)[0]
+
+        if types == "chapter":
+            self.chapter_level += 1
+            self.section_level, self.subsection_level, self.subsubsection_level = 0, 0, 0
+            return "第{}章 {}".format(self.covert_number_to_chinese(self.chapter_level), content)
+        elif types == "section":
+            self.section_level += 1
+            self.subsection_level, self.subsubsection_level = 0, 0
+            return "{}.{} {}".format(self.chapter_level, self.section_level, content)
+        elif types == "subsection":
+            self.subsection_level += 1
+            self.subsubsection_level = 0
+            return "{}.{}.{} {}".format(self.chapter_level, self.section_level, self.subsection_level, content)
+        elif types == "subsubsection":
+            self.subsubsection_level += 1
+            return "{}.{}.{}.{} {}".format(self.chapter_level, self.section_level,
+                                           self.subsection_level, self.subsubsection_level, content)
+
+    @staticmethod
+    def covert_number_to_chinese(number):
+        """
+        将数字转换为对应的中文
+        :param number: int(), 比如 1
+        :return: str(), 比如 "一"
+        """
+        chinese = ["一", "二", "三", "四", "五", "六"]
+        return chinese[number - 1]
+
     def extract_content(self, content):
         """
         实现提取正文内容, 删除标签信息等
-        :param content: str(), 比如 "\\chapter{评测分析}"
-        :return: "评测分析\n"
+        :param content: str(), 比如 r"\chapter{评测分析}"
+        :return: "第一章 评测分析\n"
         """
         result = list()
 
@@ -156,6 +206,8 @@ class LatexExtract:
                 result.append(self.extract_content_from_table(each_segment))
             elif types.lower() == "Unknown":
                 raise ("[-] 未知类型: {}".format(each_segment))
+            elif types.lower() in ("chapter", "section", "subsection", "subsubsection", "section"):
+                result.append(self.add_order(each_segment, types))
             else:
                 result.append(each_segment)
 

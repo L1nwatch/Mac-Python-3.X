@@ -286,28 +286,76 @@ Lucene~是~Apache~Software~Foundation~的一个免费信息检索软件库\cite{
         """
         测试能够正确添加序号
         """
-        self.le.chapter_level = 1
+        self.le.chapter_level = 0
         test_data = r"\chapter{总结与展望}"
         right_answer = "第一章 总结与展望"
-        my_answer = self.le.add_order(test_data)
+        my_answer = self.le.add_order(test_data, "chapter")
         self.assertEqual(right_answer, my_answer)
 
-        self.le.chapter_level, self.le.section_level = 1, 1
+        self.le.chapter_level, self.le.section_level = 1, 0
         test_data = r"\section{总结与展望}"
         right_answer = "1.1 总结与展望"
-        my_answer = self.le.add_order(test_data)
+        my_answer = self.le.add_order(test_data, "section")
         self.assertEqual(right_answer, my_answer)
 
-        self.le.chapter_level, self.le.section_level, self.subsection_level = 1, 1, 1
+        self.le.chapter_level, self.le.section_level, self.subsection_level = 1, 1, 0
         test_data = r"\subsection{总结与展望}"
         right_answer = "1.1.1 总结与展望"
-        my_answer = self.le.add_order(test_data)
+        my_answer = self.le.add_order(test_data, "subsection")
         self.assertEqual(right_answer, my_answer)
 
-        self.le.chapter_level, self.le.section_level, self.subsection_level, self.subsubsection_level = 1, 1, 1, 1
+        self.le.chapter_level, self.le.section_level, self.subsection_level, self.subsubsection_level = 1, 1, 1, 0
         test_data = r"\subsubsection{总结与展望}"
         right_answer = "1.1.1.1 总结与展望"
-        my_answer = self.le.add_order(test_data)
+        my_answer = self.le.add_order(test_data, "subsubsection")
+        self.assertEqual(right_answer, my_answer)
+
+    def test_add_order_can_reset(self):
+        """
+        当进入下一个章节时, section 等的序号应该清空, 这里编写代码进行对应测试
+        """
+        self.le.chapter_level = 0
+        test_data = r"\chapter{总结与展望}"
+        right_answer = "第一章 总结与展望"
+        my_answer = self.le.add_order(test_data, "chapter")
+        self.assertEqual(right_answer, my_answer)
+
+        self.le.section_level = 0
+        test_data = r"\section{总结与展望}"
+        right_answer = "1.1 总结与展望"
+        my_answer = self.le.add_order(test_data, "section")
+        self.assertEqual(right_answer, my_answer)
+
+        self.le.subsection_level = 0
+        test_data = r"\subsection{总结与展望}"
+        right_answer = "1.1.1 总结与展望"
+        my_answer = self.le.add_order(test_data, "subsection")
+        self.assertEqual(right_answer, my_answer)
+
+        self.le.subsubsection_level = 0
+        test_data = r"\subsubsection{总结与展望}"
+        right_answer = "1.1.1.1 总结与展望"
+        my_answer = self.le.add_order(test_data, "subsubsection")
+        self.assertEqual(right_answer, my_answer)
+
+        test_data = r"\section{总结与展望}"
+        right_answer = "1.2 总结与展望"
+        my_answer = self.le.add_order(test_data, "section")
+        self.assertEqual(right_answer, my_answer)
+
+        test_data = r"\subsection{总结与展望}"
+        right_answer = "1.2.1 总结与展望"
+        my_answer = self.le.add_order(test_data, "subsection")
+        self.assertEqual(right_answer, my_answer)
+
+        test_data = r"\subsubsection{总结与展望}"
+        right_answer = "1.2.1.1 总结与展望"
+        my_answer = self.le.add_order(test_data, "subsubsection")
+        self.assertEqual(right_answer, my_answer)
+
+        test_data = r"\chapter{总结与展望}"
+        right_answer = "第二章 总结与展望"
+        my_answer = self.le.add_order(test_data, "chapter")
         self.assertEqual(right_answer, my_answer)
 
     def test_covert_number_to_chinese(self):
