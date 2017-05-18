@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 尝试使用 selenium 进行评测工作
 
+2017.05.18 修改 MRR 和 Precision, 现在只显示两个算法都有对应数值的评测结果
 2017.05.14 修改 MRR, 现在是采用主域名进行评估
 2017.05.12 统一 MRR 和 Precision 都采用主域名进行评估
 2017.05.06 完成 MRR 和 precision 流程的全部计算工作
@@ -225,10 +226,11 @@ class AnalysisTest(unittest.TestCase):
                 str_format = "[*] 找到词汇: {}, HITS-MRR 为: {}, PageRank-MRR 为: {}"
             else:
                 str_format = "{}\t{}\t{}"
-            print(str_format.format(each_keyword, hits_current_value, page_rank_current_value))
+
             if hits_current_value != "-" and page_rank_current_value != "-":
                 hits_mrr_result.append(hits_current_value)
                 page_rank_mrr_result.append(page_rank_current_value)
+                print(str_format.format(each_keyword, hits_current_value, page_rank_current_value))
 
         if visible:
             str_format1 = "[*] 最终计算 HITS 的 MRR 为: {:.2f}"
@@ -258,26 +260,24 @@ class AnalysisTest(unittest.TestCase):
             # 进行 HITS 的 Precision 计算
             self.do_search(each_keyword)
             hits_results = self.browser.find_elements_by_id("id_hits_result")
-            # 对 HITS 计算 ni / 20, 保存下来
-            hits_precision_result.append(
-                fractions.Fraction(self.count_related_in_list_text(hits_results, each_related), len(hits_results))
-            )
+            # 对 HITS 计算 ni / 20, 如果不为 0 则保存下来
+            hits_current_result = self.count_related_in_list_text(hits_results, each_related)
 
             # 进行 PageRank 的 Precision 计算
             pagerank_results = self.browser.find_elements_by_id("id_page_rank_result")
-            # 对 PageRank 计算 ni / 20, 保存下来
-            pagerank_precision_result.append(
-                fractions.Fraction(
-                    self.count_related_in_list_text(pagerank_results, each_related), len(pagerank_results)
-                )
-            )
+            # 对 PageRank 计算 ni / 20, 如果不为 0 则保存下来
+            page_rank_current_result = self.count_related_in_list_text(pagerank_results, each_related)
+
             if visible:
                 str_format = "[*] 针对 '{}', HITS 匹配 {hits}, PageRank 匹配 {pagerank}"
             else:
                 str_format = "{hits}\t{pagerank}"
-            print(str_format.format(each_keyword,
-                                    hits=hits_precision_result[-1],
-                                    pagerank=pagerank_precision_result[-1]))
+
+            if hits_current_result != 0 and page_rank_current_result != 0:
+                hits_precision_result.append(fractions.Fraction(hits_current_result, len(hits_results)))
+                pagerank_precision_result.append(fractions.Fraction(page_rank_current_result, len(pagerank_results)))
+
+                print(str_format.format(each_keyword, hits=hits_current_result, pagerank=page_rank_current_result))
 
         # 进行 P 值计算
         if visible:
