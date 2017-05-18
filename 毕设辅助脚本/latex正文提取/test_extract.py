@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 针对提取脚本作测试
 
+2017.05.18 补充数字与中文的转换, 还有添加序号的测试
 2017.05.18 补充 item 中多个标签的获取测试, 其实是 clear tag 出了问题, 修复 math 测试的 BUG
 2017.05.17 补充表格语法的提取测试
 2017.05.11 修复在提取 $$ 语句时的 BUG
@@ -81,15 +82,32 @@ Lucene 版本 & Lucene~v4.3 \\
         my_answer = self.le.extract_content_from_figure(test_data)
         self.assertEqual(right_answer, my_answer)
 
+    def test_get_each_segment_can_deal_with_level(self):
+        """
+        测试能够添加标题序号
+        """
+        test_data = r"""\chapter{总结与展望}
+\section{总结}
+\subsection{aaa}
+\subsubsection{bbb}
+\section{展望}"""
+        right_answer = [("chapter", "\chapter{总结与展望}"),
+                        ("section", "\section{总结}"),
+                        ("subsection", "\subsection{aaa}"),
+                        ("subsubsection", "\subsubsection{bbb}"),
+                        ("section", "\section{展望}")]
+        my_answer = self.le.get_each_segment(test_data)
+        self.assertEqual(right_answer, list(my_answer))
+
     def test_get_each_segment_can_work(self):
         """
         能够自动提取代码段, 比如说 figure 代码段
         :return:
         """
         test_data = """\chapter{相关技术和理论}\n\label{chap:technology}\n接下来介绍以下本文所涉及到的相关技术和理论知识，主要是搜索平台框架~Lucene~、针对中文的分词器、网页排序的算法介绍等。\n\section{Lucene~简介}"""
-        right_answer = [("text", "\chapter{相关技术和理论}"), ("label", "\label{chap:technology}"),
+        right_answer = [("chapter", "\chapter{相关技术和理论}"), ("label", "\label{chap:technology}"),
                         ("text", "接下来介绍以下本文所涉及到的相关技术和理论知识，主要是搜索平台框架~Lucene~、针对中文的分词器、网页排序的算法介绍等。"),
-                        ("text", "\section{Lucene~简介}")]
+                        ("section", "\section{Lucene~简介}")]
         my_answer = self.le.get_each_segment(test_data)
         self.assertEqual(right_answer, list(my_answer))
 
@@ -107,7 +125,7 @@ Lucene~是~Apache~Software~Foundation~的一个免费信息检索软件库\cite{
         \label{fig:lucene_system}
     \end{figure}"""
 
-        right_answer = [("text", "\subsection{Lucene~介绍}"),
+        right_answer = [("subsection", "\subsection{Lucene~介绍}"),
                         ("text",
                          r"Lucene~是~Apache~Software~Foundation~的一个免费信息检索软件库\cite{lucene_introduce}。Lucene~提供了索引引擎以及查询引擎，以便支持全文检索功能。它使用了高度优化的倒排索引结构，并支持增量索引\cite{lucene_introduce2}，具有性能高、可扩展等特点。整个~Apache~的系统结构可以用下图 \ref{fig:lucene_system} 表示："),
                         ("figure",
@@ -263,6 +281,39 @@ Lucene~是~Apache~Software~Foundation~的一个免费信息检索软件库\cite{
         right_answer = "equation"
         my_answer = self.le.get_types_from_begin(test_data)
         self.assertEqual(right_answer, my_answer)
+
+    def test_add_order(self):
+        """
+        测试能够正确添加序号
+        """
+        self.le.chapter_level = 1
+        test_data = r"\chapter{总结与展望}"
+        right_answer = "第一章 总结与展望"
+        my_answer = self.le.add_order(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+        self.le.chapter_level, self.le.section_level = 1, 1
+        test_data = r"\section{总结与展望}"
+        right_answer = "1.1 总结与展望"
+        my_answer = self.le.add_order(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+        self.le.chapter_level, self.le.section_level, self.subsection_level = 1, 1, 1
+        test_data = r"\subsection{总结与展望}"
+        right_answer = "1.1.1 总结与展望"
+        my_answer = self.le.add_order(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+        self.le.chapter_level, self.le.section_level, self.subsection_level, self.subsubsection_level = 1, 1, 1, 1
+        test_data = r"\subsubsection{总结与展望}"
+        right_answer = "1.1.1.1 总结与展望"
+        my_answer = self.le.add_order(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+    def test_covert_number_to_chinese(self):
+        right_answer = ["一", "二", "三", "四", "五"]
+        for i in range(1, len(right_answer) + 1):
+            self.assertEqual(right_answer[i - 1], self.le.covert_number_to_chinese(i))
 
 
 if __name__ == "__main__":
