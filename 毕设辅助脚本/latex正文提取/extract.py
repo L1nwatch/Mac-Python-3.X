@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 自己写的论文是 LaTex 格式, 论文查重需要文本内容, 所以还是写个脚本来提取好了
 
+2017.05.18 修复 clear tag 的一个 BUG
 2017.05.17 补充提取表格语句的相关代码实现
 2017.05.11 修复在提取 $$ 语句时的 BUG
 2017.05.10 补充 equation 标签的过滤、以及针对 itemize 和 enumerate 的提取修复 BUG
@@ -41,7 +42,7 @@ class LatexExtract:
             return content
 
         clean_data = re.sub("\$(?P<content>.+?)\$", _math_clean, raw_data)
-        clean_data = re.sub("\\\\(?P<label>.+?)\{(?P<content>.*)\}", _sub_call, clean_data)
+        clean_data = re.sub("\\\\(?P<label>.+?)\{(?P<content>.*?)\}", _sub_call, clean_data)
 
         return clean_data
 

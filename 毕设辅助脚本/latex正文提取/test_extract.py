@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 针对提取脚本作测试
 
+2017.05.18 补充 item 中多个标签的获取测试, 其实是 clear tag 出了问题
 2017.05.17 补充表格语法的提取测试
 2017.05.11 修复在提取 $$ 语句时的 BUG
 2017.05.10 补充 equation 标签的测试、以及 enumerate 的提取修复 BUG
@@ -129,6 +130,7 @@ Lucene~是~Apache~Software~Foundation~的一个免费信息检索软件库\cite{
         验证提取 itemize 中的内容
         :return:
         """
+        # 基本的 itemize 获取测试
         test_data = """
 \\begin{itemize}
 \\item \\textbf{各种供外部使用的~API~}：开发人员调用这些~API~可以进行搜索、分析，以及进一步对搜索结果进行处理等。
@@ -144,6 +146,7 @@ Lucene~是~Apache~Software~Foundation~的一个免费信息检索软件库\cite{
         my_answer = my_answer.replace(" ", "").strip()
         self.assertEqual(right_answer, my_answer)
 
+        # 含换行符的 itemize 获取测试
         test_data = r"""\begin{enumerate}
   \item 互联网现状及搜索技术的了解学习
 
@@ -167,6 +170,22 @@ Lucene~是~Apache~Software~Foundation~的一个免费信息检索软件库\cite{
             "搜索技术的研究与实现\n\n~~~~学习并掌握开源搜索框架~Lucene~的各个模块功能、内部机制及其接口调用、了解各个现有中文分词器优劣并实现、运用~B/S~架构结合相关编程语言搭建~Web~ 交互服务器，并最终搭建起了中文搜索平台。",
             "网页排序算法的研究与实现\n\n~~~~研究学习~4~种网页排序算法：基于传统~IR~的内容分析排序、基于发布者信息的排序、基于用户信息的排序、基于标注信息的排序；重点学习并实现了经典的基于超链分析的~HITS~以及~PageRank~排序算法。",
             "检索性能的评测分析\n\n~~~~了解信息检索领域常用的性能评价指标：平均准确率（MAP）、平均排序倒数（MRR）、准确率（Precision）、召回率（Recall）；学习使用~Selenium~框架模拟用户操作实现评估流程；采用~MRR~及~Precision~指标并根据评估数据对~HITS~以及~PageRank~进行评测分析对比。"
+        ])
+        my_answer = self.le.extract_content_from_itemize(test_data)
+        right_answer = right_answer.replace(" ", "").strip()
+        my_answer = my_answer.replace(" ", "").strip()
+        self.assertEqual(right_answer, my_answer)
+
+        # item 中多个标签的获取测试
+        test_data = r"""\begin{itemize}
+  \item \textbf{基于字符串匹配的分词法}：亦称为机械分词或词典分词，按照一定的匹配规则对字符串进行扫描、匹配后进行切割，实现简单，但分词准确度不够；
+  \item \textbf{基于统计学的分词法}：包括期望最大值算法、变长分词方法等，能够有效识别歧义与新词等，但需要大量训练；
+  \item \textbf{机器学习分词法}：机器学习分词法主要有专家系统分词法和神经网络分词法等\cite{lucene_index_4}，可以智能学习，但实现难度较大。
+\end{itemize}"""
+        right_answer = "\n".join([
+            "基于字符串匹配的分词法：亦称为机械分词或词典分词，按照一定的匹配规则对字符串进行扫描、匹配后进行切割，实现简单，但分词准确度不够；",
+            "基于统计学的分词法：包括期望最大值算法、变长分词方法等，能够有效识别歧义与新词等，但需要大量训练；",
+            "机器学习分词法：机器学习分词法主要有专家系统分词法和神经网络分词法等，可以智能学习，但实现难度较大。"
         ])
         my_answer = self.le.extract_content_from_itemize(test_data)
         right_answer = right_answer.replace(" ", "").strip()
@@ -200,7 +219,7 @@ Lucene~是~Apache~Software~Foundation~的一个免费信息检索软件库\cite{
         self.assertEqual(right_answer, my_answer)
 
         test_data = r'\ref{fig:internet_websites_count} \cite{aaaa}'
-        right_answer = ""
+        right_answer = " "
         my_answer = self.le.clear_tag(test_data)
         self.assertEqual(right_answer, my_answer)
 
