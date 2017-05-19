@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 自己写的论文是 LaTex 格式, 论文查重需要文本内容, 所以还是写个脚本来提取好了
 
+2017.05.19 添加提取摘要的相关测试
 2017.05.18 补充添加序号的功能
 2017.05.18 修复 clear tag 的一个 BUG, 修复 math 提取的 BUG
 2017.05.17 补充提取表格语句的相关代码实现
@@ -36,6 +37,10 @@ class LatexExtract:
             label = m.group(1)
             if label.lower() in ("label", "ref", "cite", "lstinputlisting"):
                 return str()
+            elif label.lower() == "keywords":
+                return "关键词：{}".format(m.group(2))
+            elif label.lower() == "englishkeywords":
+                return "Keywords:{}".format(m.group(2))
             else:
                 return "{}".format(m.group(2))
 
@@ -186,6 +191,29 @@ class LatexExtract:
         chinese = ["一", "二", "三", "四", "五", "六"]
         return chinese[number - 1]
 
+    @staticmethod
+    def extract_content_from_abstract(segment):
+        """
+        从摘要源文件中提取摘要正文
+        :param segment: str(), 比如 "\begin{abstract}...\end{abstract}"
+        :return: str(), 正文内容, 比如 "摘要\n..."
+        """
+        result = list()
+        for each_line in segment.splitlines():
+            # 处理 begin 语句
+            if each_line.lstrip().startswith(r"\begin"):
+                if "englishabstract" in each_line:
+                    result.append("ABSTRACT")
+                else:
+                    result.append("摘要")
+            # 处理 end 语句
+            elif each_line.lstrip().startswith(r"\end"):
+                result.append("\n")
+            else:
+                result.append(each_line)
+
+        return "\n".join(result)
+
     def extract_content(self, content):
         """
         实现提取正文内容, 删除标签信息等
@@ -202,6 +230,8 @@ class LatexExtract:
                 result.append(self.extract_content_from_itemize(each_segment))
             elif types.lower() in ("label", "displaymath", "equation"):
                 continue
+            elif types.lower() in ("abstract", "englishabstract"):
+                result.append(self.extract_content_from_abstract(each_segment))
             elif types.lower() == "table":
                 result.append(self.extract_content_from_table(each_segment))
             elif types.lower() == "Unknown":
@@ -214,8 +244,10 @@ class LatexExtract:
         return "\n".join(self.clear_tag(x.replace("~", " ")) for x in result)
 
     def run(self, source_file_path):
+        file_name = ["abstract", "intro", "tech", "implement", "analysis", "faq"]
+
         total_result = list()
-        for each_file in ("chap-{}.tex".format(x) for x in ["intro", "tech", "implement", "analysis", "faq"]):
+        for each_file in ("chap-{}.tex".format(x) for x in file_name):
             with open(os.path.join(source_file_path, each_file), "rt", encoding="gb18030") as f:
                 data = f.read()
                 print("[*] 从 {file_name} 中提取内容完成".format(file_name=each_file))

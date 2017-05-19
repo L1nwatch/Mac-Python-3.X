@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 针对提取脚本作测试
 
+2017.05.19 添加提取摘要的相关代码实现
 2017.05.18 补充数字与中文的转换, 还有添加序号的测试
 2017.05.18 补充 item 中多个标签的获取测试, 其实是 clear tag 出了问题, 修复 math 测试的 BUG
 2017.05.17 补充表格语法的提取测试
@@ -261,8 +262,18 @@ Lucene~是~Apache~Software~Foundation~的一个免费信息检索软件库\cite{
         my_answer = self.le.clear_tag(test_data)
         self.assertEqual(right_answer, my_answer)
 
-        test_data = "\lstinputlisting{aaa}"
+        test_data = r"\lstinputlisting{aaa}"
         right_answer = str()
+        my_answer = self.le.clear_tag(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+        test_data = r"\keywords{HITS，超链分析，网页排序，Lucene}"
+        right_answer = "关键词：HITS，超链分析，网页排序，Lucene"
+        my_answer = self.le.clear_tag(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+        test_data = r"\englishkeywords{HITS, Hyperlink~Analysis, Web~Rank, Lucene}"
+        right_answer = "Keywords:HITS, Hyperlink~Analysis, Web~Rank, Lucene"
         my_answer = self.le.clear_tag(test_data)
         self.assertEqual(right_answer, my_answer)
 
@@ -362,6 +373,46 @@ Lucene~是~Apache~Software~Foundation~的一个免费信息检索软件库\cite{
         right_answer = ["一", "二", "三", "四", "五"]
         for i in range(1, len(right_answer) + 1):
             self.assertEqual(right_answer[i - 1], self.le.covert_number_to_chinese(i))
+
+    def test_extract_content_from_abstract(self):
+        """
+        测试从摘要提取内容
+        """
+        test_data = r"""\begin{abstract}
+
+当今互联网信息量正在持续地进行爆发性增长，用户在使用~Web~搜索引擎查找所需信息时，经常发现检索结果太过冗余，往往需要人工过滤才能得到想要的信息。目前用户的需求已经不是获取更多的信息，而是想要获取更加精确、有质量的搜索结果。而基于超链分析的网页排序算法，能够在一定程度上避免手工操作，帮用户过滤掉无用的搜索结果。因此，基于超链分析的网页排序算法是信息检索领域中人们重点关注的方向之一。
+
+本文对互联网现状、互联网网站的发展趋势，以及搜索技术比如搜索方式、搜索难题、网页排序算法等进行了了解和学习。考虑到超链分析在互联网搜索这一领域中所具有的特殊地位，本文重点研究了~HITS~算法并在现有开源框架~Lucene~上搭建了中文搜索平台，将这一网页排序算法嵌入到检索流程之中，同时进行了评测工作，通过平均排序倒数（MRR）以及查准率（Precision）指标，与~PageRank~排序算法进行对比，研究~HITS~网页排序算法所存在的缺陷与不足之处，并学习及探讨其改进方向及现有改进成果。
+
+通过分析互联网中真实的超链接数据信息，发现了许多网站存在内联链接、竞争对手之间很少进行相互链接等情况。经过实验表明，虽然~HITS、PageRank~算法弥补了全文检索无法搜索到不包含关键词的好页面这一不足之处，但它们均容易受到恶意链接的干扰，导致网页排名不公平。通过观察评测结果，发现当内链数目较多时，~HITS~算法在实验中的表现要优于~PageRank~算法；而当外链数目较多时，~PageRank~算法的表现要优于~HITS~算法。
+
+\keywords{HITS，超链分析，网页排序，Lucene}
+\end{abstract}
+"""
+        right_answer = r"""摘要
+
+当今互联网信息量正在持续地进行爆发性增长，用户在使用~Web~搜索引擎查找所需信息时，经常发现检索结果太过冗余，往往需要人工过滤才能得到想要的信息。目前用户的需求已经不是获取更多的信息，而是想要获取更加精确、有质量的搜索结果。而基于超链分析的网页排序算法，能够在一定程度上避免手工操作，帮用户过滤掉无用的搜索结果。因此，基于超链分析的网页排序算法是信息检索领域中人们重点关注的方向之一。
+
+本文对互联网现状、互联网网站的发展趋势，以及搜索技术比如搜索方式、搜索难题、网页排序算法等进行了了解和学习。考虑到超链分析在互联网搜索这一领域中所具有的特殊地位，本文重点研究了~HITS~算法并在现有开源框架~Lucene~上搭建了中文搜索平台，将这一网页排序算法嵌入到检索流程之中，同时进行了评测工作，通过平均排序倒数（MRR）以及查准率（Precision）指标，与~PageRank~排序算法进行对比，研究~HITS~网页排序算法所存在的缺陷与不足之处，并学习及探讨其改进方向及现有改进成果。
+
+通过分析互联网中真实的超链接数据信息，发现了许多网站存在内联链接、竞争对手之间很少进行相互链接等情况。经过实验表明，虽然~HITS、PageRank~算法弥补了全文检索无法搜索到不包含关键词的好页面这一不足之处，但它们均容易受到恶意链接的干扰，导致网页排名不公平。通过观察评测结果，发现当内链数目较多时，~HITS~算法在实验中的表现要优于~PageRank~算法；而当外链数目较多时，~PageRank~算法的表现要优于~HITS~算法。
+
+\keywords{HITS，超链分析，网页排序，Lucene}
+
+"""
+        my_answer = self.le.extract_content_from_abstract(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+        test_data = r"""\begin{englishabstract}
+\englishkeywords{HITS, Hyperlink~Analysis, Web~Rank, Lucene}
+\end{abstract}
+"""
+        right_answer = r"""ABSTRACT
+\englishkeywords{HITS, Hyperlink~Analysis, Web~Rank, Lucene}
+
+"""
+        my_answer = self.le.extract_content_from_abstract(test_data)
+        self.assertEqual(right_answer, my_answer)
 
 
 if __name__ == "__main__":
