@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 针对提取脚本作测试
 
+2017.05.20 补充关于提取图表时添加序号的测试
 2017.05.19 添加提取摘要的相关代码实现
 2017.05.18 补充数字与中文的转换, 还有添加序号的测试
 2017.05.18 补充 item 中多个标签的获取测试, 其实是 clear tag 出了问题, 修复 math 测试的 BUG
@@ -61,7 +62,8 @@ Lucene 版本 & Lucene~v4.3 \\
 \hline
 \end{tabular}
 \end{table}"""
-        right_answer = "实验环境\n类别 & 内容\n处理器 & 2.9 GHz Intel Core i5\n内存 & 8~GB\n操作系统 & OS X 10.10.5\n服务器 & Tomcatv7\nLucene 版本 & Lucene~v4.3\n语言版本 & Python3、Java1.8"
+        self.le.chapter_level, self.le.table_level = 4, 0
+        right_answer = "表 4.1 实验环境\n类别 & 内容\n处理器 & 2.9 GHz Intel Core i5\n内存 & 8~GB\n操作系统 & OS X 10.10.5\n服务器 & Tomcatv7\nLucene 版本 & Lucene~v4.3\n语言版本 & Python3、Java1.8"
         my_answer = self.le.extract_content_from_table(test_data)
         self.assertEqual(right_answer, my_answer)
 
@@ -79,7 +81,8 @@ Lucene 版本 & Lucene~v4.3 \\
 \\caption{系统结构}
 \\label{fig:lucene_system}
 \\end{figure}"""
-        right_answer = "系统结构"
+        self.le.chapter_level, self.le.figure_level = 1, 0
+        right_answer = "图 1.1 系统结构"
         my_answer = self.le.extract_content_from_figure(test_data)
         self.assertEqual(right_answer, my_answer)
 

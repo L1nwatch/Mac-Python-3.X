@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 自己写的论文是 LaTex 格式, 论文查重需要文本内容, 所以还是写个脚本来提取好了
 
+2017.05.20 提取图表时添加序号的代码实现
 2017.05.19 添加提取摘要的相关测试
 2017.05.18 补充添加序号的功能
 2017.05.18 修复 clear tag 的一个 BUG, 修复 math 提取的 BUG
@@ -24,6 +25,8 @@ class LatexExtract:
         self.section_level = 0
         self.subsection_level = 0
         self.subsubsection_level = 0
+        self.figure_level = 0
+        self.table_level = 0
 
     @staticmethod
     def clear_tag(raw_data):
@@ -67,15 +70,15 @@ class LatexExtract:
         """
         return str()
 
-    @staticmethod
-    def extract_content_from_figure(segment):
+    def extract_content_from_figure(self, segment):
         """
         从 figure 段中提取信息, 只提取 caption 信息
         :param segment: str(), 比如 "\\begin{figure}...\\end{figure}"
         :return: str(), 比如 "系统结构"
         """
         re_result = re.findall("\\\\caption{(.*)}", segment, flags=re.IGNORECASE)
-        return re_result[0]
+        self.figure_level += 1
+        return "图 {}.{} {}".format(self.chapter_level, self.figure_level, re_result[0])
 
     def extract_content_from_itemize(self, segment):
         """
@@ -150,7 +153,8 @@ class LatexExtract:
         result = list()
         for each_line in segment.splitlines():
             if each_line.lstrip().startswith(r"\caption"):
-                result.append(self.clear_tag(each_line))
+                self.table_level += 1
+                result.append("表 {}.{} {}".format(self.chapter_level, self.table_level, self.clear_tag(each_line)))
             elif each_line.endswith(r"\\"):
                 result.append(each_line.strip(r" \\"))
         return "\n".join(result)
@@ -167,6 +171,7 @@ class LatexExtract:
         if types == "chapter":
             self.chapter_level += 1
             self.section_level, self.subsection_level, self.subsubsection_level = 0, 0, 0
+            self.figure_level, self.table_level = 0, 0
             return "第{}章 {}".format(self.covert_number_to_chinese(self.chapter_level), content)
         elif types == "section":
             self.section_level += 1
