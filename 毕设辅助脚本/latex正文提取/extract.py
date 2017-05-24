@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 自己写的论文是 LaTex 格式, 论文查重需要文本内容, 所以还是写个脚本来提取好了
 
+2017.05.24 补充 cite 引证的代码实现
 2017.05.20 提取图表时添加序号的代码实现
 2017.05.19 添加提取摘要的相关测试
 2017.05.18 补充添加序号的功能
@@ -27,9 +28,9 @@ class LatexExtract:
         self.subsubsection_level = 0
         self.figure_level = 0
         self.table_level = 0
+        self.cite_list = list()
 
-    @staticmethod
-    def clear_tag(raw_data):
+    def clear_tag(self, raw_data):
         """
         清除标签信息, \textbf{} 会保留花括号里面的内容, 不过 \label、\ref、\cite 就会删除花括号里面的内容
         :param raw_data: str(), 比如 "\\textbf{aaa}"
@@ -38,12 +39,17 @@ class LatexExtract:
 
         def _sub_call(m):
             label = m.group(1)
-            if label.lower() in ("label", "ref", "cite", "lstinputlisting"):
+            content = m.group(2)
+            if label.lower() in ("label", "ref", "lstinputlisting"):
                 return str()
+            elif label.lower() == "cite":
+                if content not in self.cite_list:
+                    self.cite_list.append(content)
+                return "[{}]".format(self.cite_list.index(content) + 1)
             elif label.lower() == "keywords":
-                return "关键词：{}".format(m.group(2))
+                return "关键词：{}".format(content)
             elif label.lower() == "englishkeywords":
-                return "Keywords:{}".format(m.group(2))
+                return "Keywords:{}".format(content)
             else:
                 return "{}".format(m.group(2))
 

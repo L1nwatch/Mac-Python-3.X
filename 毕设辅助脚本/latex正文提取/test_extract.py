@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 针对提取脚本作测试
 
+2017.05.24 补充 cite 引证的相关测试
 2017.05.20 补充关于提取图表时添加序号的测试
 2017.05.19 添加提取摘要的相关代码实现
 2017.05.18 补充数字与中文的转换, 还有添加序号的测试
@@ -202,7 +203,7 @@ Lucene~是~Apache~Software~Foundation~的一个免费信息检索软件库\cite{
         test_data = r"""\begin{itemize}
   \item \textbf{基于字符串匹配的分词法}：亦称为机械分词或词典分词，按照一定的匹配规则对字符串进行扫描、匹配后进行切割，实现简单，但分词准确度不够；
   \item \textbf{基于统计学的分词法}：包括期望最大值算法、变长分词方法等，能够有效识别歧义与新词等，但需要大量训练；
-  \item \textbf{机器学习分词法}：机器学习分词法主要有专家系统分词法和神经网络分词法等\cite{lucene_index_4}，可以智能学习，但实现难度较大。
+  \item \textbf{机器学习分词法}：机器学习分词法主要有专家系统分词法和神经网络分词法等，可以智能学习，但实现难度较大。
 \end{itemize}"""
         right_answer = "\n".join([
             "基于字符串匹配的分词法：亦称为机械分词或词典分词，按照一定的匹配规则对字符串进行扫描、匹配后进行切割，实现简单，但分词准确度不够；",
@@ -240,10 +241,28 @@ Lucene~是~Apache~Software~Foundation~的一个免费信息检索软件库\cite{
         my_answer = self.le.clear_tag(test_data)
         self.assertEqual(right_answer, my_answer)
 
-        test_data = r'\ref{fig:internet_websites_count} \cite{aaaa}'
+        test_data = r'\ref{fig:internet_websites_count} '
         right_answer = " "
         my_answer = self.le.clear_tag(test_data)
         self.assertEqual(right_answer, my_answer)
+
+        # 以下 3 个测试 cite 是否能够显示正确
+        self.le.cite_list.clear()
+        test_data = r'\cite{aaaa}'
+        right_answer = "[1]"
+        my_answer = self.le.clear_tag(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+        test_data = r'\cite{bbbb}'
+        right_answer = "[2]"
+        my_answer = self.le.clear_tag(test_data)
+        self.assertEqual(right_answer, my_answer)
+
+        test_data = r'\cite{aaaa}'
+        right_answer = "[1]"
+        my_answer = self.le.clear_tag(test_data)
+        self.assertEqual(right_answer, my_answer)
+        self.assertEqual(["aaaa", "bbbb"], self.le.cite_list)
 
         test_data = "$a$"
         right_answer = "a"
