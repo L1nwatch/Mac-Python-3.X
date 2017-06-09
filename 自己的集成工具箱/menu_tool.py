@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # version: Python3.X
 """
+2017.06.09 发现了判断是否在监听的这个函数存在的 BUG, 进行修正
 2017.03.22 TODO: 发现了个 BUG, 就是用 workflow 运行这个脚本的时候, 开启内网穿透之后会一直停留在右上角中, 没想到好方法可以解决
 2017.03.14 加入内网穿透的按钮
 2016.10.31 修正一下 privoxy 的开启关闭问题, 之前给 sudo 设置的是 w@tch 用户, 但是发现运行的时候用户应该是 L1n, 修改回来就可以用了
@@ -15,12 +16,15 @@
     [Python 执行Shell 外部命令](http://unixman.blog.51cto.com/10163040/1641396)
 """
 
+# 标准库
 import subprocess
 import tkinter
 import tkinter.messagebox
 import os
 import time
+import re
 
+# 自己的模块
 from library_wifi import login_after_update as logging_school_wifi
 from random_choicer import random_player
 
@@ -193,11 +197,15 @@ def is_port_listen(port):
     :param port: int(), 端口号, 比如 8118
     :return: boolean(), True 表示端口号正在使用, False 表示没有
     """
+    result = False
     try:
-        subprocess.check_output("netstat -an | grep {}".format(port), shell=True)
+        output = subprocess.check_output("netstat -an | grep {}".format(port), shell=True)
+        re_pattern = "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\." + str(port)
+        if re.findall(re_pattern.encode(), output):
+            result = True
     except subprocess.CalledProcessError:
-        return False
-    return True
+        pass
+    return result
 
 
 def switch_open_privoxy(verbose=True):
