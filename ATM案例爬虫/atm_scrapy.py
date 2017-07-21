@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # version: Python3.X
 """
+2017.07.22 修正 atm 下载工具会新增多余换行符的问题
 2016.12.02 修正文件夹如果存在空格会导致 Windows 下运行出错的问题, 另外添加跳过文件夹功能
 2016.11.27 爬虫正常了, 加入参数使用吧, 打包发现 queue 报错, 需要手动导入, 另外路径参数有点问题, 已修正
 2016.11.26 陆续编写, 到今天终于可以完成下载功能了, 简称爬虫 v1.0
@@ -210,6 +211,9 @@ class ATMScrapy:
         case_file_path = os.path.join(cases_path, name)
         case_content = self.get_case_content_from_case_id(case["id"])
         try:
+            # 去掉多余换行符
+            case_content = case_content.replace("\n\n", "\n")
+
             with open(case_file_path, "w") as f:
                 f.write(case_content)
         except UnicodeEncodeError as e:
@@ -386,7 +390,7 @@ if __name__ == "__main__":
     # case_url = "http://200.200.0.33/atm/projects/53c49025d105401f5e0003ec/suites?id=57eb3d9ed10540526e00116f"
     # case_content = "http://200.200.0.33/atm/projects/53c49025d105401f5e0003ec/usecases/5832d192d105400a3100006e"
 
-    print("[*] ATM 案例爬虫 v1.0-Author: 林丰35516")
+    print("[*] ATM 案例爬虫 v2.0-Author: 林丰35516")
     url, path, db, skip_dirs = initialize()
     project_id = ATMScrapy.get_project_id_from_url(url)
 
