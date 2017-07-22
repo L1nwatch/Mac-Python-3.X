@@ -17,7 +17,6 @@ import os
 import re
 import datetime
 import pymysql
-import sys
 from my_constant import const
 
 try:
@@ -214,7 +213,7 @@ class ATMScrapy:
 
         try:
             # 统一换行符
-            case_content = case_content.replace("\r\n", os.linesep)
+            case_content = case_content.replace("\r\n", "\n")
 
             with open(case_file_path, "w") as f:
                 f.write(case_content)
