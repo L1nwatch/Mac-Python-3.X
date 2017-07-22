@@ -370,7 +370,7 @@ def initialize():
     进行初始化操作, 包括 arg_parse 解析程序的初始化, 参数的相关设定等
     :return: path, file_type, keyword
     """
-    parser = argparse.ArgumentParser(description="ATM 案例爬虫 v1.0-Author: 林丰35516")
+    parser = argparse.ArgumentParser(description="ATM 案例爬虫 v2.0-Author: 林丰35516")
     add_argument(parser)
     configuration = set_argument(parser.parse_args())
 
