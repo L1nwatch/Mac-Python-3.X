@@ -81,7 +81,7 @@ def finally_rename():
     最后对表情包进行重命名
     :return:
     """
-    root_path = r"/Users/L1n/Desktop/result/长草颜丸子"
+    root_path = r"/Users/L1n/Desktop/result/嗷大喵"
     for i, each_file in enumerate(os.listdir(root_path)):
         os.rename(os.path.join(root_path, each_file), os.path.join(root_path, "{}.gif".format(i)))
 
