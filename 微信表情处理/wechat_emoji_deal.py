@@ -21,8 +21,12 @@ def rename():
     os.makedirs(dst_path, exist_ok=True)
 
     for each_file in os.listdir(src_path):
+        if "DS_Store" in each_file:
+            os.remove(os.path.join(src_path, each_file))
+            continue
         os.rename(os.path.join(src_path, each_file), os.path.join(src_path, "{}.gif".format(each_file)))
-        shutil.copy(os.path.join(src_path, each_file), os.path.join(dst_path, "{}.gif".format(each_file)))
+        # shutil.copy(os.path.join(src_path, "{}.gif".format(each_file)),
+        #             os.path.join(dst_path, "{}.gif".format(each_file)))
 
 
 def split_using_time():
@@ -52,6 +56,8 @@ def extract_packet_using_num():
     dst_path = "result"
     count_result = dict()
     for each_dir in os.listdir(root_path):
+        if "DS_Store" in each_dir:
+            continue
         num = len(os.listdir(os.path.join(root_path, each_dir)))
         print("[*] {}:{}".format(each_dir, num))
         count_result[each_dir] = num
@@ -81,7 +87,7 @@ def finally_rename():
     最后对表情包进行重命名
     :return:
     """
-    root_path = r"/Users/L1n/Desktop/result/嗷大喵"
+    root_path = r"/Users/L1n/Desktop/result/乖巧"
     for i, each_file in enumerate(os.listdir(root_path)):
         os.rename(os.path.join(root_path, each_file), os.path.join(root_path, "{}.gif".format(i)))
 
