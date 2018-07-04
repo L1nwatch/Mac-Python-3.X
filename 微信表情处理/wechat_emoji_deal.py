@@ -88,8 +88,16 @@ def finally_rename():
     :return:
     """
     root_path = r"/Users/L1n/Desktop/result/乖巧"
+    dst_path = r"/Users/L1n/Desktop/result/乖巧_result"
+    os.makedirs(dst_path,exist_ok=True)
     for i, each_file in enumerate(os.listdir(root_path)):
-        os.rename(os.path.join(root_path, each_file), os.path.join(root_path, "{}.gif".format(i)))
+        if "DS_Store" in each_file:
+            continue
+        shutil.copy(os.path.join(root_path, each_file), os.path.join(dst_path, "{}.gif".format(i)))
+        # for i, each_file in enumerate(os.listdir(root_path)):
+        #     if "DS_Store" in each_file:
+        #         continue
+        #     os.rename(os.path.join(root_path, each_file), os.path.join(root_path, "{}.gif".format(i)))
 
 
 if __name__ == "__main__":
