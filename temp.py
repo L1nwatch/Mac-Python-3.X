@@ -3,17 +3,17 @@
 # version: Python3.X
 """ Description
 """
-import re
+import socket
+from Crypto.Hash import MD5
 
 __author__ = '__L1n__w@tch'
 
 
 def test():
-    aaa = input("dddd:")
-    bbb = input("adad:")
+    ip = socket.gethostbyname("watch0.top")
+    print(ip)
 
-    print(aaa)
-    print(bbb)
 
 if __name__ == "__main__":
-    test()
+    md5_value = MD5.new(b"huangjiajinjinjin").hexdigest()
+    print(md5_value)
