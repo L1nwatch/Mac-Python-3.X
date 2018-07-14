@@ -87,13 +87,14 @@ def finally_rename():
     最后对表情包进行重命名
     :return:
     """
-    root_path = r"/Users/L1n/Desktop/result/乖巧"
-    dst_path = r"/Users/L1n/Desktop/result/乖巧_result"
-    os.makedirs(dst_path,exist_ok=True)
+    root_path = r"/Users/L1n/Desktop/result/hack"
+    dst_path = r"/Users/L1n/Desktop/result/hack_result"
+    os.makedirs(dst_path, exist_ok=True)
     for i, each_file in enumerate(os.listdir(root_path)):
         if "DS_Store" in each_file:
             continue
-        shutil.copy(os.path.join(root_path, each_file), os.path.join(dst_path, "{}.gif".format(i)))
+        file_name, ext = os.path.splitext(each_file)
+        shutil.copy(os.path.join(root_path, each_file), os.path.join(dst_path, "{}{}".format(i, ext)))
         # for i, each_file in enumerate(os.listdir(root_path)):
         #     if "DS_Store" in each_file:
         #         continue
