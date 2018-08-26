@@ -5,6 +5,7 @@
       <w>classmethod</w>
       <w>displaymath</w>
       <w>domainid</w>
+      <w>emoji</w>
       <w>httpobj</w>
       <w>jsonp</w>
       <w>linkindoc</w>
@@ -21,6 +22,7 @@
       <w>sqlite</w>
       <w>subsubsection</w>
       <w>urlindoc</w>
+      <w>wechat</w>
       <w>wsgi</w>
     </words>
   </dictionary>

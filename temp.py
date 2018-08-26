@@ -15,5 +15,5 @@ def test():
 
 
 if __name__ == "__main__":
-    md5_value = MD5.new(b"huangjiajinjinjin").hexdigest()
+    md5_value = MD5.new(data).hexdigest()
     print(md5_value)
