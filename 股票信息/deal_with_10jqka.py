@@ -9,6 +9,7 @@ http://d.10jqka.com.cn/v2/realhead/hs_000629/last.js
 """
 import re
 import time
+
 from selenium import webdriver
 
 __author__ = '__L1n__w@tch'
@@ -75,7 +76,11 @@ def get_all_number():
     return result
 
 
-def main():
+def get_prices():
+    """
+    获取所有业绩预告的股票代码,并获取对应的当前值、最高值、最低值
+    :return:
+    """
     global browser
     browser = webdriver.Chrome(
         "/Users/L1n/Desktop/Code/Python/my_blog_source/virtual/selenium/webdriver/chromedriver",
@@ -93,6 +98,25 @@ def main():
         get_prices_using_number("hs_{}".format(each_number))
 
     browser.quit()
+
+
+def main():
+    data = list()
+    with open("result.txt") as f:
+        for each_line in f:
+            number, cur_price, high_price, low_price = each_line.split(",")
+            number = number[13:]
+            cur_price = float(cur_price[8:])
+            high_price = float(high_price[7:])
+            low_price = float(low_price[7:])
+            info = {"number": number, "cur_price": cur_price, "high_price": high_price, "low_price": low_price,
+                    "sep": cur_price - low_price}
+            data.append(info)
+    sorted(data, key=lambda x: x["sep"])
+    for each_data in data:
+        print("[*] 股票代码: {}, 离最低点差值: {:.2f}, 当前价格: {}, 最低价格: {}, 最高价格: {}".format(
+            each_data["number"], each_data["sep"], each_data["cur_price"], each_data["low_price"],
+            each_data["high_price"]))
 
 
 if __name__ == "__main__":
