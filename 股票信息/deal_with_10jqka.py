@@ -63,10 +63,15 @@ def get_all_number():
     """
     global browser
 
-    url = "http://data.10jqka.com.cn/financial/yjyg/"
-    browser.get(url)
-    result = re.findall('<a href="http://stockpage.10jqka.com.cn/\d*/finance/" target="_blank">(\d*)</a>',
-                        browser.page_source)
+    # url = "http://data.10jqka.com.cn/financial/yjyg/"
+    result = list()
+    for i in range(3):
+        url = ("http://data.10jqka.com.cn/ajax/yjyg/date/2018-06-30/board/ALL/field/enddate/order/desc/"
+               "page/{}/ajax/1/").format(i + 1)
+        browser.get(url)
+        result.extend(re.findall('<a href="http://stockpage.10jqka.com.cn/\d*/finance/" target="_blank">(\d*)</a>',
+                                 browser.page_source))
+
     return result
 
 
