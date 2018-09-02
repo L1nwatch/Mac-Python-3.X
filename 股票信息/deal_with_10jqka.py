@@ -114,6 +114,10 @@ def main():
             data.append(info)
     sorted(data, key=lambda x: x["sep"])
     for each_data in data:
+        if str(each_data["number"]).startswith("300"):
+            # 跳过创业板
+            continue
+
         print("[*] 股票代码: {}, 离最低点差值: {:.2f}, 当前价格: {}, 最低价格: {}, 最高价格: {}".format(
             each_data["number"], each_data["sep"], each_data["cur_price"], each_data["low_price"],
             each_data["high_price"]))
