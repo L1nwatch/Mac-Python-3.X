@@ -51,10 +51,13 @@ def get_prices_using_number(number):
     max_result = re.findall(r'<div class="hxc3-klineprice-max"[^>]*>([^<]*)</div>', browser.page_source)[0]
     min_result = re.findall(r'<div class="hxc3-klineprice-min"[^>]*>([^<]*)</div>', browser.page_source)[0]
 
-    print("[*] 股票代码: {},  当前价为: {}, 最高价为: {}, 最低价为: {}".format(number, cur_result, max_result, min_result))
+    string = "[*] 股票代码: {},  当前价为: {}, 最高价为: {}, 最低价为: {}".format(number, cur_result, max_result, min_result)
+    print(string)
 
     with open("test.html", "w") as f:
         f.write(browser.page_source)
+
+    return string
 
 
 def get_all_number():
@@ -92,15 +95,17 @@ def get_prices():
             finish_list.append(each_line[13:19])
 
     numbers = get_all_number()
-    for each_number in numbers:
-        if each_number in finish_list:
-            continue
-        get_prices_using_number("hs_{}".format(each_number))
+    with open("result.txt", "a") as f:
+        for each_number in numbers:
+            if each_number in finish_list:
+                continue
+            string = get_prices_using_number("hs_{}".format(each_number))
+            print(string, file=f)
 
     browser.quit()
 
 
-def main():
+def analysis_prices():
     data = list()
     with open("result.txt") as f:
         for each_line in f:
@@ -112,7 +117,7 @@ def main():
             info = {"number": number, "cur_price": cur_price, "high_price": high_price, "low_price": low_price,
                     "sep": cur_price - low_price}
             data.append(info)
-    sorted(data, key=lambda x: x["sep"])
+    data = sorted(data, key=lambda x: x["sep"])
     for each_data in data:
         if str(each_data["number"]).startswith("300"):
             # 跳过创业板
@@ -124,4 +129,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # get_prices()
+    analysis_prices()
