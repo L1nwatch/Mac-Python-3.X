@@ -6,6 +6,9 @@
 http://stockpage.10jqka.com.cn/000629/
 http://stockpage.10jqka.com.cn/realHead_v2.html#hs_000629
 http://d.10jqka.com.cn/v2/realhead/hs_000629/last.js
+
+市盈率:http://www.iwencai.com/stockpick/search?preParams=&ts=1&qs=zgxgrh_syl&tid=stockpick&w=++%E5%B8%82%E7%9B%88%E7%8E%87%28pe%29
+
 """
 import re
 import time
