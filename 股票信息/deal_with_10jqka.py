@@ -98,12 +98,13 @@ def get_prices():
             finish_list.append(each_line[13:19])
 
     numbers = get_all_number()
-    with open("result.txt", "a") as f:
+    with open("result.txt", "w") as f:
         for each_number in numbers:
             if each_number in finish_list:
                 continue
             string = get_prices_using_number("hs_{}".format(each_number))
-            print(string, file=f)
+            if string:
+                print(string, file=f, flush=True)
 
     browser.quit()
 
