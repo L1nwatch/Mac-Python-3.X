@@ -133,5 +133,5 @@ def analysis_prices():
 
 
 if __name__ == "__main__":
-    # get_prices()
+    get_prices()
     analysis_prices()
