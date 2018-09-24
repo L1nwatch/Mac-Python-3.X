@@ -87,16 +87,17 @@ def finally_rename():
     最后对表情包进行重命名
     :return:
     """
-    root_path = r"/Users/L1n/Desktop/result/乖巧小人"
-    dst_path = r"/Users/L1n/Desktop/result/乖巧小人_result"
+    root_path = r"/Users/L1n/Desktop/result/双拼乖巧_低清"
+    dst_path = r"/Users/L1n/Desktop/result/双拼乖巧_低清_result"
     os.makedirs(dst_path, exist_ok=True)
 
-    base_num = 193  # 2018-09-09 乖巧小人总共有 xx 个
+    base_num = 192  # 2018-09-09 乖巧小人总共有 xx 个
     # base_num = 345  # 2018-09-09 嗷大喵总共有 xx 个
     # base_num = 360  # 2018-09-09 长草颜丸子总共有 xx 个
 
     for i, each_file in enumerate(os.listdir(root_path)):
         if "DS_Store" in each_file:
+            base_num -= 1
             continue
         file_name, ext = os.path.splitext(each_file)
         shutil.copy(os.path.join(root_path, each_file), os.path.join(dst_path, "{}{}".format(i + base_num + 1, ext)))
