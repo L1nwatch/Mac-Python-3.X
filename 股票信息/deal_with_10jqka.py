@@ -34,7 +34,7 @@ def get_prices_using_number(number):
     while cur_result == "--":
         time.sleep(1)
         cur_result = re.findall(r'<span class="price" id="hexm_curPrice">(.*)</span>', browser.page_source)[0]
-        if 'id="quote_header2" style="display:none"' not in browser.page_source:
+        if 'id="quote_header2" style="display:none"' not in browser.page_source or '<strong id="pprice">--</strong>' in browser.page_source:
             print("[-] 股票代码: {}, 已经停牌".format(number))
             browser.refresh()
             try_times += 1
@@ -98,7 +98,7 @@ def get_prices():
             finish_list.append(each_line[13:19])
 
     numbers = get_all_number()
-    with open("result.txt", "w") as f:
+    with open("result.txt", "a") as f:
         for each_number in numbers:
             if each_number in finish_list:
                 continue
@@ -133,5 +133,5 @@ def analysis_prices():
 
 
 if __name__ == "__main__":
-    get_prices()
+    # get_prices()
     analysis_prices()
