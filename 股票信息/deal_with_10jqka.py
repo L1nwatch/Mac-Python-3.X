@@ -98,7 +98,7 @@ def get_prices():
             finish_list.append(each_line[13:19])
 
     numbers = get_all_number()
-    with open("result.txt", "a") as f:
+    with open("result.txt", "w") as f:
         for each_number in numbers:
             if each_number in finish_list:
                 continue
@@ -133,5 +133,5 @@ def analysis_prices():
 
 
 if __name__ == "__main__":
-    # get_prices()
+    get_prices()
     analysis_prices()
