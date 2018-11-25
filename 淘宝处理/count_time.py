@@ -8,8 +8,8 @@ import datetime
 __author__ = '__L1n__w@tch'
 
 if __name__ == "__main__":
-    start_time = datetime.datetime.strptime("2018-11-27 06:24:40", "%Y-%m-%d %H:%M:%S")
-    step = 1789
+    start_time = datetime.datetime.strptime("2018-11-27 06:24:33", "%Y-%m-%d %H:%M:%S")
+    step = 1804
     nums = 20
 
     time = start_time

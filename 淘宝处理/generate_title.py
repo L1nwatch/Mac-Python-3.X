@@ -26,12 +26,12 @@ def generate_title(core_word, attribute_word):
 
 
 if __name__ == "__main__":
-    core_word = "置地晾衣架"
+    core_word = "自动换袋垃圾桶"
     attribute_word = [
-        "室内","落地","衣服架子","简易","晾衣杆",
-        "挂衣杆","晒衣架","卧室","阳台","单杆",
-        "神器","升降","伸缩","小型","迷你",
-        "多功能","不锈钢"
+        "神奇", "封口", "自动装袋", "智能", "大",
+        "家用", "纸篓", "办公室", "厨房", "创意",
+        "厕所", "方形", "卫生间", "带盖", "客厅",
+        "卧室", "简约"
     ]
 
     # 要生成 20 个左右标题
@@ -42,4 +42,3 @@ if __name__ == "__main__":
     print("[*] 总共生成了 {} 个标题".format(len(all_titles)))
     for each_title in all_titles:
         print(each_title)
-
