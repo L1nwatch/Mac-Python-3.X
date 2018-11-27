@@ -3,6 +3,7 @@
 # version: Python3.X
 """ 输入核心词,输入一堆关联词,生成指定数量的标题
 """
+import copy
 import random
 
 __author__ = '__L1n__w@tch'
@@ -15,9 +16,13 @@ def generate_title(core_word, attribute_word):
     :param attribute_word:
     :return:
     """
+    attribute_word = copy.deepcopy(attribute_word)
     result = [core_word]
     while len("".join(result)) < 30:
+        if len(attribute_word) <= 0:
+            break
         pack_word = random.choice(attribute_word)
+        attribute_word.remove(pack_word)
         if pack_word not in result:
             if (len("".join(result)) + len(pack_word)) > 30:
                 break
@@ -26,11 +31,11 @@ def generate_title(core_word, attribute_word):
 
 
 if __name__ == "__main__":
-    core_word = "鞋刷"
+    core_word = "喷壶"
     attribute_word = [
-        "神器", "家用", "清洁", "多功能", "软",
-        "儿童", "小白", "擦鞋", "便携", "塑料",
-        "小型", "专用", "去黄", "打理",
+        "喷雾", "分装瓶", "小", "家用", "浇花",
+        "手压", "喷水", "补水", "迷你", "透明",
+        "小型", "便携", "通用"
     ]
 
     # 要生成 20 个左右标题
