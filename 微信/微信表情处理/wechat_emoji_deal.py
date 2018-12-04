@@ -108,8 +108,8 @@ def finally_rename():
 
 
 if __name__ == "__main__":
-    # rename()
-    # split_using_time()
-    # extract_packet_using_num()
-    # rename_each_file()
-    finally_rename()
+    rename()
+    split_using_time()
+    extract_packet_using_num()
+    rename_each_file()
+    # finally_rename()
