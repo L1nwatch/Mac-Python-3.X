@@ -92,16 +92,16 @@ def get_prices():
         "/Users/L1n/Desktop/Code/Python/my_blog_source/virtual/selenium/webdriver/chromedriver",
     )
 
-    finish_list = list()
-    with open("result.txt") as f:
-        for each_line in f:
-            finish_list.append(each_line[13:19])
+    # finish_list = list()
+    # with open("result.txt") as f:
+    #     for each_line in f:
+    #         finish_list.append(each_line[13:19])
 
     numbers = get_all_number()
     with open("result.txt", "w") as f:
         for each_number in numbers:
-            if each_number in finish_list:
-                continue
+            # if each_number in finish_list:
+            #     continue
             string = get_prices_using_number("hs_{}".format(each_number))
             if string:
                 print(string, file=f, flush=True)
