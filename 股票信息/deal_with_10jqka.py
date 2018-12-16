@@ -10,6 +10,7 @@ http://d.10jqka.com.cn/v2/realhead/hs_000629/last.js
 市盈率:http://www.iwencai.com/stockpick/search?preParams=&ts=1&qs=zgxgrh_syl&tid=stockpick&w=++%E5%B8%82%E7%9B%88%E7%8E%87%28pe%29
 
 """
+import datetime
 import re
 import time
 
@@ -18,6 +19,7 @@ from selenium import webdriver
 __author__ = '__L1n__w@tch'
 
 browser = None
+this_day_log_path = "./stock_log/{}_result.txt".format(datetime.datetime.today().strftime("%Y-%m-%d"))
 
 
 def get_prices_using_number(number):
@@ -93,12 +95,12 @@ def get_prices():
     )
 
     # finish_list = list()
-    # with open("result.txt") as f:
+    # with open(this_day_log_path) as f:
     #     for each_line in f:
     #         finish_list.append(each_line[13:19])
 
     numbers = get_all_number()
-    with open("result.txt", "w") as f:
+    with open(this_day_log_path, "w") as f:
         for each_number in numbers:
             # if each_number in finish_list:
             #     continue
@@ -111,7 +113,7 @@ def get_prices():
 
 def analysis_prices():
     data = list()
-    with open("result.txt") as f:
+    with open(this_day_log_path) as f:
         for each_line in f:
             number, cur_price, high_price, low_price = each_line.split(",")
             number = number[13:]
@@ -122,16 +124,20 @@ def analysis_prices():
                     "sep": cur_price - low_price}
             data.append(info)
     data = sorted(data, key=lambda x: x["sep"])
-    for each_data in data:
-        if str(each_data["number"]).startswith("300"):
-            # 跳过创业板
-            continue
 
-        print("[*] 股票代码: {}, 离最低点差值: {:.2f}, 当前价格: {}, 最低价格: {}, 最高价格: {}".format(
-            each_data["number"], each_data["sep"], each_data["cur_price"], each_data["low_price"],
-            each_data["high_price"]))
+    with open(this_day_log_path, "a") as f:
+        print("\n[!] {sep} 开始过滤 {sep}\n".format(sep="=" * 30),file=f)
+
+        for each_data in data:
+            if str(each_data["number"]).startswith("300"):
+                # 跳过创业板
+                continue
+
+            print("[*] 股票代码: {}, 离最低点差值: {:.2f}, 当前价格: {}, 最低价格: {}, 最高价格: {}".format(
+                each_data["number"], each_data["sep"], each_data["cur_price"], each_data["low_price"],
+                each_data["high_price"]), file=f)
 
 
 if __name__ == "__main__":
-    get_prices()
+    # get_prices()
     analysis_prices()
