@@ -87,11 +87,13 @@ def finally_rename():
     最后对表情包进行重命名
     :return:
     """
-    root_path = r"/Users/L1n/Desktop/result/双拼乖巧_低清"
-    dst_path = r"/Users/L1n/Desktop/result/双拼乖巧_低清_result"
+    root_path = r"/Users/L1n/Desktop/汤圆酱"
+    dst_path = r"/Users/L1n/Desktop/汤圆酱_result"
     os.makedirs(dst_path, exist_ok=True)
 
-    base_num = 192  # 2018-09-09 乖巧小人总共有 xx 个
+    # base_num = 192  # 2018-09-09 乖巧小人总共有 xx 个
+    # base_num = 0  # 2018-12-16 小刘鸭总共有 xx 个
+    base_num = 0  # 2018-12-16 汤圆酱总共有 xx 个
     # base_num = 345  # 2018-09-09 嗷大喵总共有 xx 个
     # base_num = 360  # 2018-09-09 长草颜丸子总共有 xx 个
 
@@ -108,8 +110,8 @@ def finally_rename():
 
 
 if __name__ == "__main__":
-    rename()
-    split_using_time()
-    extract_packet_using_num()
-    rename_each_file()
-    # finally_rename()
+    # rename()
+    # split_using_time()
+    # extract_packet_using_num()
+    # rename_each_file()
+    finally_rename()
