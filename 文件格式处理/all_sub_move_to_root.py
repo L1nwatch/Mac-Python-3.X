@@ -10,8 +10,8 @@ import shutil
 __author__ = '__L1n__w@tch'
 
 if __name__ == "__main__":
-    root_path = r"/Users/L1n/Desktop/照片视频备份/计院毕业照"
-    dst_path = r"/Users/L1n/Desktop/照片视频备份/计院毕业照"
+    root_path = r"/Users/L1n/Desktop/照片视频备份/2017-10-17"
+    dst_path = r"/Users/L1n/Desktop/照片视频备份/2017-10-17"
     for root,dirs,files in os.walk(root_path):
         for each_file in files:
             shutil.move(os.path.join(root_path,root,each_file),os.path.join(dst_path,each_file))
