@@ -16,8 +16,11 @@ def get_picture(this_session):
     """
     response = this_session.get("https://item.jd.com/100000378767.html")
     data = response.text
-    all_picture_url = re.findall(
-        "<li ><img alt='[^']*' src='[^']*'  data-url='([^']*)' data-img='1' width='50' height='50'></li>", data)
+
+    # 获取 id 信息,方便下载详情图
+    sku_id, main_sku_id = re.findall('qualityLife: "//c.3.cn/qualification/info\?skuId=(\d*)&pid=(\d*)',data)[0]
+
+    # 下载主图
     all_picture_url = re.findall("<li ><img alt='.*", data)
     for i, each in enumerate(all_picture_url):
         picture_true_address = re.findall("data-url='([^']*)'", each)[0]
@@ -26,15 +29,17 @@ def get_picture(this_session):
         response = s.get(picture_true_address_url)
         with open("./主图/{}{}".format(i, postfix), "wb") as f:
             f.write(response.content)
+    return sku_id, main_sku_id
 
 
-def get_detail(this_session):
+def get_detail(this_session, sku_id, main_sku_id):
     """
     获取详情图
     :param this_session:
     :return:
     """
-    url = "https://cd.jd.com/description/channel?skuId=32789142913&mainSkuId=11983165386&cdn=2&callback=showdesc"
+    raw_url = "https://cd.jd.com/description/channel?skuId={}&mainSkuId={}&cdn=2&callback=showdesc"
+    url = raw_url.format(sku_id, main_sku_id)
     response = this_session.get(url)
     data = response.text
     # with open("test_detail.html", "r") as f:
@@ -49,5 +54,5 @@ def get_detail(this_session):
 
 if __name__ == "__main__":
     s = requests.session()
-    get_picture(s)
-    get_detail(s)
+    sku_id, main_sku_id = get_picture(s)
+    get_detail(s, sku_id, main_sku_id)
