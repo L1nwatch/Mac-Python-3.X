@@ -3,22 +3,25 @@
 # version: Python3.X
 """ 尝试从 jd 导出图片
 """
+import os
+
 import requests
+import shutil
 import re
 
 __author__ = '__L1n__w@tch'
 
 
-def get_picture(this_session):
+def get_picture(this_session, request_url):
     """
     获取主图
     :return:
     """
-    response = this_session.get("https://item.jd.com/100000378767.html")
+    response = this_session.get(request_url)
     data = response.text
 
     # 获取 id 信息,方便下载详情图
-    sku_id, main_sku_id = re.findall('qualityLife: "//c.3.cn/qualification/info\?skuId=(\d*)&pid=(\d*)',data)[0]
+    sku_id, main_sku_id = re.findall('qualityLife: "//c.3.cn/qualification/info\?skuId=(\d*)&pid=(\d*)', data)[0]
 
     # 下载主图
     all_picture_url = re.findall("<li ><img alt='.*", data)
@@ -42,9 +45,7 @@ def get_detail(this_session, sku_id, main_sku_id):
     url = raw_url.format(sku_id, main_sku_id)
     response = this_session.get(url)
     data = response.text
-    # with open("test_detail.html", "r") as f:
-    #     data = f.read()
-    detail_picture = re.findall('data-lazyload=\\\\"//(.*)\\\\"', data)
+    detail_picture = re.findall('data-lazyload=\\\\"//(.*?)\\\\"', data)
     for i, each_detail in enumerate(detail_picture):
         response = this_session.get("http://{}".format(each_detail))
         postfix = each_detail[each_detail.rfind("."):]
@@ -52,7 +53,21 @@ def get_detail(this_session, sku_id, main_sku_id):
             f.write(response.content)
 
 
+def clear_old():
+    """
+    清除之前下载过的文件
+    :return:
+    """
+    shutil.rmtree("./主图")
+    shutil.rmtree("./详情")
+    os.makedirs("./主图", exist_ok=True)
+    os.makedirs("./详情", exist_ok=True)
+
+
 if __name__ == "__main__":
+    request_url = "https://item.jd.com/3889259.html"
+
+    clear_old()
     s = requests.session()
-    sku_id, main_sku_id = get_picture(s)
+    sku_id, main_sku_id = get_picture(s, request_url)
     get_detail(s, sku_id, main_sku_id)
