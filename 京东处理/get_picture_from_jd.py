@@ -14,7 +14,7 @@ __author__ = '__L1n__w@tch'
 
 def get_picture(this_session, request_url):
     """
-    获取主图
+    获取主图以及源码中可能有的详情图
     :return:
     """
     response = this_session.get(request_url)
@@ -31,6 +31,14 @@ def get_picture(this_session, request_url):
         postfix = picture_true_address[picture_true_address.rfind("."):]
         response = s.get(picture_true_address_url)
         with open("./主图/{}{}".format(i, postfix), "wb") as f:
+            f.write(response.content)
+
+    # 获取可能有的详情图
+    all_detail_url = re.findall("background-image:url\(//(.*)\)",data)
+    for i,each in enumerate(all_detail_url):
+        response = this_session.get("http://{}".format(each))
+        postfix = each[each.rfind("."):]
+        with open("./详情/html_{}{}".format(i,postfix),"wb") as f:
             f.write(response.content)
     return sku_id, main_sku_id
 
@@ -65,7 +73,7 @@ def clear_old():
 
 
 if __name__ == "__main__":
-    request_url = "https://item.jd.com/3889259.html"
+    request_url = "https://item.jd.com/100001267323.html"
 
     clear_old()
     s = requests.session()
