@@ -6,12 +6,15 @@
 import os
 import shutil
 
-
 __author__ = '__L1n__w@tch'
 
 if __name__ == "__main__":
-    root_path = r"/Users/L1n/Desktop/私有"
-    dst_path = r"/Users/L1n/Desktop/私有"
-    for root,dirs,files in os.walk(root_path):
+    root_path = r"/Users/L1n/Desktop/2"
+    dst_path = r"/Users/L1n/Desktop/2"
+
+    count = 0
+    for root, dirs, files in os.walk(root_path):
         for each_file in files:
-            shutil.move(os.path.join(root_path,root,each_file),os.path.join(dst_path,each_file))
+            count += 1
+            postfix = each_file[each_file.rfind("."):]
+            shutil.move(os.path.join(root_path, root, each_file), os.path.join(dst_path, "test{}{}".format(count, postfix)))
