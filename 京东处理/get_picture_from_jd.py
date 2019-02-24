@@ -66,14 +66,16 @@ def clear_old():
     清除之前下载过的文件
     :return:
     """
-    shutil.rmtree("./主图")
-    shutil.rmtree("./详情")
+    if os.path.exists("./主图"):
+        shutil.rmtree("./主图")
+    if os.path.exists("./详情"):
+        shutil.rmtree("./详情")
     os.makedirs("./主图", exist_ok=True)
     os.makedirs("./详情", exist_ok=True)
 
 
 if __name__ == "__main__":
-    request_url = "https://item.jd.com/100001267323.html"
+    request_url = "https://item.jd.com/4063731.html#crumb-wrap"
 
     clear_old()
     s = requests.session()
