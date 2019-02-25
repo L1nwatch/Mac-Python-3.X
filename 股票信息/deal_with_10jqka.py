@@ -11,6 +11,7 @@ http://d.10jqka.com.cn/v2/realhead/hs_000629/last.js
 
 """
 import datetime
+import os
 import re
 import time
 
@@ -19,7 +20,9 @@ from selenium import webdriver
 __author__ = '__L1n__w@tch'
 
 browser = None
-this_day_log_path = "./stock_log/{}_result.txt".format(datetime.datetime.today().strftime("%Y-%m-%d"))
+this_month = datetime.datetime.today().strftime("%Y-%m")
+this_month_log_path = "./stock_log/{}".format(this_month)
+this_day_log_path = "./stock_log/{}/{}_result.txt".format(this_month, datetime.datetime.today().strftime("%Y-%m-%d"))
 
 
 def get_prices_using_number(number):
@@ -100,6 +103,7 @@ def get_prices():
     #         finish_list.append(each_line[13:19])
 
     numbers = get_all_number()
+    os.makedirs(this_month_log_path, exist_ok=True)
     with open(this_day_log_path, "w") as f:
         for each_number in numbers:
             # if each_number in finish_list:
@@ -126,7 +130,7 @@ def analysis_prices():
     data = sorted(data, key=lambda x: x["sep"])
 
     with open(this_day_log_path, "a") as f:
-        print("\n[!] {sep} 开始过滤 {sep}\n".format(sep="=" * 30),file=f)
+        print("\n[!] {sep} 开始过滤 {sep}\n".format(sep="=" * 30), file=f)
 
         for each_data in data:
             if str(each_data["number"]).startswith("300"):
