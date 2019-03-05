@@ -144,9 +144,10 @@ def analysis_prices(day_step=True):
             high_price = float(high_price[7:])
             low_price = float(low_price[7:])
             info = {"number": number, "cur_price": cur_price, "high_price": high_price, "low_price": low_price,
-                    "sep": cur_price - low_price}
+                    "sep_low": (cur_price - low_price) * 1.0 / low_price,
+                    "sep_high": (high_price - cur_price) * 1.0 / cur_price}
             data.append(info)
-    data = sorted(data, key=lambda x: x["sep"])
+    data = sorted(data, key=lambda x: x["sep_low"])
 
     with open(log_path, "a") as f:
         print("\n[!] {sep} 开始过滤 {sep}\n".format(sep="=" * 30), file=f)
@@ -156,17 +157,17 @@ def analysis_prices(day_step=True):
                 # 跳过创业板
                 continue
 
-            print("[*] 股票代码: {}, 离最低点差值: {:.2f}, 当前价格: {}, 最低价格: {}, 最高价格: {}".format(
-                each_data["number"], each_data["sep"], each_data["cur_price"], each_data["low_price"],
-                each_data["high_price"]), file=f)
+            print("[*] 股票代码: {}, 离最低点差值: {:.2%}, 离最高点差值: {:.2%}, 当前价格: {}, 最低价格: {}, 最高价格: {}".format(
+                each_data["number"], each_data["sep_low"], each_data["sep_high"], each_data["cur_price"],
+                each_data["low_price"], each_data["high_price"]), file=f)
 
 
 if __name__ == "__main__":
     print("[*] {sep} 先获取日 K 线的结果 {sep}".format(sep="=" * 30))
-    get_prices()
+    # get_prices()
     analysis_prices()
 
     print("[*] {sep} 再获取周 K 线的结果 {sep}".format(sep="=" * 30))
 
-    get_prices(day_step=False)
+    # get_prices(day_step=False)
     analysis_prices(day_step=False)
