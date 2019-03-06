@@ -164,10 +164,10 @@ def analysis_prices(day_step=True):
 
 if __name__ == "__main__":
     print("[*] {sep} 先获取日 K 线的结果 {sep}".format(sep="=" * 30))
-    # get_prices()
+    get_prices()
     analysis_prices()
 
     print("[*] {sep} 再获取周 K 线的结果 {sep}".format(sep="=" * 30))
 
-    # get_prices(day_step=False)
+    get_prices(day_step=False)
     analysis_prices(day_step=False)
