@@ -53,6 +53,8 @@ def check_cost_money(product_title, product_sku):
     }
     # 改了标题了,但是是同样的产品
     money_map['美逸苹果6s六数据线iPhone7px8Plus安卓手机平板ipad2快充线2米短'] = money_map['美逸/MEIYI苹果数据线iPhoneXPlus充电器ios手机平板ipad2M快充短']
+    money_map['美逸/MEIYI苹果数据线iPhoneXPlus充电器ios手机平板ipad2M快充短，美逸/MEIYI苹果数据线iPhoneXPlus充电器ios手机平板ipad2M快充短'] = money_map[
+        '美逸/MEIYI苹果数据线iPhoneXPlus充电器ios手机平板ipad2M快充短']
     money_map['美逸苹果6s六数据线iPhone7px8Plus安卓手机平板ipad2快充线2米短，美逸苹果6s六数据线iPhone7px8Plus安卓手机平板ipad2快充线2米短'] = money_map[
         '美逸/MEIYI苹果数据线iPhoneXPlus充电器ios手机平板ipad2M快充短']
     money_map['美逸20000毫安充电宝双向快充移动电源LED数显屏高通认证QC3.0/PD'] = money_map['美逸/MEIYI充电宝20000M毫安大容量快充便携移动电源Type-C手机PD']
@@ -81,12 +83,12 @@ def get_order_detail_list_info(info_path):
 
 def get_order_list_info(info_path):
     all_orders = list()
-    with open(info_path, encoding="gb2312")  as f:
+    with open(info_path)  as f:
         for i, each_line in enumerate(f):
             if i == 0:
                 continue
             all_data = each_line.split(",")
-            order_number = all_data[0]
+            order_number = all_data[0].strip('="')
             list_date = all_data[19]
 
             # 未成功销售订单初始化
@@ -98,7 +100,7 @@ def get_order_list_info(info_path):
                 event = "销售"
                 earn_money = all_data[8]
 
-            product = all_data[21]
+            product = all_data[21].strip('="')
             sell_number = all_data[26]
 
             pay_people = "黄家进"
@@ -115,15 +117,15 @@ def get_order_list_info(info_path):
 
 
 if __name__ == "__main__":
-    info_path = "./input/ExportOrderList201903101120.csv"
-    detail_path = "./input/ExportOrderDetailList201903101120.csv"
+    info_path = "./input/ExportOrderList201903121048.csv"
+    detail_path = "./input/ExportOrderDetailList201903121048.csv"
 
     # 获取订单信息
     all_orders = get_order_list_info(info_path)
     all_order_details = get_order_detail_list_info(detail_path)
 
     # 输出统计结果
-    with open("./output/accountant_bill.csv", "w", encoding="gb2312") as f:
+    with open("./output/accountant_bill.csv", "w", encoding="utf8") as f:
         titles = ["日期", "订单号", "事项", "商品", "型号", "数量", "支出金额", "收入金额", "付款人", "结算情况", "备注"]
         f.write("{}\n".format(",".join(titles)))
         for each_order in all_orders:
@@ -142,5 +144,6 @@ if __name__ == "__main__":
                 each_order["pay_people"],
                 each_order["clear_state"],
                 each_order["comment"],
+                # "?",
             ]
             f.write("{}\n".format(",".join(write_info)))
