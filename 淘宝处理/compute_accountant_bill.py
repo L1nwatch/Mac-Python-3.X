@@ -23,32 +23,54 @@ def check_cost_money(product_title, product_sku):
             "-": "0",
             '"颜色分类：GT20白骑士[QC3.0快充]"': "98",
             '"颜色分类：黑色[GT20黑金刚]"': "108",
+            '"颜色分类：GT20黑金刚[苹果pd快充+QC3.0]"': "113",
             '"颜色分类：白色[GT20白骑士]"': "98",
             '"颜色分类：乳白色[GT20原色]"': "89",
+            '"颜色分类：GT20原色[LED数显屏]"': "89",
+            '"颜色分类：GT3[30000毫安大容量]"': "109",
         },
         '美逸大容量手机充电宝30000毫安聚合物电芯数显移动电源多USB口通': {
             "-": "0",
             '"颜色分类：乳白色"': "85",
             '"颜色分类：白色"': "109",
+            '"颜色分类：GT3[30000毫安大容量]"': "109",
+        },
+        '吃鸡神器刺激战场按键吸盘手柄绝地求生手机游戏辅助苹果四指射击': {
+            "-": "0",
+            '"颜色分类：深灰色[收藏送好礼]"': "5",
         },
         '美逸/MEIYI苹果数据线iPhoneXPlus充电器ios手机平板ipad2M快充短': {
             "-": "0",
             '"长度：2m;颜色分类：苹果ios樱花粉[【1m】提速70%]"': "8",
             '"长度：2m;颜色分类：安卓micro樱花粉[【2m】提速70%]"': "9",
             '"长度：1m;颜色分类：苹果ios樱花粉[【1m】提速70%]"': "8",
+            '"颜色分类：苹果ios樱花粉[【1m】提速70%]"': "8",
             '"长度：2m;颜色分类：安卓micro玫瑰金[【1m】提速50%]"': "9",
             '"长度：2m;颜色分类：苹果ios岩石灰[【1m】提速70%]"': "8",
+            '"长度：1m;颜色分类：苹果ios岩石灰[【1m】提速70%]"': "8",
+            '"颜色分类：苹果ios岩石灰[【1m】提速70%]"': "8",
             '"长度：2m;颜色分类：安卓micro天空蓝[【2m】提速70%]"': "9",
+            '"颜色分类：安卓micro天空蓝[【2m】提速70%]"': "9",
             '"长度：1m;颜色分类：安卓micro樱花粉[【2m】提速70%]"': "9",
+            '"颜色分类：安卓micro樱花粉[【2m】提速70%]"': "9",
             '"长度：0.5m;颜色分类：苹果ios湖水绿[【1m】提速70%]"': "8",
+            '"颜色分类：苹果ios湖水绿[【1m】提速70%]"': "8",
+            '"长度：1m;颜色分类：苹果ios湖水绿[【1m】提速70%]"': "8",
+            '"长度：2m;颜色分类：苹果ios湖水绿[【1m】提速70%]"': "8",
             '"长度：1.5m;颜色分类：安卓micro樱花粉[【2m】提速70%]"': "9",
             '"长度：1.5m;颜色分类：苹果ios樱花粉[【1m】提速70%]"': "8",
             '"长度：1.5m;颜色分类：安卓type-c钛空灰[【1m】提速50%]"': "5",
             '"长度：0.5m;颜色分类：苹果ios樱花粉[【1m】提速70%]"': "8",
             '"长度：2m;颜色分类：苹果ios金橙黄[【1m】提速70%]"': "8",
+            '"长度：1m;颜色分类：苹果ios金橙黄[【1m】提速70%]"': "8",
+            '"长度：2m;丈\ue074掷啵浩还鹖os金橙黄[【1m】提速70%]"': "8",
+            '"颜色分类：安卓micro金橙黄[【2m】提速70%]"': "8",
+            '"长度：2m;颜色分类：安卓micro金橙黄[【2m】提速70%]"': "8",
+            '"颜色分类：苹果ios金橙黄[【1m】提速70%]"': "8",
             '"长度：1m;颜色分类：安卓micro钛空灰[【1m】提速50%]"': "5",
             '"长度：2m;颜色分类：苹果ios玫瑰金[【0.5m】提速50%]"': "8",
             '"长度：0.5m;颜色分类：安卓micro玫瑰金[【1m】提速50%]"': "5",
+            '"长度：0.5m;颜色分类：安卓micro土豪金[【1m】提速50%]"': "5",
         },
     }
     # 改了标题了,但是是同样的产品
@@ -57,9 +79,19 @@ def check_cost_money(product_title, product_sku):
         '美逸/MEIYI苹果数据线iPhoneXPlus充电器ios手机平板ipad2M快充短']
     money_map['美逸苹果6s六数据线iPhone7px8Plus安卓手机平板ipad2快充线2米短，美逸苹果6s六数据线iPhone7px8Plus安卓手机平板ipad2快充线2米短'] = money_map[
         '美逸/MEIYI苹果数据线iPhoneXPlus充电器ios手机平板ipad2M快充短']
+    money_map[
+        '美逸/MEIYI苹果数据线iPhoneXPlus充电器ios手机平板ipad2M快充短，美逸/MEIYI苹果数据线iPhoneXPlus充电器ios手机平板ipad2M快充短，美逸/MEIYI苹果数据线iPhoneXPlus充电器ios手机平板ipad2M快充短'] = \
+        money_map[
+            '美逸/MEIYI苹果数据线iPhoneXPlus充电器ios手机平板ipad2M快充短']
+    money_map['美逸/MEIYI苹果数据线iPhoneXPlus充电器ios手机安卓ipad2M快充X'] = money_map[
+        '美逸/MEIYI苹果数据线iPhoneXPlus充电器ios手机平板ipad2M快充短']
     money_map['美逸20000毫安充电宝双向快充移动电源LED数显屏高通认证QC3.0/PD'] = money_map['美逸/MEIYI充电宝20000M毫安大容量快充便携移动电源Type-C手机PD']
     money_map['美逸/MEIYI黑金刚快充电宝20000M毫安大容量移动电源Type-C手机PD'] = money_map['美逸/MEIYI充电宝20000M毫安大容量快充便携移动电源Type-C手机PD']
-    cost_money = money_map[product_title][product_sku]
+    money_map['吃鸡神器刺激战场按键吸盘手柄绝地走位手机手游辅助苹果四指射击'] = money_map['吃鸡神器刺激战场按键吸盘手柄绝地求生手机游戏辅助苹果四指射击']
+    if type(product_sku) == list:
+        cost_money = money_map[product_title][product_sku[0]]
+    else:
+        cost_money = money_map[product_title][product_sku]
 
     return cost_money
 
@@ -78,7 +110,16 @@ def get_order_detail_list_info(info_path):
             all_data = each_detail.split(",")
             order_number = str(all_data[0].strip('="'))
             product_sku = all_data[5]
-            all_order_details[order_number] = {"product_sku": product_sku}
+            if all_data[8].strip('"') == "交易关闭":
+                product_sku = "-"
+            if order_number in all_order_details:
+                if type(all_order_details[order_number]["product_sku"]) == list:
+                    all_order_details[order_number]["product_sku"].append(product_sku)
+                else:
+                    all_order_details[order_number]["product_sku"] = [all_order_details[order_number]["product_sku"],
+                                                                      product_sku]
+            else:
+                all_order_details[order_number] = {"product_sku": product_sku}
     return all_order_details
 
 
@@ -93,11 +134,11 @@ def get_order_list_info(info_path):
             list_date = all_data[19]
 
             # 未成功销售订单初始化
-            event = all_data[29]
+            event = all_data[29].strip('"')
             earn_money = "0"
 
             # 成功销售的订单
-            if all_data[29] != "买家未付款" and all_data[29] != "退款":
+            if event != "买家未付款" and event != "退款":
                 event = "销售"
                 earn_money = all_data[8]
 
@@ -118,8 +159,8 @@ def get_order_list_info(info_path):
 
 
 if __name__ == "__main__":
-    info_path = "./input/ExportOrderList201903141540.csv"
-    detail_path = "./input/ExportOrderDetailList201903141540.csv"
+    info_path = "./input/ExportOrderList201903291704.csv"
+    detail_path = "./input/ExportOrderDetailList201903291704.csv"
 
     # 获取订单信息
     all_orders = get_order_list_info(info_path)
@@ -138,7 +179,7 @@ if __name__ == "__main__":
                 "{}_".format(each_order["order_number"]),
                 each_order["event"],
                 product,
-                product_sku,
+                product_sku if type(product_sku) != list else "+".join(product_sku),
                 each_order["sell_number"],
                 check_cost_money(product, product_sku),
                 each_order["earn_money"],

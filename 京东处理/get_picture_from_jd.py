@@ -75,7 +75,7 @@ def clear_old():
 
 
 if __name__ == "__main__":
-    request_url = "https://item.jd.com/4063731.html#crumb-wrap"
+    request_url = "https://item.jd.com/29272612928.html#none"
 
     clear_old()
     s = requests.session()
