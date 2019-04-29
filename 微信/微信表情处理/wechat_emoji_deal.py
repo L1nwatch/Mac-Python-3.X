@@ -16,8 +16,8 @@ def rename():
     把所有表情都重命名一遍
     :return:
     """
-    src_path = "wechat_emoji"
-    dst_path = "after_rename_emoji"
+    src_path = "/Users/L1n/Desktop/Code/temp_input/wechat_emoji"
+    dst_path = "/Users/L1n/Desktop/Code/temp_input/after_rename_emoji"
     os.makedirs(dst_path, exist_ok=True)
 
     for each_file in os.listdir(src_path):
@@ -34,7 +34,8 @@ def split_using_time():
     根据修改时间来分类表情包
     :return:
     """
-    src_path = "wechat_emoji"
+    src_path = "/Users/L1n/Desktop/Code/temp_input/wechat_emoji"
+    dst_root_path = "/Users/L1n/Desktop/Code/temp_input/temp_result"
 
     emoji_set = set()
 
@@ -43,8 +44,8 @@ def split_using_time():
         emoji_type = str(emoji_type)
         if emoji_type not in emoji_set:
             emoji_set.add(emoji_type)
-            os.makedirs(os.path.join("temp_result", emoji_type), exist_ok=True)
-        shutil.copy(os.path.join(src_path, each_file), os.path.join("temp_result", emoji_type, each_file))
+            os.makedirs(os.path.join(dst_root_path, emoji_type), exist_ok=True)
+        shutil.copy(os.path.join(src_path, each_file), os.path.join(dst_root_path, emoji_type, each_file))
 
 
 def extract_packet_using_num():
@@ -52,8 +53,8 @@ def extract_packet_using_num():
     根据每个文件夹的文件个数,提取
     :return:
     """
-    root_path = "temp_result"
-    dst_path = "result"
+    root_path = "/Users/L1n/Desktop/Code/temp_input/temp_result"
+    dst_path = "/Users/L1n/Desktop/Code/temp_input/result"
     count_result = dict()
     for each_dir in os.listdir(root_path):
         if "DS_Store" in each_dir:
@@ -72,7 +73,7 @@ def rename_each_file():
     :return:
     """
     count = 0
-    root_path = "result"
+    root_path = "/Users/L1n/Desktop/Code/temp_input/result"
     for each_dir in os.listdir(root_path):
         if os.path.isfile(each_dir):
             continue
