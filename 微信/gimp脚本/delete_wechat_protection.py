@@ -11,8 +11,8 @@ if __name__ == "__main__":
 
 import os
 
-root_path = unicode(r"/Users/L1n/Desktop/Job/淘宝/2019-02-26-微信专用/蜜桃猫/蜜桃猫-原生gif")
-dst_root_path = unicode(r"/Users/L1n/Desktop/Job/淘宝/2019-02-26-微信专用/蜜桃猫/蜜桃猫-微信专用版")
+root_path = unicode(r"/Users/L1n/Desktop/长草颜团子X旱瀬")
+dst_root_path = unicode(r"/Users/L1n/Desktop/长草颜团子X旱瀬-微信")
 
 for root, dirs, files in os.walk(root_path):
     for each_file in files:
