@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
 import os
 
-root_path = unicode(r"/Users/L1n/Desktop/一二第五弹")
+root_path = unicode(r"/Users/L1n/Desktop/表情包")
 dst_root_path = root_path + unicode(r"-微信")
 
 for root, dirs, files in os.walk(root_path):
