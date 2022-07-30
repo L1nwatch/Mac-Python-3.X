@@ -7,12 +7,15 @@ import os
 import random
 import re
 import simplejson
+from playsound import playsound
+from boto3 import client
+from contextlib import closing
 
 __author__ = '__L1n__w@tch'
 
 WORDS_FILE = r"D:\Code\Mac-Python-3.X\背诵单词\current_words.json"
-CONDITION_REVIEW_TIME = 10
-CONDITION_FORGET_TIME = 0
+CONDITION_REVIEW_TIME = 5
+CONDITION_FORGET_TIME = 1
 
 
 class Words:
@@ -54,7 +57,7 @@ class Words:
     def filter_words(raw_words):
         result = dict()
         words = filter(
-            lambda x: raw_words[x]["forget times"] >= CONDITION_FORGET_TIME and raw_words[x][
+            lambda x: raw_words[x]["forget times"] >= CONDITION_FORGET_TIME or raw_words[x][
                 "review times"] <= CONDITION_REVIEW_TIME, raw_words)
         for word in words:
             result[word] = raw_words[word]
@@ -80,14 +83,17 @@ class Words:
 class Checker:
     global WORDS_FILE
 
+    def __init__(self):
+        self.polly = client("polly", region_name="us-east-1")
+
     def review_words(self, words):
         random_word_list = list(words.keys())
         random.shuffle(random_word_list)
         length = len(random_word_list)
         for i, word in enumerate(random_word_list):
-            # show proceed
             print(f"[*] Total: {length}, Current: {i + 1}, Proceed: {(i + 1) / length:%}")
             print(f"[?] Do you know the meaning: ==== \033[1;36;40m{word}\033[0m ====")
+            self.play_word_sound(word)
             response = input("Press enter: ")
             print(f"""[*] \033[1;31;40m{words[word]["meaning"]}\033[0m""")
             print(f"""[*] \033[1;31;40m{words[word]["tips"]} \033[0m""")
@@ -114,6 +120,21 @@ class Checker:
 
     def update_review_times(self, forget_word):
         self.update_word(forget_word, "review times")
+
+    def generate_word_mp3_by_aws_service(self, word):
+        response = self.polly.synthesize_speech(Text=word, OutputFormat="mp3", VoiceId="Joanna")
+        if "AudioStream" in response:
+            with closing(response["AudioStream"]) as stream:
+                output = os.path.join("words_mp3", f"{word}.mp3")
+                with open(output, "wb") as file:
+                    file.write(stream.read())
+
+    def play_word_sound(self, word):
+        word_mp3_path = f"words_mp3/{word}.mp3"
+        if not os.path.exists(word_mp3_path):
+            self.generate_word_mp3_by_aws_service(word)
+        for i in range(2):
+            playsound(word_mp3_path)
 
 
 if __name__ == "__main__":
