@@ -14,16 +14,18 @@ from contextlib import closing
 __author__ = '__L1n__w@tch'
 
 CUR_FILE_PATH = os.path.dirname(__file__)
-WORDS_FILE = os.path.join(CUR_FILE_PATH,"current_words.json")
-CSV_FILE = os.path.join(CUR_FILE_PATH,r"【2022-07】TOEFL && GRE - Word List - 生词.csv")
-MP3_FILE = os.path.join(CUR_FILE_PATH,os.pardir,os.pardir,r"temp_word_mp3_files")
+WORDS_FILE = os.path.join(CUR_FILE_PATH, "current_words.json")
+CSV_FILE = os.path.join(
+    CUR_FILE_PATH, r"【2022-07】TOEFL && GRE - Word List - 生词.csv")
+MP3_FILE = os.path.join(CUR_FILE_PATH, os.pardir,
+                        os.pardir, r"temp_word_mp3_files")
 CONDITION_REVIEW_TIME = 0
 CONDITION_FORGET_TIME = 1
 CONDITION_ONLY_REVIEW = True
 
 
 class Words:
-    global FILE, CONDITION_REVIEW_TIME, CONDITION_FORGET_TIME, CONDITION_ONLY_REVIEW,CSV_FILE
+    global FILE, CONDITION_REVIEW_TIME, CONDITION_FORGET_TIME, CONDITION_ONLY_REVIEW, CSV_FILE
 
     def __init__(self):
         self.file_name = WORDS_FILE
@@ -46,9 +48,11 @@ class Words:
             for i, line in enumerate(f):
                 if str(line).startswith("2022"):
                     continue
-                word, meaning, tips = re.findall("""(.+?),("?.+?"?),(.*)""", line)[0]
+                word, meaning, tips = re.findall(
+                    """(.+?),("?.+?"?),(.*)""", line)[0]
                 if word not in current_words:
-                    current_words[word] = {"meaning": meaning, "tips": tips, "forget times": 0, "review times": 0}
+                    current_words[word] = {
+                        "meaning": meaning, "tips": tips, "forget times": 0, "review times": 0}
                 else:
                     current_words[word]["meaning"] = meaning
                     current_words[word]["tips"] = tips
@@ -59,9 +63,11 @@ class Words:
     @staticmethod
     def filter_words(raw_words):
         result = dict()
-        words = filter(lambda x: raw_words[x]["review times"] <= CONDITION_REVIEW_TIME, raw_words)
+        words = filter(
+            lambda x: raw_words[x]["review times"] <= CONDITION_REVIEW_TIME, raw_words)
         if not CONDITION_ONLY_REVIEW:
-            words = filter(lambda x: raw_words[x]["forget times"] >= CONDITION_FORGET_TIME, words)
+            words = filter(
+                lambda x: raw_words[x]["forget times"] >= CONDITION_FORGET_TIME, words)
         for word in words:
             result[word] = raw_words[word]
         return result
@@ -88,15 +94,17 @@ class Checker:
 
     def __init__(self):
         self.polly = client("polly", region_name="us-east-1")
-        os.makedirs(MP3_FILE,exist_ok=True)
+        os.makedirs(MP3_FILE, exist_ok=True)
 
     def review_words(self, words):
         random_word_list = list(words.keys())
         random.shuffle(random_word_list)
         length = len(random_word_list)
         for i, word in enumerate(random_word_list):
-            print(f"[*] Total: {length}, Current: {i + 1}, Proceed: {(i + 1) / length:%}")
-            print(f"[?] Do you know the meaning: ==== \033[1;36;40m{word}\033[0m ====")
+            print(
+                f"[*] Total: {length}, Current: {i + 1}, Proceed: {(i + 1) / length:%}")
+            print(
+                f"[?] Do you know the meaning: ==== \033[1;36;40m{word}\033[0m ====")
             self.play_word_sound(word)
             response = input("Press enter: ")
             print(f"""[*] \033[1;31;40m{words[word]["meaning"]}\033[0m""")
@@ -126,7 +134,8 @@ class Checker:
         self.update_word(forget_word, "review times")
 
     def generate_word_mp3_by_aws_service(self, word):
-        response = self.polly.synthesize_speech(Text=word, OutputFormat="mp3", VoiceId="Joanna")
+        response = self.polly.synthesize_speech(
+            Text=word, OutputFormat="mp3", VoiceId="Joanna")
         if "AudioStream" in response:
             with closing(response["AudioStream"]) as stream:
                 output = os.path.join(MP3_FILE, f"{word}.mp3")
