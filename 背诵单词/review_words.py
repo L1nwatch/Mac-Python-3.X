@@ -13,15 +13,17 @@ from contextlib import closing
 
 __author__ = '__L1n__w@tch'
 
-WORDS_FILE = r"D:\Code\Mac-Python-3.X\背诵单词\current_words.json"
-MP3_FILE = r"D:\Code\temp_word_mp3_files"
+CUR_FILE_PATH = os.path.dirname(__file__)
+WORDS_FILE = os.path.join(CUR_FILE_PATH,"current_words.json")
+CSV_FILE = os.path.join(CUR_FILE_PATH,r"【2022-07】TOEFL && GRE - Word List - 生词.csv")
+MP3_FILE = os.path.join(CUR_FILE_PATH,os.pardir,os.pardir,r"temp_word_mp3_files")
 CONDITION_REVIEW_TIME = 0
 CONDITION_FORGET_TIME = 1
 CONDITION_ONLY_REVIEW = True
 
 
 class Words:
-    global FILE, CONDITION_REVIEW_TIME, CONDITION_FORGET_TIME, CONDITION_ONLY_REVIEW
+    global FILE, CONDITION_REVIEW_TIME, CONDITION_FORGET_TIME, CONDITION_ONLY_REVIEW,CSV_FILE
 
     def __init__(self):
         self.file_name = WORDS_FILE
@@ -39,8 +41,7 @@ class Words:
     def generate_words(self):
         current_words = self.get_current_words()
 
-        # update words from csv
-        with open(r"D:\Code\Mac-Python-3.X\背诵单词\【2022-07】TOEFL && GRE - Word List - 生词.csv", encoding="utf8") as f:
+        with open(CSV_FILE, encoding="utf8") as f:
             next(f)
             for i, line in enumerate(f):
                 if str(line).startswith("2022"):
@@ -87,6 +88,7 @@ class Checker:
 
     def __init__(self):
         self.polly = client("polly", region_name="us-east-1")
+        os.makedirs(MP3_FILE,exist_ok=True)
 
     def review_words(self, words):
         random_word_list = list(words.keys())
