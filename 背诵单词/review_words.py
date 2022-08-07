@@ -14,12 +14,14 @@ from contextlib import closing
 __author__ = '__L1n__w@tch'
 
 WORDS_FILE = r"D:\Code\Mac-Python-3.X\背诵单词\current_words.json"
-CONDITION_REVIEW_TIME = 5
+MP3_FILE = r"D:\Code\temp_word_mp3_files"
+CONDITION_REVIEW_TIME = 0
 CONDITION_FORGET_TIME = 1
+CONDITION_ONLY_REVIEW = True
 
 
 class Words:
-    global FILE, CONDITION_REVIEW_TIME, CONDITION_FORGET_TIME
+    global FILE, CONDITION_REVIEW_TIME, CONDITION_FORGET_TIME, CONDITION_ONLY_REVIEW
 
     def __init__(self):
         self.file_name = WORDS_FILE
@@ -43,7 +45,7 @@ class Words:
             for i, line in enumerate(f):
                 if str(line).startswith("2022"):
                     continue
-                word, meaning, tips = re.findall("""(.+?),("?.+"?),(.*)""", line)[0]
+                word, meaning, tips = re.findall("""(.+?),("?.+?"?),(.*)""", line)[0]
                 if word not in current_words:
                     current_words[word] = {"meaning": meaning, "tips": tips, "forget times": 0, "review times": 0}
                 else:
@@ -56,9 +58,9 @@ class Words:
     @staticmethod
     def filter_words(raw_words):
         result = dict()
-        words = filter(
-            lambda x: raw_words[x]["forget times"] >= CONDITION_FORGET_TIME or raw_words[x][
-                "review times"] <= CONDITION_REVIEW_TIME, raw_words)
+        words = filter(lambda x: raw_words[x]["review times"] <= CONDITION_REVIEW_TIME, raw_words)
+        if not CONDITION_ONLY_REVIEW:
+            words = filter(lambda x: raw_words[x]["forget times"] >= CONDITION_FORGET_TIME, words)
         for word in words:
             result[word] = raw_words[word]
         return result
@@ -81,7 +83,7 @@ class Words:
 
 
 class Checker:
-    global WORDS_FILE
+    global WORDS_FILE, MP3_FILE
 
     def __init__(self):
         self.polly = client("polly", region_name="us-east-1")
@@ -125,16 +127,19 @@ class Checker:
         response = self.polly.synthesize_speech(Text=word, OutputFormat="mp3", VoiceId="Joanna")
         if "AudioStream" in response:
             with closing(response["AudioStream"]) as stream:
-                output = os.path.join("words_mp3", f"{word}.mp3")
+                output = os.path.join(MP3_FILE, f"{word}.mp3")
                 with open(output, "wb") as file:
                     file.write(stream.read())
 
     def play_word_sound(self, word):
-        word_mp3_path = f"words_mp3/{word}.mp3"
+        word_mp3_path = os.path.join(MP3_FILE, f"{word}.mp3")
         if not os.path.exists(word_mp3_path):
             self.generate_word_mp3_by_aws_service(word)
         for i in range(2):
-            playsound(word_mp3_path)
+            try:
+                playsound(word_mp3_path)
+            except UnicodeDecodeError as e:
+                print("[-] Something was wrong while playing sound")
 
 
 if __name__ == "__main__":
